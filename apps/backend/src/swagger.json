@@ -1,0 +1,351 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "OrganFinancialAI API",
+      "description": "API for managing finances with AI-powered insights",
+      "version": "1.0.0"
+    },
+    "servers": [
+      {
+        "url": "http://localhost:3001",
+        "description": "Development server"
+      }
+    ],
+    "components": {
+      "securitySchemes": {
+        "bearerAuth": {
+          "type": "http",
+          "scheme": "bearer",
+          "bearerFormat": "JWT"
+        }
+      }
+    },
+    "paths": {
+      "/api/users/register": {
+        "post": {
+          "summary": "Register a new user",
+          "tags": ["Users"],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string",
+                      "format": "email"
+                    },
+                    "password": {
+                      "type": "string",
+                      "format": "password"
+                    }
+                  },
+                  "required": ["name", "email", "password"]
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "User created successfully"
+            },
+            "400": {
+              "description": "Invalid request"
+            }
+          }
+        }
+      },
+      "/api/users/login": {
+        "post": {
+          "summary": "Login user",
+          "tags": ["Users"],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "format": "email"
+                    },
+                    "password": {
+                      "type": "string",
+                      "format": "password"
+                    }
+                  },
+                  "required": ["email", "password"]
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Login successful"
+            },
+            "401": {
+              "description": "Invalid credentials"
+            }
+          }
+        }
+      },
+      "/api/users/profile": {
+        "get": {
+          "summary": "Get user profile",
+          "tags": ["Users"],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "User profile"
+            },
+            "401": {
+              "description": "Not authorized"
+            }
+          }
+        },
+        "put": {
+          "summary": "Update user profile",
+          "tags": ["Users"],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "dateOfBirth": {
+                      "type": "string",
+                      "format": "date"
+                    },
+                    "phone": {
+                      "type": "string"
+                    },
+                    "language": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Profile updated"
+            },
+            "401": {
+              "description": "Not authorized"
+            }
+          }
+        }
+      },
+      "/api/transactions": {
+        "post": {
+          "summary": "Create a new transaction",
+          "tags": ["Transactions"],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "account": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "category": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "amount": {
+                      "type": "number"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": ["income", "expense", "investment"]
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "date": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": ["account", "category", "amount", "type", "description"]
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Transaction created"
+            },
+            "400": {
+              "description": "Invalid request"
+            },
+            "401": {
+              "description": "Not authorized"
+            }
+          }
+        },
+        "get": {
+          "summary": "Get user transactions",
+          "tags": ["Transactions"],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "query",
+              "name": "type",
+              "schema": {
+                "type": "string",
+                "enum": ["income", "expense", "investment"]
+              }
+            },
+            {
+              "in": "query",
+              "name": "category",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "in": "query",
+              "name": "startDate",
+              "schema": {
+                "type": "string",
+                "format": "date"
+              }
+            },
+            {
+              "in": "query",
+              "name": "endDate",
+              "schema": {
+                "type": "string",
+                "format": "date"
+              }
+            },
+            {
+              "in": "query",
+              "name": "account",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "in": "query",
+              "name": "page",
+              "schema": {
+                "type": "integer",
+                "default": 1
+              }
+            },
+            {
+              "in": "query",
+              "name": "limit",
+              "schema": {
+                "type": "integer",
+                "default": 10
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "List of transactions"
+            },
+            "401": {
+              "description": "Not authorized"
+            }
+          }
+        }
+      },
+      "/api/reports/generate": {
+        "get": {
+          "summary": "Generate financial report",
+          "tags": ["Reports"],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "query",
+              "name": "period",
+              "schema": {
+                "type": "string",
+                "enum": ["month", "quarter", "year"],
+                "default": "month"
+              }
+            },
+            {
+              "in": "query",
+              "name": "format",
+              "schema": {
+                "type": "string",
+                "enum": ["pdf", "excel"],
+                "default": "pdf"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Report file",
+              "content": {
+                "application/pdf": {},
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {}
+              }
+            },
+            "401": {
+              "description": "Not authorized"
+            }
+          }
+        }
+      },
+      "/api/reports/insights": {
+        "get": {
+          "summary": "Get AI financial insights",
+          "tags": ["Reports"],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "AI insights"
+            },
+            "401": {
+              "description": "Not authorized"
+            }
+          }
+        }
+      }
+    }
+  }

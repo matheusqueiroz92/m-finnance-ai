@@ -1,0 +1,16 @@
+{
+    "extends": "../../packages/typescript-config/base.json",
+    "compilerOptions": {
+      "outDir": "./dist",
+      "rootDir": "./src",
+      "module": "commonjs",
+      "target": "es2020",
+      "esModuleInterop": true,
+      "sourceMap": true,
+      "moduleResolution": "node",
+      "experimentalDecorators": true,
+      "emitDecoratorMetadata": true
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "dist", "**/*.test.ts"]
+  }
