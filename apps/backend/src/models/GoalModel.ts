@@ -1,5 +1,6 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose from 'mongoose';
 import { IGoal, IGoalModel } from '../interfaces/IGoal';
+import { GoalModel } from '../schemas/GoalSchema';
 
 class GoalModelClass implements IGoalModel {
   async create(goalData: Partial<IGoal>): Promise<IGoal> {

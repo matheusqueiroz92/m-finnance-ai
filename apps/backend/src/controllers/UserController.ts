@@ -134,4 +134,26 @@ export class UserController {
       next(error);
     }
   };
+
+  /**
+   * Change user password
+   */
+  changePassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { currentPassword, newPassword } = req.body;
+      
+      if (!currentPassword || !newPassword) {
+        throw new ApiError('Please provide old and new passwords', 400);
+      }
+      
+      await this.userService.changePassword(currentPassword, newPassword);
+      
+      res.status(200).json({
+        success: true,
+        message: 'Password changed successfully',
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
 }

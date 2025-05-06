@@ -1,4 +1,4 @@
-import mongoose, { Schema, model } from 'mongoose';
+import { Schema, model } from 'mongoose';
 import { ICategory, ICategoryModel } from '../interfaces/ICategory';
 
 const categorySchema = new Schema<ICategory>(
@@ -34,5 +34,4 @@ const categorySchema = new Schema<ICategory>(
   }
 );
 
-// Criar modelo
-const CategoryModel = model<ICategory>('Category', categorySchema);
+export const CategoryModel = model<ICategory>('Category', categorySchema);

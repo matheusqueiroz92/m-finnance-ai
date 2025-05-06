@@ -1,6 +1,6 @@
 import { ApiError } from '../utils/ApiError';
-import { TransactionModelClass } from '../models/schemas/TransactionSchema';
-import { AccountModelClass } from '../models/schemas/AccountSchema';
+import { TransactionModelClass } from '../models/TransactionModel';
+import { AccountModelClass } from '../models/AccountModel';
 import { TransactionCreateInput, TransactionUpdateInput, TransactionFilterInput } from '../validators/transactionValidator';
 import mongoose from 'mongoose';
 
@@ -24,7 +24,7 @@ export class TransactionService {
       // Prepare transaction data with user ID
       const newTransaction = {
         ...transactionData,
-        user: userId,
+        user: new mongoose.Types.ObjectId(userId),
       };
       
       // Create the transaction
@@ -247,7 +247,7 @@ export class TransactionService {
     let incomeByCategory: Record<string, number> = {};
     let expensesByCategory: Record<string, number> = {};
     
-    transactions.forEach(transaction => {
+    transactions.forEach((transaction: { type: string; amount: number; category: any; }) => {
       if (transaction.type === 'income') {
         totalIncome += transaction.amount;
         

@@ -1,4 +1,4 @@
-import mongoose, { Schema, model } from 'mongoose';
+import { Schema, model } from 'mongoose';
 import { ITransaction, ITransactionModel } from '../interfaces/ITransaction';
 
 const transactionSchema = new Schema<ITransaction>(
@@ -57,5 +57,4 @@ const transactionSchema = new Schema<ITransaction>(
   }
 );
 
-// Criar modelo
-const TransactionModel = model<ITransaction>('Transaction', transactionSchema);
+export const TransactionModel = model<ITransaction>('Transaction', transactionSchema);

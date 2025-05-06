@@ -1,4 +1,5 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose from 'mongoose';
+import { CategoryModel } from '../schemas/CategorySchema';
 import { ICategory, ICategoryModel } from '../interfaces/ICategory';
 
 class CategoryModelClass implements ICategoryModel {

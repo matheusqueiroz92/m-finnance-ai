@@ -1,5 +1,6 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose from 'mongoose';
 import { IUser, IUserModel } from '../interfaces/IUser';
+import { UserModel } from '../schemas/UserSchema';
 import bcrypt from 'bcrypt';
 
 class UserModelClass implements IUserModel {

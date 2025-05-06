@@ -1,5 +1,6 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose from 'mongoose';
 import { IAccount, IAccountModel } from '../interfaces/IAccount';
+import { AccountModel } from '../schemas/AccountSchema';
 
 class AccountModelClass implements IAccountModel {
   async create(accountData: Partial<IAccount>): Promise<IAccount> {

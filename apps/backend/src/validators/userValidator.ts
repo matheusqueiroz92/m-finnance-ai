@@ -17,6 +17,7 @@ export const userLoginSchema = z.object({
 
 export const userUpdateSchema = z.object({
   name: z.string().min(2, 'O nome deve ter pelo menos 2 caracteres').optional(),
+  email: z.string().email('Email inválido').optional(),
   dateOfBirth: z.string().optional().transform(val => val ? new Date(val) : undefined),
   phone: z.string().optional(),
   language: z.string().optional(),

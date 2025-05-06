@@ -1,4 +1,4 @@
-import mongoose, { Schema, model } from 'mongoose';
+import { Schema, model } from 'mongoose';
 import { IAccount, IAccountModel } from '../interfaces/IAccount';
 
 const accountSchema = new Schema<IAccount>(
@@ -41,5 +41,4 @@ const accountSchema = new Schema<IAccount>(
   }
 );
 
-// Criar modelo
-const AccountModel = model<IAccount>('Account', accountSchema);
+export const AccountModel = model<IAccount>('Account', accountSchema);

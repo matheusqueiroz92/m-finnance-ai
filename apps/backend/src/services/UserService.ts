@@ -27,7 +27,11 @@ export class UserService {
     }
     
     // Create new user
-    const user = await this.userModel.create(userData);
+    const user = await this.userModel.create(userData) as { _id: string; toObject: () => { _id: string; password?: string; [key: string]: any } } | null;
+
+    if (!user) {
+      throw new ApiError('Erro ao criar usuário', 500);
+    }
     
     // Generate token
     const token = generateToken(user._id.toString());
@@ -45,7 +49,7 @@ export class UserService {
    * Authenticate a user
    */
   async login(credentials: UserLoginInput): Promise<{ user: any; token: string }> {
-    const user = await this.userModel.findByEmail(credentials.email);
+    const user = await this.userModel.findByEmail(credentials.email) as { _id: string; comparePassword: (password: string) => Promise<boolean>; toObject: () => { _id: string; password?: string; [key: string]: any } } | null;
     
     if (!user) {
       throw new ApiError('Credenciais inválidas', 401);
@@ -108,7 +112,7 @@ export class UserService {
   async updateProfile(userId: string, updateData: UserUpdateInput): Promise<any> {
     // Ensure email is not being changed to an existing email
     if (updateData.email) {
-      const userWithEmail = await this.userModel.findByEmail(updateData.email);
+      const userWithEmail = await this.userModel.findByEmail(updateData.email) as { _id: string } | null;
       
       if (userWithEmail && userWithEmail._id.toString() !== userId) {
         throw new ApiError('Email já está em uso', 400);

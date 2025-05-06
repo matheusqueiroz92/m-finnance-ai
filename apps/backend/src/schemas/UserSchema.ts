@@ -1,4 +1,4 @@
-import mongoose, { Schema, model } from 'mongoose';
+import { Schema, model } from 'mongoose';
 import bcrypt from 'bcrypt';
 import { IUser, IUserModel } from '../interfaces/IUser';
 
@@ -88,7 +88,4 @@ userSchema.statics.deleteById = async function(id: string): Promise<boolean> {
   return result.deletedCount > 0;
 };
 
-// Criar o modelo e exportar
-const UserModel = model<IUser, IUserModel>('User', userSchema);
-
-export default UserModel;
+export const UserModel = model<IUser>('User', userSchema);

@@ -1,4 +1,5 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose from 'mongoose';
+import { TransactionModel } from '../schemas/TransactionSchema';
 import { ITransaction, ITransactionModel } from '../interfaces/ITransaction';
 
 class TransactionModelClass implements ITransactionModel {

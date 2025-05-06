@@ -1,4 +1,4 @@
-import mongoose, { Schema, model } from 'mongoose';
+import { Schema, model } from 'mongoose';
 import { IGoal, IGoalModel } from '../interfaces/IGoal';
 
 const goalSchema = new Schema<IGoal>(
@@ -65,5 +65,4 @@ goalSchema.pre('save', function (next) {
   next();
 });
 
-// Criar modelo
-const GoalModel = model<IGoal>('Goal', goalSchema);
+export const GoalModel = model<IGoal>('Goal', goalSchema);
