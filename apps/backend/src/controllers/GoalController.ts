@@ -1,12 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
-import { GoalService } from '../services/GoalService';
+import { injectable, inject } from 'tsyringe';
+import { IGoalService } from '../interfaces/services/IGoalService';
+import { ApiResponse } from '../utils/ApiResponse';
+import { ApiError } from '../utils/ApiError';
 
+@injectable()
 export class GoalController {
-  private goalService: GoalService;
-  
-  constructor() {
-    this.goalService = new GoalService();
-  }
+  constructor(
+    @inject('GoalService')
+    private goalService: IGoalService
+  ) {}
   
   /**
    * Create a new goal
@@ -25,11 +28,10 @@ export class GoalController {
       } = req.body;
       
       const goalData = {
-        user: req.user._id,
         name,
         targetAmount,
-        currentAmount: currentAmount || 0,
-        startDate: startDate || new Date(),
+        currentAmount,
+        startDate,
         targetDate,
         category,
         icon,
@@ -38,10 +40,7 @@ export class GoalController {
       
       const goal = await this.goalService.createGoal(req.user._id, goalData);
       
-      res.status(201).json({
-        success: true,
-        data: goal,
-      });
+      ApiResponse.created(res, goal, 'Meta criada com sucesso');
     } catch (error) {
       next(error);
     }
@@ -58,10 +57,7 @@ export class GoalController {
       
       const goals = await this.goalService.getGoalsByUserId(req.user._id, isCompleted);
       
-      res.status(200).json({
-        success: true,
-        data: goals,
-      });
+      ApiResponse.success(res, goals, 'Metas recuperadas com sucesso');
     } catch (error) {
       next(error);
     }
@@ -73,7 +69,7 @@ export class GoalController {
   getGoalById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       if (!req.params.id) {
-        throw new Error('Goal ID is required');
+        throw new ApiError('ID da meta é obrigatório', 400);
       }
       
       const goal = await this.goalService.getGoalById(
@@ -81,10 +77,7 @@ export class GoalController {
         req.user._id
       );
       
-      res.status(200).json({
-        success: true,
-        data: goal,
-      });
+      ApiResponse.success(res, goal, 'Meta recuperada com sucesso');
     } catch (error) {
       next(error);
     }
@@ -96,7 +89,7 @@ export class GoalController {
   updateGoal = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       if (!req.params.id) {
-        throw new Error('Goal ID is required');
+        throw new ApiError('ID da meta é obrigatório', 400);
       }
       
       const {
@@ -109,7 +102,7 @@ export class GoalController {
         notes,
       } = req.body;
       
-      const updateData: Record<string, any> = {
+      const updateData = {
         name,
         targetAmount,
         currentAmount,
@@ -120,9 +113,11 @@ export class GoalController {
       };
       
       // Remove undefined fields
-      Object.keys(updateData).forEach(
-        (key) => updateData[key] === undefined && delete updateData[key]
-      );
+      Object.keys(updateData).forEach(key => {
+        if (updateData[key as keyof typeof updateData] === undefined) {
+          delete updateData[key as keyof typeof updateData];
+        }
+      });
       
       const goal = await this.goalService.updateGoal(
         req.params.id,
@@ -130,10 +125,7 @@ export class GoalController {
         updateData
       );
       
-      res.status(200).json({
-        success: true,
-        data: goal,
-      });
+      ApiResponse.success(res, goal, 'Meta atualizada com sucesso');
     } catch (error) {
       next(error);
     }
@@ -145,18 +137,15 @@ export class GoalController {
   deleteGoal = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       if (!req.params.id) {
-        throw new Error('Goal ID is required');
+        throw new ApiError('ID da meta é obrigatório', 400);
       }
       
-      const result = await this.goalService.deleteGoal(
+      await this.goalService.deleteGoal(
         req.params.id,
         req.user._id
       );
       
-      res.status(200).json({
-        success: true,
-        data: result,
-      });
+      ApiResponse.success(res, { success: true }, 'Meta excluída com sucesso');
     } catch (error) {
       next(error);
     }
@@ -169,10 +158,7 @@ export class GoalController {
     try {
       const stats = await this.goalService.getGoalStats(req.user._id);
       
-      res.status(200).json({
-        success: true,
-        data: stats,
-      });
+      ApiResponse.success(res, stats, 'Estatísticas de metas recuperadas com sucesso');
     } catch (error) {
       next(error);
     }

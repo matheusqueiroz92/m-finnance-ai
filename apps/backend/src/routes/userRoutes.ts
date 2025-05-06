@@ -1,4 +1,5 @@
 import express from 'express';
+import { container } from '../config/container';
 import { UserController } from '../controllers/UserController';
 import { protect } from '../middlewares/authMiddleware';
 import { validate } from '../middlewares/validationMiddleware';
@@ -6,7 +7,7 @@ import { userRegisterSchema, userLoginSchema, userUpdateSchema, changePasswordSc
 import upload from '../config/multer';
 
 const router = express.Router();
-const userController = new UserController();
+const userController = container.resolve(UserController);
 
 // Rotas públicas
 router.post('/register', validate(userRegisterSchema), userController.register);

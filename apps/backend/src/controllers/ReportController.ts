@@ -1,16 +1,19 @@
 import { Request, Response, NextFunction } from 'express';
 import fs from 'fs';
-import { ReportService } from '../services/ReportService';
-import { AIAnalysisService } from '../services/AIAnalysisService';
+import { injectable, inject } from 'tsyringe';
+import { IReportService } from '../interfaces/services/IReportService';
+import { IAIAnalysisService } from '../interfaces/services/IAIAnalysisService';
+import { ApiResponse } from '../utils/ApiResponse';
+import { ApiError } from '../utils/ApiError';
 
+@injectable()
 export class ReportController {
-  private reportService: ReportService;
-  private aiAnalysisService: AIAnalysisService;
-  
-  constructor() {
-    this.reportService = new ReportService();
-    this.aiAnalysisService = new AIAnalysisService();
-  }
+  constructor(
+    @inject('ReportService')
+    private reportService: IReportService,
+    @inject('AIAnalysisService')
+    private aiAnalysisService: IAIAnalysisService
+  ) {}
   
   /**
    * Generate financial report
@@ -50,10 +53,7 @@ export class ReportController {
     try {
       const insights = await this.aiAnalysisService.generateInsights(req.user._id);
       
-      res.status(200).json({
-        success: true,
-        data: insights,
-      });
+      ApiResponse.success(res, insights, 'Insights de IA gerados com sucesso');
     } catch (error) {
       next(error);
     }

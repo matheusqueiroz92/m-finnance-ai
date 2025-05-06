@@ -1,41 +1,30 @@
 import { Request, Response, NextFunction } from 'express';
-import { UserService } from '../services/UserService';
+import { injectable, inject } from 'tsyringe';
+import { IUserService } from '../interfaces/services/IUserService';
+import { ApiResponse } from '../utils/ApiResponse';
 import { ApiError } from '../utils/ApiError';
 
+@injectable()
 export class UserController {
-  private userService: UserService;
-  
-  constructor() {
-    this.userService = new UserService();
-  }
+  constructor(
+    @inject('UserService')
+    private userService: IUserService
+  ) {}
   
   /**
    * Register a new user
    */
   register = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { name, email, password, dateOfBirth, cpf, phone, language } = req.body;
+      const result = await this.userService.register(req.body);
       
-      const result = await this.userService.register({
-        name,
-        email,
-        password,
-        dateOfBirth,
-        cpf,
-        phone,
-        language,
-      });
-      
-      res.status(201).json({
-        success: true,
-        data: {
-          id: result.user._id,
-          name: result.user.name,
-          email: result.user.email,
-          isPremium: result.user.isPremium,
-          token: result.token,
-        },
-      });
+      ApiResponse.created(res, {
+        id: result.user._id,
+        name: result.user.name,
+        email: result.user.email,
+        isPremium: result.user.isPremium,
+        token: result.token,
+      }, 'Usuário registrado com sucesso');
     } catch (error) {
       next(error);
     }
@@ -46,27 +35,19 @@ export class UserController {
    */
   login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const credentials = {
-        email: req.body.email,
-        password: req.body.password,
+      if (!req.body.email || !req.body.password) {
+        throw new ApiError('Por favor, forneça email e senha', 400);
       }
       
-      if (!credentials.email || !credentials.password) {
-        throw new ApiError('Please provide email and password', 400);
-      }
+      const result = await this.userService.login(req.body);
       
-      const result = await this.userService.login(credentials);
-      
-      res.status(200).json({
-        success: true,
-        data: {
-          id: result.user._id,
-          name: result.user.name,
-          email: result.user.email,
-          isPremium: result.user.isPremium,
-          token: result.token,
-        },
-      });
+      ApiResponse.success(res, {
+        id: result.user._id,
+        name: result.user.name,
+        email: result.user.email,
+        isPremium: result.user.isPremium,
+        token: result.token,
+      }, 'Login realizado com sucesso');
     } catch (error) {
       next(error);
     }
@@ -79,21 +60,18 @@ export class UserController {
     try {
       const user = await this.userService.getUserById(req.user._id);
       
-      res.status(200).json({
-        success: true,
-        data: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          dateOfBirth: user.dateOfBirth,
-          cpf: user.cpf,
-          phone: user.phone,
-          language: user.language,
-          isPremium: user.isPremium,
-          twoFactorEnabled: user.twoFactorEnabled,
-          newsletterEnabled: user.newsletterEnabled,
-        },
-      });
+      ApiResponse.success(res, {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        dateOfBirth: user.dateOfBirth,
+        cpf: user.cpf,
+        phone: user.phone,
+        language: user.language,
+        isPremium: user.isPremium,
+        twoFactorEnabled: user.twoFactorEnabled,
+        newsletterEnabled: user.newsletterEnabled,
+      }, 'Perfil recuperado com sucesso');
     } catch (error) {
       next(error);
     }
@@ -104,32 +82,20 @@ export class UserController {
    */
   updateProfile = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const updateData = {
-        name: req.body.name,
-        dateOfBirth: req.body.dateOfBirth,
-        phone: req.body.phone,
-        language: req.body.language,
-        twoFactorEnabled: req.body.twoFactorEnabled,
-        newsletterEnabled: req.body.newsletterEnabled,
-      };
+      const user = await this.userService.updateProfile(req.user._id, req.body);
       
-      const user = await this.userService.updateProfile(req.user._id, updateData);
-      
-      res.status(200).json({
-        success: true,
-        data: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          dateOfBirth: user.dateOfBirth,
-          cpf: user.cpf,
-          phone: user.phone,
-          language: user.language,
-          isPremium: user.isPremium,
-          twoFactorEnabled: user.twoFactorEnabled,
-          newsletterEnabled: user.newsletterEnabled,
-        },
-      });
+      ApiResponse.success(res, {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        dateOfBirth: user.dateOfBirth,
+        cpf: user.cpf,
+        phone: user.phone,
+        language: user.language,
+        isPremium: user.isPremium,
+        twoFactorEnabled: user.twoFactorEnabled,
+        newsletterEnabled: user.newsletterEnabled,
+      }, 'Perfil atualizado com sucesso');
     } catch (error) {
       next(error);
     }
@@ -143,15 +109,12 @@ export class UserController {
       const { currentPassword, newPassword } = req.body;
       
       if (!currentPassword || !newPassword) {
-        throw new ApiError('Please provide old and new passwords', 400);
+        throw new ApiError('Por favor, forneça a senha atual e a nova senha', 400);
       }
       
-      await this.userService.changePassword(currentPassword, newPassword);
+      await this.userService.changePassword(req.user._id, { currentPassword, newPassword });
       
-      res.status(200).json({
-        success: true,
-        message: 'Password changed successfully',
-      });
+      ApiResponse.success(res, null, 'Senha alterada com sucesso', 200);
     } catch (error) {
       next(error);
     }

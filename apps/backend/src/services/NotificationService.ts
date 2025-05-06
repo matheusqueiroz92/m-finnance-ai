@@ -1,8 +1,11 @@
+import { injectable } from 'tsyringe';
 import nodemailer from 'nodemailer';
 import twilio from 'twilio';
-import { IUser } from '../interfaces/IUser';
+import { INotificationService } from '../interfaces/services/INotificationService';
+import { IUser } from '../interfaces/entities/IUser';
 
-export class NotificationService {
+@injectable()
+export class NotificationService implements INotificationService {
   private emailTransporter: nodemailer.Transporter;
   private twilioClient: twilio.Twilio;
   

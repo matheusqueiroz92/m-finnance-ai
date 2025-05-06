@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { IGoal, IGoalModel } from '../interfaces/IGoal';
+import { IGoal } from '../interfaces/entities/IGoal';
 
 const goalSchema = new Schema<IGoal>(
   {

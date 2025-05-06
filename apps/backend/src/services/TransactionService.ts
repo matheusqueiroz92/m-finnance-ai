@@ -1,88 +1,94 @@
-import { ApiError } from '../utils/ApiError';
-import { TransactionModelClass } from '../models/TransactionModel';
-import { AccountModelClass } from '../models/AccountModel';
-import { TransactionCreateInput, TransactionUpdateInput, TransactionFilterInput } from '../validators/transactionValidator';
+import { injectable, inject } from 'tsyringe';
 import mongoose from 'mongoose';
+import { ITransactionService } from '../interfaces/services/ITransactionService';
+import { ITransactionRepository } from '../interfaces/repositories/ITransactionRepository';
+import { IAccountRepository } from '../interfaces/repositories/IAccountRepository';
+import { 
+  ITransactionCreateDTO,
+  ITransactionUpdateDTO,
+  ITransactionFilters,
+  ITransactionPopulated,
+  ITransactionListResult,
+  ITransactionStats
+} from '../interfaces/entities/ITransaction';
+import { ApiError } from '../utils/ApiError';
+import { TransactionManager } from '../utils/TransactionManager';
 
-export class TransactionService {
-  private transactionModel: TransactionModelClass;
-  private accountModel: AccountModelClass;
+@injectable()
+export class TransactionService implements ITransactionService {
+  constructor(
+    @inject('TransactionRepository')
+    private transactionRepository: ITransactionRepository,
+    @inject('AccountRepository')
+    private accountRepository: IAccountRepository
+  ) {}
 
-  constructor() {
-    this.transactionModel = new TransactionModelClass();
-    this.accountModel = new AccountModelClass();
-  }
-
-  /**
-   * Create a new transaction
-   */
-  async createTransaction(userId: string, transactionData: TransactionCreateInput): Promise<any> {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-    
-    try {
-      // Converter strings para ObjectId
+  async createTransaction(userId: string, transactionData: ITransactionCreateDTO): Promise<ITransactionPopulated> {
+    return TransactionManager.executeInTransaction(async (session) => {
+      // Convertendo objetos de string para Date quando necessário
+      const processedData: any = { ...transactionData };
+      if (typeof processedData.date === 'string') {
+        processedData.date = new Date(processedData.date);
+      }
+      
+      // Convertendo strings para ObjectId
       const newTransaction = {
-        ...transactionData,
+        ...processedData,
         user: new mongoose.Types.ObjectId(userId),
-        account: new mongoose.Types.ObjectId(transactionData.account),
-        category: new mongoose.Types.ObjectId(transactionData.category)
+        account: new mongoose.Types.ObjectId(processedData.account),
+        category: new mongoose.Types.ObjectId(processedData.category)
       };
       
       // Criar a transação
-      const transaction = await this.transactionModel.create(newTransaction);
+      const transaction = await this.transactionRepository.create(newTransaction, { session });
       
       // Atualizar o saldo da conta
-      const account = await this.accountModel.findById(transactionData.account, userId);
+      const account = await this.accountRepository.findById(processedData.account, userId) as { _id: mongoose.Types.ObjectId; balance: number } | null;
       
       if (!account) {
         throw new ApiError('Conta não encontrada', 404);
       }
       
-      const amount = transactionData.amount || 0;
+      const amount = processedData.amount || 0;
       
-      if (transactionData.type === 'income') {
+      if (processedData.type === 'income') {
         account.balance += amount;
-      } else if (transactionData.type === 'expense') {
+      } else if (processedData.type === 'expense') {
         account.balance -= amount;
       }
       
-      await account.save({ session });
-      
-      await session.commitTransaction();
+      await this.accountRepository.update(
+        account._id.toString(), 
+        userId, 
+        { balance: account.balance }, 
+        { session }
+      );
       
       return transaction;
-    } catch (error) {
-      await session.abortTransaction();
-      throw error;
-    } finally {
-      session.endSession();
-    }
+    });
   }
   
-  /**
-   * Get user transactions with filters
-   */
-  async getUserTransactions(userId: string, filters: TransactionFilterInput): Promise<any> {
-    const transactions = await this.transactionModel.findByUser(userId, filters);
-    const total = await this.transactionModel.countByUser(userId, filters);
+  async getUserTransactions(userId: string, filters: ITransactionFilters): Promise<ITransactionListResult> {
+    // Processar datas nos filtros
+    const processedFilters = { ...filters };
     
-    const page = filters.page || 1;
-    const limit = filters.limit || 10;
+    const transactions = await this.transactionRepository.findByUser(userId, processedFilters);
+    const total = await this.transactionRepository.countByUser(userId, processedFilters);
+    
+    const page = processedFilters.page || 1;
+    const limit = processedFilters.limit || 10;
     
     return {
       transactions,
       total,
       page,
+      limit,
       pages: Math.ceil(total / limit),
     };
   }
   
-  /**
-   * Get transaction by ID
-   */
-  async getTransactionById(transactionId: string, userId: string): Promise<any> {
-    const transaction = await this.transactionModel.findById(transactionId, userId);
+  async getTransactionById(transactionId: string, userId: string): Promise<ITransactionPopulated> {
+    const transaction = await this.transactionRepository.findById(transactionId, userId);
     
     if (!transaction) {
       throw new ApiError('Transação não encontrada', 404);
@@ -91,129 +97,125 @@ export class TransactionService {
     return transaction;
   }
   
-  /**
-   * Update a transaction
-   */
-  /**
- * Update a transaction
- */
-async updateTransaction(
-  transactionId: string,
-  userId: string,
-  updateData: TransactionUpdateInput
-): Promise<any> {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-  
-  try {
-    // Get original transaction
-    const originalTransaction = await this.transactionModel.findById(transactionId, userId);
-    
-    if (!originalTransaction) {
-      throw new ApiError('Transação não encontrada', 404);
-    }
-    
-    // Preparar os dados de atualização
-    const processedUpdateData: any = { ...updateData };
-    
-    // Converter strings para ObjectId quando necessário
-    if (processedUpdateData.account) {
-      processedUpdateData.account = new mongoose.Types.ObjectId(processedUpdateData.account);
-    }
-    
-    if (processedUpdateData.category) {
-      processedUpdateData.category = new mongoose.Types.ObjectId(processedUpdateData.category);
-    }
-    
-    // Update transaction
-    const updatedTransaction = await this.transactionModel.update(
-      transactionId,
-      userId,
-      processedUpdateData
-    );
-    
-    // Update account balance if amount or type changed
-    if (
-      (updateData.amount && updateData.amount !== originalTransaction.amount) ||
-      (updateData.type && updateData.type !== originalTransaction.type) ||
-      (updateData.account && updateData.account.toString() !== originalTransaction.account.toString())
-    ) {
-      // Revert the original transaction effect
-      let originalAccount = await this.accountModel.findById(originalTransaction.account.toString(), userId);
-      
-      if (!originalAccount) {
-        throw new ApiError('Conta original não encontrada', 404);
+  async updateTransaction(transactionId: string, userId: string, updateData: ITransactionUpdateDTO): Promise<ITransactionPopulated> {
+    return TransactionManager.executeInTransaction(async (session) => {
+      // Processar data se for string
+      const processedUpdateData: any = { ...updateData };
+      if (typeof updateData.date === 'string') {
+        processedUpdateData.date = new Date(updateData.date);
       }
       
-      if (originalTransaction.type === 'income') {
-        originalAccount.balance -= originalTransaction.amount;
-      } else if (originalTransaction.type === 'expense') {
-        originalAccount.balance += originalTransaction.amount;
+      // Converter IDs para ObjectId
+      if (processedUpdateData.account) {
+        processedUpdateData.account = new mongoose.Types.ObjectId(processedUpdateData.account);
       }
       
-      await originalAccount.save({ session });
+      if (processedUpdateData.category) {
+        processedUpdateData.category = new mongoose.Types.ObjectId(processedUpdateData.category);
+      }
       
-      // Apply the new transaction effect
-      let targetAccount = originalAccount;
+      // Obter a transação original
+      const originalTransaction = await this.transactionRepository.findById(transactionId, userId);
       
-      // If account changed, find the new account
-      if (updateData.account && updateData.account.toString() !== originalTransaction.account.toString()) {
-        const foundAccount = await this.accountModel.findById(
-          updateData.account, 
+      if (!originalTransaction) {
+        throw new ApiError('Transação não encontrada', 404);
+      }
+      
+      // Verificar se houve alteração de valor, tipo ou conta que afeta saldos
+      const needsAccountUpdate = 
+        (updateData.amount !== undefined && updateData.amount !== originalTransaction.amount) ||
+        (updateData.type !== undefined && updateData.type !== originalTransaction.type) ||
+        (updateData.account !== undefined && updateData.account !== originalTransaction.account._id.toString());
+      
+      if (needsAccountUpdate) {
+        // Reverter o efeito da transação original
+        const originalAccount = await this.accountRepository.findById(
+          originalTransaction.account._id.toString(),
           userId
-        );
-
-        if (!foundAccount) {
-          throw new ApiError('Conta de destino não encontrada', 404);
-        }
-
-        targetAccount = foundAccount;
+        ) as { _id: mongoose.Types.ObjectId, balance: number };
         
-        if (!targetAccount) {
-          throw new ApiError('Conta de destino não encontrada', 404);
+        if (!originalAccount) {
+          throw new ApiError('Conta original não encontrada', 404);
         }
+        
+        // Reverter o efeito
+        if (originalTransaction.type === 'income') {
+          originalAccount.balance -= originalTransaction.amount;
+        } else if (originalTransaction.type === 'expense') {
+          originalAccount.balance += originalTransaction.amount;
+        }
+        
+        await this.accountRepository.update(
+          originalAccount._id.toString(),
+          userId,
+          { balance: originalAccount.balance },
+          { session }
+        );
+        
+        // Aplicar o efeito da nova transação
+        let targetAccount = originalAccount;
+        
+        // Se a conta foi alterada, buscar a nova conta
+        if (updateData.account && updateData.account !== originalTransaction.account._id.toString()) {
+          const foundAccount = await this.accountRepository.findById(updateData.account, userId);
+          if (!foundAccount) {
+            throw new ApiError('Conta de destino não encontrada', 404);
+          }
+          targetAccount = foundAccount as { _id: mongoose.Types.ObjectId; balance: number };
+          
+          if (!targetAccount) {
+            throw new ApiError('Conta de destino não encontrada', 404);
+          }
+        }
+        
+        // Aplicar o novo efeito
+        const newType = updateData.type || originalTransaction.type;
+        const newAmount = updateData.amount !== undefined ? updateData.amount : originalTransaction.amount;
+        
+        if (newType === 'income') {
+          targetAccount.balance += newAmount;
+        } else if (newType === 'expense') {
+          targetAccount.balance -= newAmount;
+        }
+        
+        await this.accountRepository.update(
+          targetAccount._id.toString(),
+          userId,
+          { balance: targetAccount.balance },
+          { session }
+        );
       }
       
-      const newType = updateData.type || originalTransaction.type;
-      const newAmount = updateData.amount || originalTransaction.amount;
+      // Atualizar a transação
+      const updatedTransaction = await this.transactionRepository.update(
+        transactionId,
+        userId,
+        processedUpdateData,
+        { session }
+      );
       
-      if (newType === 'income') {
-        targetAccount.balance += newAmount;
-      } else if (newType === 'expense') {
-        targetAccount.balance -= newAmount;
+      if (!updatedTransaction) {
+        throw new ApiError('Falha ao atualizar transação', 500);
       }
       
-      await targetAccount.save({ session });
-    }
-    
-    await session.commitTransaction();
-    
-    return updatedTransaction;
-  } catch (error) {
-    await session.abortTransaction();
-    throw error;
-  } finally {
-    session.endSession();
+      return updatedTransaction;
+    });
   }
-}
   
-  /**
-   * Delete a transaction
-   */
   async deleteTransaction(transactionId: string, userId: string): Promise<{ success: boolean }> {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-    
-    try {
-      // Get transaction
-      const transaction = await this.transactionModel.findById(transactionId, userId);
+    return TransactionManager.executeInTransaction(async (session) => {
+      // Obter a transação
+      const transaction = await this.transactionRepository.findById(transactionId, userId);
       
       if (!transaction) {
         throw new ApiError('Transação não encontrada', 404);
       }
       
-      // Revert the transaction effect on account balance
-      const account = await this.accountModel.findById(transaction.account.toString(), userId);
+      // Reverter o efeito da transação na conta
+      const account = await this.accountRepository.findById(
+        transaction.account._id.toString(),
+        userId
+      ) as { _id: mongoose.Types.ObjectId; balance: number } | null;
       
       if (!account) {
         throw new ApiError('Conta não encontrada', 404);
@@ -225,27 +227,22 @@ async updateTransaction(
         account.balance += transaction.amount;
       }
       
-      await account.save({ session });
+      await this.accountRepository.update(
+        account?._id.toString() || '',
+        userId,
+        { balance: account.balance },
+        { session }
+      );
       
-      // Delete the transaction
-      const deleted = await this.transactionModel.delete(transactionId, userId);
-      
-      await session.commitTransaction();
+      // Excluir a transação
+      const deleted = await this.transactionRepository.delete(transactionId, userId, { session });
       
       return { success: deleted };
-    } catch (error) {
-      await session.abortTransaction();
-      throw error;
-    } finally {
-      session.endSession();
-    }
+    });
   }
   
-  /**
- * Get transaction statistics
- */
-  async getTransactionStats(userId: string, period: 'day' | 'week' | 'month' | 'year' = 'month'): Promise<any> {
-    // Calculate date range based on period
+  async getTransactionStats(userId: string, period: 'day' | 'week' | 'month' | 'year' = 'month'): Promise<ITransactionStats> {
+    // Calcular intervalo de datas com base no período
     const now = new Date();
     let startDate = new Date();
     
@@ -264,22 +261,20 @@ async updateTransaction(
         break;
     }
     
-    // Get transactions within date range
-    const transactions = await this.transactionModel.findByDateRange(userId, startDate, now);
+    // Obter transações no intervalo de datas
+    const transactions = await this.transactionRepository.findByDateRange(userId, startDate, now);
 
-    // Calculate income and expenses
+    // Calcular receitas e despesas
     let totalIncome = 0;
     let totalExpenses = 0;
     let incomeByCategory: Record<string, number> = {};
     let expensesByCategory: Record<string, number> = {};
     
-    transactions.forEach((transaction: { type: string; amount: number; category: any; }) => {
+    transactions.forEach((transaction) => {
       if (transaction.type === 'income') {
         totalIncome += transaction.amount;
         
-        const categoryName = transaction.category 
-          ? (transaction.category as any).name 
-          : 'Sem categoria';
+        const categoryName = transaction.category ? transaction.category.name : 'Sem categoria';
         
         if (!incomeByCategory[categoryName]) {
           incomeByCategory[categoryName] = 0;
@@ -289,9 +284,7 @@ async updateTransaction(
       } else if (transaction.type === 'expense') {
         totalExpenses += transaction.amount;
         
-        const categoryName = transaction.category 
-          ? (transaction.category as any).name 
-          : 'Sem categoria';
+        const categoryName = transaction.category ? transaction.category.name : 'Sem categoria';
         
         if (!expensesByCategory[categoryName]) {
           expensesByCategory[categoryName] = 0;
@@ -301,35 +294,33 @@ async updateTransaction(
       }
     });
     
-    // Calculate balance
+    // Calcular saldo
     const balance = totalIncome - totalExpenses;
     
-    // Get transactions by day for chart data
+    // Dados para gráfico por dia
     const transactionsByDay: Record<string, { income: number; expense: number }> = {};
     
-    // Initialize days
+    // Inicializar dias
     const dayCount = Math.ceil((now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
     for (let i = 0; i <= dayCount; i++) {
       const date = new Date(startDate);
       date.setDate(date.getDate() + i);
-      // Garantir que temos uma string válida como chave
-      const dateKey: string = date.toISOString().split('T')[0] ?? '';
-      transactionsByDay[dateKey] = { income: 0, expense: 0 };
+      const dateKey = date.toISOString().split('T')[0];
+      if (dateKey) {
+        transactionsByDay[dateKey] = { income: 0, expense: 0 };
+      }
     }
     
-    // Fill data
+    // Preencher dados
     for (const transaction of transactions) {
-      // Usar um bloco try/catch para garantir que não ocorram exceções
       try {
-        // Verificar se a data é válida e converter para string
+        // Verificar se a data é válida
         if (!(transaction.date instanceof Date)) {
-          continue; // Pular esta transação se a data não for válida
+          continue;
         }
         
-        // Garantir que temos uma string válida
-        const dateKey: string = transaction.date?.toISOString().split('T')[0] || '';
+        const dateKey = transaction.date.toISOString().split('T')[0];
         
-        // Verificar se a chave existe no objeto
         if (dateKey && transactionsByDay[dateKey]) {
           if (transaction.type === 'income') {
             transactionsByDay[dateKey].income += transaction.amount;
@@ -339,19 +330,18 @@ async updateTransaction(
         }
       } catch (error) {
         console.error('Erro ao processar transação:', error);
-        // Continuar para a próxima transação em caso de erro
         continue;
       }
     }
     
-    // Convert to array for chart data
+    // Converter para array para dados do gráfico
     const chartData = Object.entries(transactionsByDay).map(([date, data]) => ({
       date,
       income: data.income,
       expense: data.expense,
     })).sort((a, b) => a.date.localeCompare(b.date));
     
-    // Prepare top categories
+    // Categorias com mais despesas
     const topExpenseCategories = Object.entries(expensesByCategory)
       .map(([category, amount]) => ({
         category,
@@ -361,6 +351,7 @@ async updateTransaction(
       .sort((a, b) => b.amount - a.amount)
       .slice(0, 5);
     
+    // Categorias com mais receitas
     const topIncomeCategories = Object.entries(incomeByCategory)
       .map(([category, amount]) => ({
         category,
@@ -380,6 +371,6 @@ async updateTransaction(
       expensesByCategory: topExpenseCategories,
       incomeByCategory: topIncomeCategories,
       chartData,
-  };
-}
+    };
+  }
 }

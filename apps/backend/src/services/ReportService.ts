@@ -1,18 +1,23 @@
+import { injectable, inject } from 'tsyringe';
 import PDFDocument from 'pdfkit';
 import ExcelJS from 'exceljs';
 import fs from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import { Transaction } from '../models/TransactionModel';
+import { IReportService } from '../interfaces/services/IReportService';
+import { IAIAnalysisService } from '../interfaces/services/IAIAnalysisService';
+import { ITransactionRepository } from '../interfaces/repositories/ITransactionRepository';
+import { IReportFileResult } from '../interfaces/entities/IReport';
 import { ApiError } from '../utils/ApiError';
-import { AIAnalysisService } from './AIAnalysisService';
 
-export class ReportService {
-  private aiAnalysisService: AIAnalysisService;
-  
-  constructor() {
-    this.aiAnalysisService = new AIAnalysisService();
-  }
+@injectable()
+export class ReportService implements IReportService {
+  constructor(
+    @inject('AIAnalysisService')
+    private aiAnalysisService: IAIAnalysisService,
+    @inject('TransactionRepository')
+    private transactionRepository: ITransactionRepository
+  ) {}
   
   /**
    * Generate a comprehensive financial report
@@ -21,7 +26,7 @@ export class ReportService {
     userId: string,
     period: 'month' | 'quarter' | 'year',
     format: 'pdf' | 'excel' = 'pdf'
-  ): Promise<{ filePath: string; fileName: string }> {
+  ): Promise<IReportFileResult> {
     try {
       // Define date range based on period
       const endDate = new Date();
@@ -40,13 +45,11 @@ export class ReportService {
       }
       
       // Get transactions within date range
-      const transactions = await Transaction.find({
-        user: userId,
-        date: { $gte: startDate, $lte: endDate },
-      })
-        .populate('category', 'name type')
-        .populate('account', 'name type')
-        .sort({ date: 1 });
+      const transactions = await this.transactionRepository.findByDateRange(
+        userId,
+        startDate,
+        endDate
+      );
       
       // Get AI insights
       const insights = await this.aiAnalysisService.generateInsights(userId);
@@ -71,7 +74,7 @@ export class ReportService {
     transactions: any[],
     insights: any,
     period: string
-  ): Promise<{ filePath: string; fileName: string }> {
+  ): Promise<IReportFileResult> {
     const fileName = `financial_report_${period}_${uuidv4()}.pdf`;
     const uploadsDir = path.join(__dirname, '../../uploads');
     
@@ -98,7 +101,7 @@ export class ReportService {
     transactions
       .filter(t => t.type === 'expense')
       .forEach(t => {
-        const categoryName = t.category ? (t.category as any).name : 'Sem categoria';
+        const categoryName = t.category ? t.category.name : 'Sem categoria';
         if (!expensesByCategory[categoryName]) {
           expensesByCategory[categoryName] = 0;
         }
@@ -224,13 +227,14 @@ export class ReportService {
         
         const date = new Date(transaction.date).toLocaleDateString('pt-BR');
         const description = transaction.description;
-        const category = transaction.category ? (transaction.category as any).name : '-';
+        const category = transaction.category ? transaction.category.name : '-';
         const type = transaction.type === 'income' ? 'Receita' : transaction.type === 'expense' ? 'Despesa' : 'Investimento';
         const amount = transaction.amount.toFixed(2);
         
         // Set color based on transaction type
         doc.fillColor(transaction.type === 'income' ? 'green' : transaction.type === 'expense' ? 'red' : 'blue');
         
+        // src/services/ReportService.ts (continuação)
         doc.text(date, 50, tableY, { width: columnWidth, align: 'left' });
         doc.text(description, 50 + columnWidth, tableY, { width: columnWidth, align: 'left' });
         doc.text(category, 50 + 2 * columnWidth, tableY, { width: columnWidth, align: 'left' });
@@ -254,7 +258,7 @@ export class ReportService {
     transactions: any[],
     insights: any,
     period: string
-  ): Promise<{ filePath: string; fileName: string }> {
+  ): Promise<IReportFileResult> {
     const fileName = `financial_report_${period}_${uuidv4()}.xlsx`;
     const uploadsDir = path.join(__dirname, '../../uploads');
     
@@ -281,7 +285,7 @@ export class ReportService {
     transactions
       .filter(t => t.type === 'expense')
       .forEach(t => {
-        const categoryName = t.category ? (t.category as any).name : 'Sem categoria';
+        const categoryName = t.category ? t.category.name : 'Sem categoria';
         if (!expensesByCategory[categoryName]) {
           expensesByCategory[categoryName] = 0;
         }
@@ -406,8 +410,8 @@ export class ReportService {
       const row = {
         date: new Date(transaction.date),
         description: transaction.description,
-        category: transaction.category ? (transaction.category as any).name : '-',
-        account: transaction.account ? (transaction.account as any).name : '-',
+        category: transaction.category ? transaction.category.name : '-',
+        account: transaction.account ? transaction.account.name : '-',
         type: transaction.type === 'income' ? 'Receita' : transaction.type === 'expense' ? 'Despesa' : 'Investimento',
         amount: transaction.amount,
       };

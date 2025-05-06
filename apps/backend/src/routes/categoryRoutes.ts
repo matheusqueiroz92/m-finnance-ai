@@ -1,11 +1,12 @@
 import express from 'express';
+import { container } from '../config/container';
 import { CategoryController } from '../controllers/CategoryController';
 import { protect } from '../middlewares/authMiddleware';
 import { validate } from '../middlewares/validationMiddleware';
 import { categoryCreateSchema, categoryUpdateSchema } from '../validators/categoryValidator';
 
 const router = express.Router();
-const categoryController = new CategoryController();
+const categoryController = container.resolve(CategoryController);
 
 // Todas as rotas são protegidas
 router.use(protect);

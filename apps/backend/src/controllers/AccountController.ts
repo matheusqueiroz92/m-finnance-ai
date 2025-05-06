@@ -1,12 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
-import { AccountService } from '../services/AccountService';
+import { injectable, inject } from 'tsyringe';
+import { IAccountService } from '../interfaces/services/IAccountService';
+import { ApiResponse } from '../utils/ApiResponse';
+import { ApiError } from '../utils/ApiError';
 
+@injectable()
 export class AccountController {
-  private accountService: AccountService;
-  
-  constructor() {
-    this.accountService = new AccountService();
-  }
+  constructor(
+    @inject('AccountService')
+    private accountService: IAccountService
+  ) {}
   
   /**
    * Create a new account
@@ -16,7 +19,6 @@ export class AccountController {
       const { name, type, balance, institution, accountNumber } = req.body;
       
       const accountData = {
-        user: req.user._id,
         name,
         type,
         balance: balance || 0,
@@ -27,10 +29,7 @@ export class AccountController {
       
       const account = await this.accountService.createAccount(req.user._id, accountData);
       
-      res.status(201).json({
-        success: true,
-        data: account,
-      });
+      ApiResponse.created(res, account, 'Conta criada com sucesso');
     } catch (error) {
       next(error);
     }
@@ -43,10 +42,7 @@ export class AccountController {
     try {
       const accounts = await this.accountService.getAccountsByUserId(req.user._id);
       
-      res.status(200).json({
-        success: true,
-        data: accounts,
-      });
+      ApiResponse.success(res, accounts, 'Contas recuperadas com sucesso');
     } catch (error) {
       next(error);
     }
@@ -58,7 +54,7 @@ export class AccountController {
   getAccountById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       if (!req.params.id) {
-        throw new Error('Account ID is required');
+        throw new ApiError('ID da conta é obrigatório', 400);
       }
       
       const account = await this.accountService.getAccountById(
@@ -66,10 +62,7 @@ export class AccountController {
         req.user._id
       );
       
-      res.status(200).json({
-        success: true,
-        data: account,
-      });
+      ApiResponse.success(res, account, 'Conta recuperada com sucesso');
     } catch (error) {
       next(error);
     }
@@ -81,12 +74,12 @@ export class AccountController {
   updateAccount = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       if (!req.params.id) {
-        throw new Error('Account ID is required');
+        throw new ApiError('ID da conta é obrigatório', 400);
       }
       
       const { name, institution, accountNumber, isActive } = req.body;
       
-      const updateData: Record<string, any> = {
+      const updateData = {
         name,
         institution,
         accountNumber,
@@ -94,9 +87,11 @@ export class AccountController {
       };
       
       // Remove undefined fields
-      Object.keys(updateData).forEach(
-        (key) => updateData[key] === undefined && delete updateData[key]
-      );
+      Object.keys(updateData).forEach(key => {
+        if (updateData[key as keyof typeof updateData] === undefined) {
+          delete updateData[key as keyof typeof updateData];
+        }
+      });
       
       const account = await this.accountService.updateAccount(
         req.params.id,
@@ -104,10 +99,7 @@ export class AccountController {
         updateData
       );
       
-      res.status(200).json({
-        success: true,
-        data: account,
-      });
+      ApiResponse.success(res, account, 'Conta atualizada com sucesso');
     } catch (error) {
       next(error);
     }
@@ -119,18 +111,15 @@ export class AccountController {
   deleteAccount = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       if (!req.params.id) {
-        throw new Error('Account ID is required');
+        throw new ApiError('ID da conta é obrigatório', 400);
       }
       
-      const result = await this.accountService.deleteAccount(
+      await this.accountService.deleteAccount(
         req.params.id,
         req.user._id
       );
       
-      res.status(200).json({
-        success: true,
-        data: result,
-      });
+      ApiResponse.success(res, { success: true }, 'Conta excluída com sucesso');
     } catch (error) {
       next(error);
     }
@@ -143,10 +132,7 @@ export class AccountController {
     try {
       const summary = await this.accountService.getAccountSummary(req.user._id);
       
-      res.status(200).json({
-        success: true,
-        data: summary,
-      });
+      ApiResponse.success(res, summary, 'Resumo das contas recuperado com sucesso');
     } catch (error) {
       next(error);
     }

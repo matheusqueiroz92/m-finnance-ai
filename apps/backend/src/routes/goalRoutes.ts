@@ -1,11 +1,12 @@
 import express from 'express';
+import { container } from '../config/container';
 import { GoalController } from '../controllers/GoalController';
 import { protect } from '../middlewares/authMiddleware';
 import { validate } from '../middlewares/validationMiddleware';
 import { goalCreateSchema, goalUpdateSchema } from '../validators/goalValidator';
 
 const router = express.Router();
-const goalController = new GoalController();
+const goalController = container.resolve(GoalController);
 
 // Todas as rotas são protegidas
 router.use(protect);

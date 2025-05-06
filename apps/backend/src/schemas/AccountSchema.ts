@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { IAccount, IAccountModel } from '../interfaces/IAccount';
+import { IAccount } from '../interfaces/entities/IAccount';
 
 const accountSchema = new Schema<IAccount>(
   {

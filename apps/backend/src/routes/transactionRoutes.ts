@@ -1,4 +1,5 @@
 import express from 'express';
+import { container } from '../config/container';
 import { TransactionController } from '../controllers/TransactionController';
 import { protect } from '../middlewares/authMiddleware';
 import { validate, validateQueryParams } from '../middlewares/validationMiddleware';
@@ -6,7 +7,7 @@ import { transactionCreateSchema, transactionUpdateSchema, transactionFilterSche
 import upload from '../config/multer';
 
 const router = express.Router();
-const transactionController = new TransactionController();
+const transactionController = container.resolve(TransactionController);
 
 // Todas as rotas são protegidas
 router.use(protect);

@@ -1,12 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
-import { CategoryService } from '../services/CategoryService';
+import { injectable, inject } from 'tsyringe';
+import { ICategoryService } from '../interfaces/services/ICategoryService';
+import { ApiResponse } from '../utils/ApiResponse';
+import { ApiError } from '../utils/ApiError';
 
+@injectable()
 export class CategoryController {
-  private categoryService: CategoryService;
-  
-  constructor() {
-    this.categoryService = new CategoryService();
-  }
+  constructor(
+    @inject('CategoryService')
+    private categoryService: ICategoryService
+  ) {}
   
   /**
    * Create a new category
@@ -16,7 +19,6 @@ export class CategoryController {
       const { name, type, icon, color } = req.body;
       
       const categoryData = {
-        user: req.user._id,
         name,
         type,
         icon,
@@ -26,10 +28,7 @@ export class CategoryController {
       
       const category = await this.categoryService.createCategory(req.user._id, categoryData);
       
-      res.status(201).json({
-        success: true,
-        data: category,
-      });
+      ApiResponse.created(res, category, 'Categoria criada com sucesso');
     } catch (error) {
       next(error);
     }
@@ -44,10 +43,7 @@ export class CategoryController {
       
       const categories = await this.categoryService.getCategoriesByUserId(req.user._id, type);
       
-      res.status(200).json({
-        success: true,
-        data: categories,
-      });
+      ApiResponse.success(res, categories, 'Categorias recuperadas com sucesso');
     } catch (error) {
       next(error);
     }
@@ -59,7 +55,7 @@ export class CategoryController {
   getCategoryById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       if (!req.params.id) {
-        throw new Error('Category ID is required');
+        throw new ApiError('ID da categoria é obrigatório', 400);
       }
       
       const category = await this.categoryService.getCategoryById(
@@ -67,10 +63,7 @@ export class CategoryController {
         req.user._id
       );
       
-      res.status(200).json({
-        success: true,
-        data: category,
-      });
+      ApiResponse.success(res, category, 'Categoria recuperada com sucesso');
     } catch (error) {
       next(error);
     }
@@ -82,21 +75,23 @@ export class CategoryController {
   updateCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       if (!req.params.id) {
-        throw new Error('Category ID is required');
+        throw new ApiError('ID da categoria é obrigatório', 400);
       }
       
       const { name, icon, color } = req.body;
       
-      const updateData: Partial<{ name: any; icon: any; color: any }> = {
+      const updateData = {
         name,
         icon,
         color,
       };
       
       // Remove undefined fields
-      Object.keys(updateData).forEach(
-        (key) => updateData[key as keyof typeof updateData] === undefined && delete updateData[key as keyof typeof updateData]
-      );
+      Object.keys(updateData).forEach(key => {
+        if (updateData[key as keyof typeof updateData] === undefined) {
+          delete updateData[key as keyof typeof updateData];
+        }
+      });
       
       const category = await this.categoryService.updateCategory(
         req.params.id,
@@ -104,10 +99,7 @@ export class CategoryController {
         updateData
       );
       
-      res.status(200).json({
-        success: true,
-        data: category,
-      });
+      ApiResponse.success(res, category, 'Categoria atualizada com sucesso');
     } catch (error) {
       next(error);
     }
@@ -119,18 +111,15 @@ export class CategoryController {
   deleteCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       if (!req.params.id) {
-        throw new Error('Category ID is required');
+        throw new ApiError('ID da categoria é obrigatório', 400);
       }
       
-      const result = await this.categoryService.deleteCategory(
+      await this.categoryService.deleteCategory(
         req.params.id,
         req.user._id
       );
       
-      res.status(200).json({
-        success: true,
-        data: result,
-      });
+      ApiResponse.success(res, { success: true }, 'Categoria excluída com sucesso');
     } catch (error) {
       next(error);
     }

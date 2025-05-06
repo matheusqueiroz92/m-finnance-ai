@@ -1,48 +1,49 @@
-import { TransactionModelClass } from '../models/TransactionModel';
-import { UserModelClass } from '../models/UserModel';
-import { GoalModelClass } from '../models/GoalModel';
+import { injectable, inject } from 'tsyringe';
+import { IAIAnalysisService } from '../interfaces/services/IAIAnalysisService';
+import { ITransactionRepository } from '../interfaces/repositories/ITransactionRepository';
+import { IGoalRepository } from '../interfaces/repositories/IGoalRepository';
+import { IUserRepository } from '../interfaces/repositories/IUserRepository';
+import { IFinancialInsights, IReportInsight } from '../interfaces/entities/IReport';
 
-export class AIAnalysisService {
-  private transactionModel: TransactionModelClass;
-  private userModel: UserModelClass;
-  private goalModel: GoalModelClass;
-
-  constructor() {
-    this.transactionModel = new TransactionModelClass();
-    this.userModel = new UserModelClass();
-    this.goalModel = new GoalModelClass();
-  }
+@injectable()
+export class AIAnalysisService implements IAIAnalysisService {
+  constructor(
+    @inject('TransactionRepository')
+    private transactionRepository: ITransactionRepository,
+    @inject('GoalRepository')
+    private goalRepository: IGoalRepository,
+    @inject('UserRepository')
+    private userRepository: IUserRepository
+  ) {}
 
   /**
    * Generate financial insights based on user transactions
    */
-  async generateInsights(userId: string): Promise<any> {
+  async generateInsights(userId: string): Promise<IFinancialInsights> {
     try {
       // Get user's transactions for the last 3 months
       const threeMonthsAgo = new Date();
       threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
       
-      // Usar as instâncias da classe em vez de usar as classes diretamente
-      // Usar o método apropriado do TransactionModelClass
-      const transactions = await this.transactionModel.findByDateRange(
+      const transactions = await this.transactionRepository.findByDateRange(
         userId,
         threeMonthsAgo,
         new Date()
       );
       
-      // Usar o método apropriado do GoalModelClass
-      const goals = await this.goalModel.findByUser(userId, false);
+      // Get user's active goals
+      const goals = await this.goalRepository.findByUser(userId, false);
       
       // Prepare data for AI analysis
       const analysisData = {
-        transactions: transactions.map((t: { amount: any; type: any; category: any; description: any; date: any; }) => ({
+        transactions: transactions.map(t => ({
           amount: t.amount,
           type: t.type,
-          category: t.category ? (t.category as any).name : null,
+          category: t.category ? t.category.name : null,
           description: t.description,
           date: t.date,
         })),
-        goals: goals.map((g: { name: any; targetAmount: any; currentAmount: any; progress: any; targetDate: any; }) => ({
+        goals: goals.map(g => ({
           name: g.name,
           targetAmount: g.targetAmount,
           currentAmount: g.currentAmount,
@@ -51,15 +52,7 @@ export class AIAnalysisService {
         })),
       };
       
-      // Send data to AI service for analysis
-      // Note: This is a simplified example. In a real application, you would integrate with an AI service API
-      // For demonstration, we'll create mock insights
-      
-      // In a real implementation, you might use:
-      // const aiResponse = await axios.post('https://your-ai-service-api.com/analyze', analysisData);
-      // return aiResponse.data;
-      
-      // For now, generate mock insights
+      // Generate mock insights (in a real app, this would call an AI service)
       return this.generateMockInsights(analysisData);
     } catch (error) {
       console.error('Error generating AI insights:', error);
@@ -71,7 +64,7 @@ export class AIAnalysisService {
    * Generate mock insights (for demonstration)
    * In a real application, this would be replaced with actual AI service integration
    */
-  private generateMockInsights(data: any): any {
+  private generateMockInsights(data: any): IFinancialInsights {
     // Calculate total income and expenses
     let totalIncome = 0;
     let totalExpenses = 0;
@@ -98,7 +91,7 @@ export class AIAnalysisService {
       .slice(0, 3);
     
     // Find potentially excessive spending
-    const insights = [];
+    const insights: IReportInsight[] = [];
     
     const foodDeliveryExpenses = categoryExpenses['Alimentação'] || 0;
     if (foodDeliveryExpenses > 0.15 * totalIncome) {
@@ -131,7 +124,7 @@ export class AIAnalysisService {
     }
     
     // Financial score calculation (simplified)
-    const savingsRate = (totalIncome - totalExpenses) / totalIncome;
+    const savingsRate = totalIncome > 0 ? (totalIncome - totalExpenses) / totalIncome : 0;
     const score = Math.min(850, Math.max(300, Math.round(500 + savingsRate * 500)));
     
     // Random value for potential savings

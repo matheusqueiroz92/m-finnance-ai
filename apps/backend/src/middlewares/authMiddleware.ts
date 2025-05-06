@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { User } from '../models/UserModel';
+import { UserModel } from '../schemas/UserSchema';
 import { ApiError } from '../utils/ApiError';
 
 interface TokenPayload {
@@ -42,7 +42,7 @@ export const protect = async (req: Request, res: Response, next: NextFunction): 
     const decoded = jwt.verify(token, secret) as TokenPayload;
 
     // Get user from token
-    const user = await User.findById(decoded.id).select('-password');
+    const user = await UserModel.findById(decoded.id).select('-password');
 
     if (!user) {
       next(new ApiError('Not authorized, user not found', 401));

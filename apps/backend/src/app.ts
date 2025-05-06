@@ -4,6 +4,8 @@ import path from 'path';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocument from './swagger.json';
 import { errorHandler } from './middlewares/errorMiddleware';
+import 'reflect-metadata';
+import './config/container';
 
 // Import routes
 import userRoutes from './routes/userRoutes';

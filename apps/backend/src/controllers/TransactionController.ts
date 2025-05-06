@@ -1,12 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
-import { TransactionService } from '../services/TransactionService';
+import { injectable, inject } from 'tsyringe';
+import { ITransactionService } from '../interfaces/services/ITransactionService';
+import { ApiResponse } from '../utils/ApiResponse';
+import { ApiError } from '../utils/ApiError';
 
+@injectable()
 export class TransactionController {
-  private transactionService: TransactionService;
-  
-  constructor() {
-    this.transactionService = new TransactionService();
-  }
+  constructor(
+    @inject('TransactionService')
+    private transactionService: ITransactionService
+  ) {}
   
   /**
    * Create a new transaction
@@ -15,20 +18,8 @@ export class TransactionController {
     try {
       const { account, category, amount, type, description, date, isRecurring, recurrenceInterval, notes } = req.body;
       
-      const transactionData: {
-        user: any;
-        account: any;
-        category: any;
-        amount: any;
-        type: any;
-        description: any;
-        date: any;
-        isRecurring: any;
-        recurrenceInterval: any;
-        notes: any;
-        attachments?: string[];
-      } = {
-        user: req.user._id,
+      // Preparar dados da transação
+      const transactionData = {
         account,
         category,
         amount,
@@ -38,33 +29,23 @@ export class TransactionController {
         isRecurring: isRecurring || false,
         recurrenceInterval,
         notes,
+        attachments: req.files && Array.isArray(req.files) ? 
+          (req.files as Express.Multer.File[]).map(file => file.path) : 
+          undefined
       };
-      
-      // Handle file uploads if any
-      if (req.files && Array.isArray(req.files)) {
-        transactionData.attachments = (req.files as Express.Multer.File[]).map(
-          (file) => file.path
-        );
-      }
       
       const transaction = await this.transactionService.createTransaction(req.user._id, transactionData);
       
-      res.status(201).json({
-        success: true,
-        data: transaction,
-      });
+      ApiResponse.created(res, transaction, 'Transação criada com sucesso');
     } catch (error) {
       next(error);
     }
   };
   
-  /**
-   * Get user transactions with filters
-   */
   getUserTransactions = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const filters = {
-        type: req.query.type as "income" | "expense" | "investment" | undefined,
+        type: req.query.type as 'income' | 'expense' | 'investment' | undefined,
         category: req.query.category as string | undefined,
         startDate: req.query.startDate ? new Date(req.query.startDate as string) : undefined,
         endDate: req.query.endDate ? new Date(req.query.endDate as string) : undefined,
@@ -75,47 +56,51 @@ export class TransactionController {
       
       const result = await this.transactionService.getUserTransactions(req.user._id, filters);
       
-      res.status(200).json({
-        success: true,
-        data: result.transactions,
-        pagination: {
-          total: result.total,
-          page: result.page,
-          pages: result.pages,
-        },
-      });
+      ApiResponse.paginated(
+        res, 
+        result.transactions,
+        result.page,
+        result.limit,
+        result.total,
+        'Transações recuperadas com sucesso'
+      );
     } catch (error) {
       next(error);
     }
   };
-  
+
   /**
    * Get transaction by ID
    */
   getTransactionById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      if (!req.params.id) {
+        throw new ApiError('ID da transação é obrigatório', 400);
+      }
+      
       const transaction = await this.transactionService.getTransactionById(
-        req.params.id!,
+        req.params.id,
         req.user._id
       );
       
-      res.status(200).json({
-        success: true,
-        data: transaction,
-      });
+      ApiResponse.success(res, transaction, 'Transação recuperada com sucesso');
     } catch (error) {
       next(error);
     }
   };
-  
+
   /**
    * Update a transaction
    */
   updateTransaction = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      if (!req.params.id) {
+        throw new ApiError('ID da transação é obrigatório', 400);
+      }
+      
       const { account, category, amount, type, description, date, isRecurring, recurrenceInterval, notes } = req.body;
       
-      const updateData: any = {
+      const updateData = {
         account,
         category,
         amount,
@@ -125,54 +110,51 @@ export class TransactionController {
         isRecurring,
         recurrenceInterval,
         notes,
+        // Tratar anexos apenas se houver arquivos no request
+        attachments: req.files && Array.isArray(req.files) ? 
+          (req.files as Express.Multer.File[]).map(file => file.path) : 
+          undefined
       };
       
-      // Handle file uploads if any
-      if (req.files && Array.isArray(req.files)) {
-        updateData.attachments = (req.files as Express.Multer.File[]).map(
-          (file) => file.path
-        );
-      }
-      
-      // Remove undefined fields
-      Object.keys(updateData).forEach(
-        (key) => updateData[key] === undefined && delete updateData[key]
-      );
+      // Remover campos undefined
+      Object.keys(updateData).forEach(key => {
+        if (updateData[key as keyof typeof updateData] === undefined) {
+          delete updateData[key as keyof typeof updateData];
+        }
+      });
       
       const transaction = await this.transactionService.updateTransaction(
-        req.params.id!,
+        req.params.id,
         req.user._id,
         updateData
       );
       
-      res.status(200).json({
-        success: true,
-        data: transaction,
-      });
+      ApiResponse.success(res, transaction, 'Transação atualizada com sucesso');
     } catch (error) {
       next(error);
     }
   };
-  
+
   /**
    * Delete a transaction
    */
   deleteTransaction = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      if (!req.params.id) {
+        throw new ApiError('ID da transação é obrigatório', 400);
+      }
+      
       const result = await this.transactionService.deleteTransaction(
-        req.params.id!,
+        req.params.id,
         req.user._id
       );
       
-      res.status(200).json({
-        success: true,
-        data: result,
-      });
+      ApiResponse.success(res, result, 'Transação excluída com sucesso');
     } catch (error) {
       next(error);
     }
   };
-  
+
   /**
    * Get transaction statistics
    */
@@ -182,10 +164,7 @@ export class TransactionController {
       
       const stats = await this.transactionService.getTransactionStats(req.user._id, period);
       
-      res.status(200).json({
-        success: true,
-        data: stats,
-      });
+      ApiResponse.success(res, stats, 'Estatísticas recuperadas com sucesso');
     } catch (error) {
       next(error);
     }
