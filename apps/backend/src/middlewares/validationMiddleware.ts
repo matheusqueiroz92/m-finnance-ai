@@ -4,7 +4,7 @@ import { ApiError } from '../utils/ApiError';
 
 export const validate = (schema: AnyZodObject) => (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ) => {
   try {
@@ -32,7 +32,7 @@ export const validate = (schema: AnyZodObject) => (
 
 export const validateQueryParams = (schema: AnyZodObject) => (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ) => {
   try {
@@ -60,7 +60,7 @@ export const validateQueryParams = (schema: AnyZodObject) => (
 
 export const validateParams = (schema: AnyZodObject) => (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ) => {
   try {

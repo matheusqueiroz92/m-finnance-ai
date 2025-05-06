@@ -64,13 +64,13 @@ export class TransactionController {
   getUserTransactions = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const filters = {
-        type: req.query.type as string,
-        category: req.query.category as string,
+        type: req.query.type as "income" | "expense" | "investment" | undefined,
+        category: req.query.category as string | undefined,
         startDate: req.query.startDate ? new Date(req.query.startDate as string) : undefined,
         endDate: req.query.endDate ? new Date(req.query.endDate as string) : undefined,
-        account: req.query.account as string,
-        limit: req.query.limit ? parseInt(req.query.limit as string, 10) : undefined,
-        page: req.query.page ? parseInt(req.query.page as string, 10) : undefined,
+        account: req.query.account as string | undefined,
+        limit: req.query.limit ? parseInt(req.query.limit as string, 10) : 10,
+        page: req.query.page ? parseInt(req.query.page as string, 10) : 1,
       };
       
       const result = await this.transactionService.getUserTransactions(req.user._id, filters);

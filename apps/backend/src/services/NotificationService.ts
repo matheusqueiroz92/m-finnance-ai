@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import twilio from 'twilio';
-import User, { IUser } from '../models/UserModel';
+import { IUser } from '../interfaces/IUser';
 
 export class NotificationService {
   private emailTransporter: nodemailer.Transporter;

@@ -4,13 +4,13 @@ import fs from 'fs';
 import { Request } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
-// Ensure uploads directory exists
+// Certifica se o diretório de uploads existe
 const uploadsDir = path.join(__dirname, '../../uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// Configure storage
+// Configura o armazenamento dos arquivos
 const storage = multer.diskStorage({
   destination: (req: Request, file: Express.Multer.File, cb) => {
     cb(null, uploadsDir);
@@ -22,14 +22,15 @@ const storage = multer.diskStorage({
   },
 });
 
-// Configure file filter
+// Configura o filtro de arquivos
 const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-  // Allow only specific file types
+  // Permite apenas arquivos PDF, PNG, JPEG e WEBP
   const allowedMimeTypes = [
     'application/pdf',
     'image/png',
     'image/jpeg',
     'image/jpg',
+    'image/webp',
   ];
   
   if (allowedMimeTypes.includes(file.mimetype)) {
@@ -39,11 +40,11 @@ const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilt
   }
 };
 
-// Create upload options
+// Cria opção de upload
 const upload = multer({
   storage,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
+    fileSize: 5 * 1024 * 1024, // limite de 5MB 
   },
   fileFilter,
 });

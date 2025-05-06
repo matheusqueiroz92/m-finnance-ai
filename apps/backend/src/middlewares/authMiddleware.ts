@@ -30,19 +30,29 @@ export const protect = async (req: Request, res: Response, next: NextFunction): 
   }
 
   try {
+    // Verificar que JWT_SECRET está definido
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      console.error('JWT_SECRET não está definido no ambiente');
+      next(new ApiError('Server configuration error', 500));
+      return;
+    }
+
     // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as TokenPayload;
+    const decoded = jwt.verify(token, secret) as TokenPayload;
 
     // Get user from token
-    req.user = await User.findById(decoded.id).select('-password');
+    const user = await User.findById(decoded.id).select('-password');
 
-    if (!req.user) {
+    if (!user) {
       next(new ApiError('Not authorized, user not found', 401));
       return;
     }
 
+    req.user = user;
     next();
   } catch (error) {
+    console.error('Token verification error:', error);
     next(new ApiError('Not authorized, token failed', 401));
   }
 };

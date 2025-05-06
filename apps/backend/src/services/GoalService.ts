@@ -1,6 +1,7 @@
 import { ApiError } from '../utils/ApiError';
-import { GoalModelClass } from '../models/schemas/GoalSchema';
+import { GoalModelClass } from '../models/GoalModel';
 import { GoalCreateInput, GoalUpdateInput } from '../validators/goalValidator';
+import mongoose from 'mongoose';
 
 export class GoalService {
   private goalModel: GoalModelClass;
@@ -16,7 +17,7 @@ export class GoalService {
     // Create goal with user ID
     const newGoal = await this.goalModel.create({
       ...goalData,
-      user: userId
+      user: new mongoose.Types.ObjectId(userId)
     });
     
     return newGoal;

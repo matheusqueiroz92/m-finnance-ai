@@ -1,8 +1,8 @@
-// src/services/CategoryService.ts
 import { ApiError } from '../utils/ApiError';
-import { CategoryModelClass } from '../models/schemas/CategorySchema';
-import { TransactionModelClass } from '../models/schemas/TransactionSchema';
+import { CategoryModelClass } from '../models/CategoryModel';
+import { TransactionModelClass } from '../models/TransactionModel';
 import { CategoryCreateInput, CategoryUpdateInput } from '../validators/categoryValidator';
+import mongoose from 'mongoose';
 
 export class CategoryService {
   private categoryModel: CategoryModelClass;
@@ -20,7 +20,7 @@ export class CategoryService {
     // Create category with user ID
     const newCategory = await this.categoryModel.create({
       ...categoryData,
-      user: userId
+      user: new mongoose.Types.ObjectId(userId)
     });
     
     return newCategory;

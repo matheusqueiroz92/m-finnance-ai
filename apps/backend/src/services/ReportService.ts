@@ -1,10 +1,9 @@
-// src/services/ReportService.ts
 import PDFDocument from 'pdfkit';
 import ExcelJS from 'exceljs';
 import fs from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import Transaction from '../models/TransactionModel';
+import { Transaction } from '../models/TransactionModel';
 import { ApiError } from '../utils/ApiError';
 import { AIAnalysisService } from './AIAnalysisService';
 

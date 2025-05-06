@@ -21,16 +21,18 @@ export class TransactionService {
     session.startTransaction();
     
     try {
-      // Prepare transaction data with user ID
+      // Converter strings para ObjectId
       const newTransaction = {
         ...transactionData,
         user: new mongoose.Types.ObjectId(userId),
+        account: new mongoose.Types.ObjectId(transactionData.account),
+        category: new mongoose.Types.ObjectId(transactionData.category)
       };
       
-      // Create the transaction
+      // Criar a transação
       const transaction = await this.transactionModel.create(newTransaction);
       
-      // Update account balance
+      // Atualizar o saldo da conta
       const account = await this.accountModel.findById(transactionData.account, userId);
       
       if (!account) {
@@ -92,84 +94,108 @@ export class TransactionService {
   /**
    * Update a transaction
    */
-  async updateTransaction(
-    transactionId: string,
-    userId: string,
-    updateData: TransactionUpdateInput
-  ): Promise<any> {
-    const session = await mongoose.startSession();
-    session.startTransaction();
+  /**
+ * Update a transaction
+ */
+async updateTransaction(
+  transactionId: string,
+  userId: string,
+  updateData: TransactionUpdateInput
+): Promise<any> {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  
+  try {
+    // Get original transaction
+    const originalTransaction = await this.transactionModel.findById(transactionId, userId);
     
-    try {
-      // Get original transaction
-      const originalTransaction = await this.transactionModel.findById(transactionId, userId);
-      
-      if (!originalTransaction) {
-        throw new ApiError('Transação não encontrada', 404);
-      }
-      
-      // Update transaction
-      const updatedTransaction = await this.transactionModel.update(
-        transactionId,
-        userId,
-        updateData
-      );
-      
-      // Update account balance if amount or type changed
-      if (
-        (updateData.amount && updateData.amount !== originalTransaction.amount) ||
-        (updateData.type && updateData.type !== originalTransaction.type) ||
-        (updateData.account && updateData.account.toString() !== originalTransaction.account.toString())
-      ) {
-        // Revert the original transaction effect
-        let originalAccount = await this.accountModel.findById(originalTransaction.account.toString(), userId);
-        
-        if (!originalAccount) {
-          throw new ApiError('Conta original não encontrada', 404);
-        }
-        
-        if (originalTransaction.type === 'income') {
-          originalAccount.balance -= originalTransaction.amount;
-        } else if (originalTransaction.type === 'expense') {
-          originalAccount.balance += originalTransaction.amount;
-        }
-        
-        await originalAccount.save({ session });
-        
-        // Apply the new transaction effect
-        let targetAccount = originalAccount;
-        
-        // If account changed, find the new account
-        if (updateData.account && updateData.account.toString() !== originalTransaction.account.toString()) {
-          targetAccount = await this.accountModel.findById(updateData.account, userId);
-          
-          if (!targetAccount) {
-            throw new ApiError('Conta de destino não encontrada', 404);
-          }
-        }
-        
-        const newType = updateData.type || originalTransaction.type;
-        const newAmount = updateData.amount || originalTransaction.amount;
-        
-        if (newType === 'income') {
-          targetAccount.balance += newAmount;
-        } else if (newType === 'expense') {
-          targetAccount.balance -= newAmount;
-        }
-        
-        await targetAccount.save({ session });
-      }
-      
-      await session.commitTransaction();
-      
-      return updatedTransaction;
-    } catch (error) {
-      await session.abortTransaction();
-      throw error;
-    } finally {
-      session.endSession();
+    if (!originalTransaction) {
+      throw new ApiError('Transação não encontrada', 404);
     }
+    
+    // Preparar os dados de atualização
+    const processedUpdateData: any = { ...updateData };
+    
+    // Converter strings para ObjectId quando necessário
+    if (processedUpdateData.account) {
+      processedUpdateData.account = new mongoose.Types.ObjectId(processedUpdateData.account);
+    }
+    
+    if (processedUpdateData.category) {
+      processedUpdateData.category = new mongoose.Types.ObjectId(processedUpdateData.category);
+    }
+    
+    // Update transaction
+    const updatedTransaction = await this.transactionModel.update(
+      transactionId,
+      userId,
+      processedUpdateData
+    );
+    
+    // Update account balance if amount or type changed
+    if (
+      (updateData.amount && updateData.amount !== originalTransaction.amount) ||
+      (updateData.type && updateData.type !== originalTransaction.type) ||
+      (updateData.account && updateData.account.toString() !== originalTransaction.account.toString())
+    ) {
+      // Revert the original transaction effect
+      let originalAccount = await this.accountModel.findById(originalTransaction.account.toString(), userId);
+      
+      if (!originalAccount) {
+        throw new ApiError('Conta original não encontrada', 404);
+      }
+      
+      if (originalTransaction.type === 'income') {
+        originalAccount.balance -= originalTransaction.amount;
+      } else if (originalTransaction.type === 'expense') {
+        originalAccount.balance += originalTransaction.amount;
+      }
+      
+      await originalAccount.save({ session });
+      
+      // Apply the new transaction effect
+      let targetAccount = originalAccount;
+      
+      // If account changed, find the new account
+      if (updateData.account && updateData.account.toString() !== originalTransaction.account.toString()) {
+        const foundAccount = await this.accountModel.findById(
+          updateData.account, 
+          userId
+        );
+
+        if (!foundAccount) {
+          throw new ApiError('Conta de destino não encontrada', 404);
+        }
+
+        targetAccount = foundAccount;
+        
+        if (!targetAccount) {
+          throw new ApiError('Conta de destino não encontrada', 404);
+        }
+      }
+      
+      const newType = updateData.type || originalTransaction.type;
+      const newAmount = updateData.amount || originalTransaction.amount;
+      
+      if (newType === 'income') {
+        targetAccount.balance += newAmount;
+      } else if (newType === 'expense') {
+        targetAccount.balance -= newAmount;
+      }
+      
+      await targetAccount.save({ session });
+    }
+    
+    await session.commitTransaction();
+    
+    return updatedTransaction;
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
   }
+}
   
   /**
    * Delete a transaction
@@ -216,8 +242,8 @@ export class TransactionService {
   }
   
   /**
-   * Get transaction statistics
-   */
+ * Get transaction statistics
+ */
   async getTransactionStats(userId: string, period: 'day' | 'week' | 'month' | 'year' = 'month'): Promise<any> {
     // Calculate date range based on period
     const now = new Date();
@@ -286,24 +312,37 @@ export class TransactionService {
     for (let i = 0; i <= dayCount; i++) {
       const date = new Date(startDate);
       date.setDate(date.getDate() + i);
-      const dateString = date.toISOString().split('T')[0];
-      transactionsByDay[dateString] = { income: 0, expense: 0 };
+      // Garantir que temos uma string válida como chave
+      const dateKey: string = date.toISOString().split('T')[0] ?? '';
+      transactionsByDay[dateKey] = { income: 0, expense: 0 };
     }
     
     // Fill data
-    transactions.forEach(transaction => {
-      const dateString = transaction.date.toISOString().split('T')[0];
-      
-      if (!transactionsByDay[dateString]) {
-        transactionsByDay[dateString] = { income: 0, expense: 0 };
+    for (const transaction of transactions) {
+      // Usar um bloco try/catch para garantir que não ocorram exceções
+      try {
+        // Verificar se a data é válida e converter para string
+        if (!(transaction.date instanceof Date)) {
+          continue; // Pular esta transação se a data não for válida
+        }
+        
+        // Garantir que temos uma string válida
+        const dateKey: string = transaction.date?.toISOString().split('T')[0] || '';
+        
+        // Verificar se a chave existe no objeto
+        if (dateKey && transactionsByDay[dateKey]) {
+          if (transaction.type === 'income') {
+            transactionsByDay[dateKey].income += transaction.amount;
+          } else if (transaction.type === 'expense') {
+            transactionsByDay[dateKey].expense += transaction.amount;
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao processar transação:', error);
+        // Continuar para a próxima transação em caso de erro
+        continue;
       }
-      
-      if (transaction.type === 'income') {
-        transactionsByDay[dateString].income += transaction.amount;
-      } else if (transaction.type === 'expense') {
-        transactionsByDay[dateString].expense += transaction.amount;
-      }
-    });
+    }
     
     // Convert to array for chart data
     const chartData = Object.entries(transactionsByDay).map(([date, data]) => ({
@@ -341,6 +380,6 @@ export class TransactionService {
       expensesByCategory: topExpenseCategories,
       incomeByCategory: topIncomeCategories,
       chartData,
-    };
-  }
+  };
+}
 }

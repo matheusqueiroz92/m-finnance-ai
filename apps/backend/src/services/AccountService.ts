@@ -2,6 +2,7 @@ import { ApiError } from '../utils/ApiError';
 import { AccountModelClass } from '../models/AccountModel';
 import { AccountCreateInput, AccountUpdateInput } from '../validators/accountValidator';
 import { TransactionModelClass } from '../models/TransactionModel';
+import mongoose from 'mongoose';
 
 export class AccountService {
   private accountModel: AccountModelClass;
@@ -19,7 +20,7 @@ export class AccountService {
     // Create account with user ID
     const newAccount = await this.accountModel.create({
       ...accountData,
-      user: userId
+      user: new mongoose.Types.ObjectId(userId)
     });
     
     return newAccount;

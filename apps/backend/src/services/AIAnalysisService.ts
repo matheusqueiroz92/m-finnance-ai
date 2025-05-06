@@ -1,8 +1,18 @@
-import Transaction from '../models/TransactionModel';
-import User from '../models/UserModel';
-import Goal from '../models/GoalModel';
+import { TransactionModelClass } from '../models/TransactionModel';
+import { UserModelClass } from '../models/UserModel';
+import { GoalModelClass } from '../models/GoalModel';
 
 export class AIAnalysisService {
+  private transactionModel: TransactionModelClass;
+  private userModel: UserModelClass;
+  private goalModel: GoalModelClass;
+
+  constructor() {
+    this.transactionModel = new TransactionModelClass();
+    this.userModel = new UserModelClass();
+    this.goalModel = new GoalModelClass();
+  }
+
   /**
    * Generate financial insights based on user transactions
    */
@@ -12,28 +22,27 @@ export class AIAnalysisService {
       const threeMonthsAgo = new Date();
       threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
       
-      const transactions = await Transaction.find({
-        user: userId,
-        date: { $gte: threeMonthsAgo },
-      })
-        .populate('category', 'name type');
+      // Usar as instâncias da classe em vez de usar as classes diretamente
+      // Usar o método apropriado do TransactionModelClass
+      const transactions = await this.transactionModel.findByDateRange(
+        userId,
+        threeMonthsAgo,
+        new Date()
+      );
       
-      // Get user's active goals
-      const goals = await Goal.find({
-        user: userId,
-        isCompleted: false,
-      });
+      // Usar o método apropriado do GoalModelClass
+      const goals = await this.goalModel.findByUser(userId, false);
       
       // Prepare data for AI analysis
       const analysisData = {
-        transactions: transactions.map(t => ({
+        transactions: transactions.map((t: { amount: any; type: any; category: any; description: any; date: any; }) => ({
           amount: t.amount,
           type: t.type,
           category: t.category ? (t.category as any).name : null,
           description: t.description,
           date: t.date,
         })),
-        goals: goals.map(g => ({
+        goals: goals.map((g: { name: any; targetAmount: any; currentAmount: any; progress: any; targetDate: any; }) => ({
           name: g.name,
           targetAmount: g.targetAmount,
           currentAmount: g.currentAmount,
