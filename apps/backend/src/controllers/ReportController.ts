@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
-import fs from 'fs';
 import { injectable, inject } from 'tsyringe';
 import { IReportService } from '../interfaces/services/IReportService';
 import { IAIAnalysisService } from '../interfaces/services/IAIAnalysisService';
 import { ApiResponse } from '../utils/ApiResponse';
 import { ApiError } from '../utils/ApiError';
+import fs from 'fs';
 
 @injectable()
 export class ReportController {

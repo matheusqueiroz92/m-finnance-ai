@@ -1,5 +1,5 @@
 import { injectable } from 'tsyringe';
-import mongoose, { ClientSession, Types } from 'mongoose';
+import mongoose, { ClientSession } from 'mongoose';
 import { TransactionModel } from '../schemas/TransactionSchema';
 import { ITransactionRepository } from '../interfaces/repositories/ITransactionRepository';
 import { ITransaction, ITransactionPopulated } from '../interfaces/entities/ITransaction';
