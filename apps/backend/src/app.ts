@@ -15,11 +15,14 @@ import categoryRoutes from './routes/categoryRoutes';
 import goalRoutes from './routes/goalRoutes';
 import reportRoutes from './routes/reportRoutes';
 import fileRoutes from './routes/fileRoutes';
+import subscriptionRoutes from './routes/subscriptionRoutes';
+import paymentRoutes from './routes/PaymentRoutes';
 
 const app = express();
 
 // Middlewares
 app.use(cors());
+app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -37,6 +40,8 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/goals', goalRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/files', fileRoutes);
+app.use('/api/subscriptions', subscriptionRoutes);
+app.use('/api/payments', paymentRoutes);
 
 // Home route
 app.get('/', (req, res) => {

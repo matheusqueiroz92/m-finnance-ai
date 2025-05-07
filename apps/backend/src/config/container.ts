@@ -17,6 +17,10 @@ import { IGoalService } from '../interfaces/services/IGoalService';
 import { IReportService } from '../interfaces/services/IReportService';
 import { IAIAnalysisService } from '../interfaces/services/IAIAnalysisService';
 import { INotificationService } from '../interfaces/services/INotificationService';
+import { IPaymentService } from '../interfaces/services/IPaymentService';
+import { StripePaymentService } from '../services/StripePaymentService';
+import { IBillingService } from '../interfaces/services/IBillingService';
+import { BillingService } from '../services/BillingService';
 
 // Implementations - Repositories
 import { UserRepository } from '../repositories/UserRepository';
@@ -35,6 +39,10 @@ import { ReportService } from '../services/ReportService';
 import { AIAnalysisService } from '../services/AIAnalysisService';
 // import { NotificationService } from '../services/NotificationService';
 import { MockNotificationService } from '../services/MockNotificationService';
+import { ISubscriptionService } from '../interfaces/services/ISubscriptionService';
+import { SubscriptionService } from '../services/SubscriptionService';
+import { SubscriptionRepository } from '../repositories/SubscriptionRepository';
+import { ISubscriptionRepository } from '../interfaces/repositories/ISubscriptionRepository';
 
 // Register Repositories
 container.registerSingleton<IUserRepository>('UserRepository', UserRepository);
@@ -42,6 +50,7 @@ container.registerSingleton<IAccountRepository>('AccountRepository', AccountRepo
 container.registerSingleton<ICategoryRepository>('CategoryRepository', CategoryRepository);
 container.registerSingleton<ITransactionRepository>('TransactionRepository', TransactionRepository);
 container.registerSingleton<IGoalRepository>('GoalRepository', GoalRepository);
+container.registerSingleton<ISubscriptionRepository>('SubscriptionRepository', SubscriptionRepository);
 
 // Register Services
 container.registerSingleton<IUserService>('UserService', UserService);
@@ -53,5 +62,8 @@ container.registerSingleton<IReportService>('ReportService', ReportService);
 container.registerSingleton<IAIAnalysisService>('AIAnalysisService', AIAnalysisService);
 // container.registerSingleton<INotificationService>('NotificationService', NotificationService);
 container.registerSingleton<INotificationService>('NotificationService', MockNotificationService);
+container.registerSingleton<ISubscriptionService>('SubscriptionService', SubscriptionService);
+container.registerSingleton<IPaymentService>('PaymentService', StripePaymentService);
+container.registerSingleton<IBillingService>('BillingService', BillingService);
 
 export { container };

@@ -1,4 +1,4 @@
-import { injectable, inject } from 'tsyringe';
+import { injectable, inject, container } from 'tsyringe';
 import { IUserService } from '../interfaces/services/IUserService';
 import { IUserRepository } from '../interfaces/repositories/IUserRepository';
 import { 
@@ -15,6 +15,7 @@ import { ApiError } from '../utils/ApiError';
 import { TransactionManager } from '../utils/TransactionManager';
 import { INotificationService } from '../interfaces/services/INotificationService';
 import { TokenUtils } from '../utils/Tokenutils';
+import { ISubscriptionService } from '../interfaces/services/ISubscriptionService';
 
 @injectable()
 export class UserService implements IUserService {
@@ -71,6 +72,16 @@ export class UserService implements IUserService {
       }
       
       const token = generateToken(userId);
+
+      const subscriptionService = container.resolve<ISubscriptionService>('SubscriptionService');
+    
+      try {
+        // Criar assinatura de teste para o novo usuário
+        await subscriptionService.createTrialSubscription(userId.toString());
+      } catch (error) {
+        console.error('Erro ao criar assinatura de teste:', error);
+        // Continuar mesmo se houver erro na criação da assinatura
+      }
       
       return {
         user: this.sanitizeUser(user),
