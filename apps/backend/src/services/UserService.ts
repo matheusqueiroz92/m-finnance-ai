@@ -160,7 +160,7 @@ export class UserService implements IUserService {
           password: randomPassword,
           isEmailVerified: true,
           socialProfiles: [{
-            provider, // Agora provider é garantidamente do tipo SocialProvider
+            provider,
             providerId: profile.id
           }]
         };
@@ -195,10 +195,7 @@ export class UserService implements IUserService {
       } else {
         // Verificar se já tem perfil social deste provedor
         const hasSocialProfile = user.socialProfiles && 
-                                 user.socialProfiles.some(p => 
-                                   p.provider === provider && 
-                                   p.providerId === profile.id
-                                 );
+          user.socialProfiles.some(p => p.provider === provider && p.providerId === profile.id);
         
         if (!hasSocialProfile) {
           // Adicionar perfil social ao usuário existente

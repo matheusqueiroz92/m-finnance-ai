@@ -1,0 +1,17 @@
+export const QUERY_KEYS = {
+    USER_PROFILE: 'user-profile',
+    ACCOUNTS: 'accounts',
+    ACCOUNT_SUMMARY: 'account-summary',
+    ACCOUNT_DETAIL: (id: string) => ['account', id],
+    TRANSACTIONS: 'transactions',
+    TRANSACTION_DETAIL: (id: string) => ['transaction', id],
+    TRANSACTION_STATS: 'transaction-stats',
+    CATEGORIES: 'categories',
+    CATEGORY_DETAIL: (id: string) => ['category', id],
+    GOALS: 'goals',
+    GOAL_DETAIL: (id: string) => ['goal', id],
+    GOAL_STATS: 'goal-stats',
+    REPORTS_INSIGHTS: 'reports-insights',
+    PAYMENT_METHODS: 'payment-methods',
+    SUBSCRIPTION: 'subscription',
+  };
