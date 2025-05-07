@@ -10,7 +10,7 @@ export interface ITransaction extends Document {
   date: Date;
   isRecurring: boolean;
   recurrenceInterval?: 'daily' | 'weekly' | 'monthly' | 'yearly';
-  attachments?: string[];
+  attachments?: IAttachment[];
   notes?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -38,7 +38,7 @@ export interface ITransactionPopulated {
   date: Date;
   isRecurring: boolean;
   recurrenceInterval?: 'daily' | 'weekly' | 'monthly' | 'yearly';
-  attachments?: string[];
+  attachments?: IAttachment[];
   notes?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -54,7 +54,6 @@ export interface ITransactionCreateDTO {
   isRecurring?: boolean;
   recurrenceInterval?: 'daily' | 'weekly' | 'monthly' | 'yearly';
   notes?: string;
-  attachments?: string[];
 }
 
 export interface ITransactionUpdateDTO {
@@ -67,7 +66,6 @@ export interface ITransactionUpdateDTO {
   isRecurring?: boolean;
   recurrenceInterval?: 'daily' | 'weekly' | 'monthly' | 'yearly';
   notes?: string;
-  attachments?: string[];
 }
 
 export interface ITransactionFilters {
@@ -110,4 +108,12 @@ export interface ITransactionStats {
     income: number;
     expense: number;
   }[];
+}
+
+export interface IAttachment {
+  _id?: string | Types.ObjectId;
+  path: string;
+  type: 'receipt' | 'invoice' | 'contract' | 'other';
+  description?: string;
+  uploadedAt: Date;
 }

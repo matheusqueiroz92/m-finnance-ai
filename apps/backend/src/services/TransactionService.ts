@@ -373,4 +373,46 @@ export class TransactionService implements ITransactionService {
       chartData,
     };
   }
+
+  async removeAttachment(transactionId: string, userId: string, attachmentId: string): Promise<ITransactionPopulated> {
+    return TransactionManager.executeInTransaction(async (session) => {
+      // Buscar a transação
+      const transaction = await this.transactionRepository.findById(transactionId, userId);
+      
+      if (!transaction) {
+        throw new ApiError('Transação não encontrada', 404);
+      }
+      
+      // Verificar se o anexo existe
+      if (!transaction.attachments || transaction.attachments.length === 0) {
+        throw new ApiError('Transação não possui anexos', 404);
+      }
+      
+      // Filtrar o anexo pelo _id
+      // Precisamos fazer uma verificação do tipo para garantir que o TypeScript entenda que _id existe
+      const updatedAttachments = transaction.attachments.filter((attachment: any) => {
+        const attachmentIdStr = attachment._id ? attachment._id.toString() : '';
+        return attachmentIdStr !== attachmentId;
+      });
+      
+      // Se não houve alteração, significa que o anexo não foi encontrado
+      if (updatedAttachments.length === transaction.attachments.length) {
+        throw new ApiError('Anexo não encontrado', 404);
+      }
+      
+      // Atualizar a transação
+      const updatedTransaction = await this.transactionRepository.update(
+        transactionId,
+        userId,
+        { attachments: updatedAttachments },
+        { session }
+      );
+      
+      if (!updatedTransaction) {
+        throw new ApiError('Falha ao remover anexo', 500);
+      }
+      
+      return updatedTransaction;
+    });
+  }
 }

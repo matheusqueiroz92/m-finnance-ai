@@ -33,7 +33,8 @@ import { TransactionService } from '../services/TransactionService';
 import { GoalService } from '../services/GoalService';
 import { ReportService } from '../services/ReportService';
 import { AIAnalysisService } from '../services/AIAnalysisService';
-import { NotificationService } from '../services/NotificationService';
+// import { NotificationService } from '../services/NotificationService';
+import { MockNotificationService } from '../services/MockNotificationService';
 
 // Register Repositories
 container.registerSingleton<IUserRepository>('UserRepository', UserRepository);
@@ -50,6 +51,7 @@ container.registerSingleton<ITransactionService>('TransactionService', Transacti
 container.registerSingleton<IGoalService>('GoalService', GoalService);
 container.registerSingleton<IReportService>('ReportService', ReportService);
 container.registerSingleton<IAIAnalysisService>('AIAnalysisService', AIAnalysisService);
-container.registerSingleton<INotificationService>('NotificationService', NotificationService);
+// container.registerSingleton<INotificationService>('NotificationService', NotificationService);
+container.registerSingleton<INotificationService>('NotificationService', MockNotificationService);
 
 export { container };

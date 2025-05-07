@@ -18,5 +18,6 @@ router.get('/stats', transactionController.getTransactionStats);
 router.get('/:id', transactionController.getTransactionById);
 router.put('/:id', validate(transactionUpdateSchema), upload.array('attachments', 5), transactionController.updateTransaction);
 router.delete('/:id', transactionController.deleteTransaction);
+router.delete('/:transactionId/attachments/:attachmentId', transactionController.removeAttachment);
 
 export default router;

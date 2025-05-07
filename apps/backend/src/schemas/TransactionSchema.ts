@@ -45,9 +45,24 @@ const transactionSchema = new Schema<ITransaction>(
       type: String,
       enum: ['daily', 'weekly', 'monthly', 'yearly'],
     },
-    attachments: {
-      type: [String],
-    },
+    attachments: [{
+      path: {
+        type: String,
+        required: true
+      },
+      type: {
+        type: String,
+        enum: ['receipt', 'invoice', 'contract', 'other'],
+        default: 'receipt'
+      },
+      description: {
+        type: String
+      },
+      uploadedAt: {
+        type: Date,
+        default: Date.now
+      }
+    }],
     notes: {
       type: String,
     },

@@ -7,10 +7,14 @@ export interface IUser extends Document {
   dateOfBirth?: Date;
   cpf?: string;
   phone?: string;
+  avatar?: string;
   language: string;
   isPremium: boolean;
   twoFactorEnabled: boolean;
   newsletterEnabled: boolean;
+  isEmailVerified: boolean;
+  emailVerificationToken?: string;
+  emailVerificationExpires?: Date;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -23,6 +27,7 @@ export interface IUserDTO {
   dateOfBirth?: Date;
   cpf?: string;
   phone?: string;
+  avatar?: string;
   language: string;
   isPremium: boolean;
   twoFactorEnabled: boolean;
@@ -38,6 +43,7 @@ export interface IUserRegisterDTO {
   dateOfBirth?: Date | string;
   cpf?: string;
   phone?: string;
+  avatar?: string;
   language?: string;
 }
 
@@ -51,6 +57,7 @@ export interface IUserUpdateDTO {
   email?: string;
   dateOfBirth?: Date | string;
   phone?: string;
+  avatar?: string;
   language?: string;
   twoFactorEnabled?: boolean;
   newsletterEnabled?: boolean;

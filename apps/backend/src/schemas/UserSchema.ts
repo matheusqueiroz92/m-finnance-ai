@@ -32,6 +32,10 @@ const userSchema = new Schema<IUser>(
     phone: {
       type: String,
     },
+    avatar: {
+      type: String,
+      default: null,
+    },
     language: {
       type: String,
       default: 'pt-BR',
@@ -47,6 +51,18 @@ const userSchema = new Schema<IUser>(
     newsletterEnabled: {
       type: Boolean,
       default: true,
+    },
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    emailVerificationToken: {
+      type: String,
+      default: null,
+    },
+    emailVerificationExpires: {
+      type: Date,
+      default: null,
     },
   },
   {

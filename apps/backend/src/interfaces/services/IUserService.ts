@@ -15,4 +15,6 @@ import {
     updateProfile(userId: string, updateData: IUserUpdateDTO): Promise<IUserDTO>;
     changePassword(userId: string, passwordData: IChangePasswordDTO): Promise<void>;
     deleteUser(userId: string): Promise<void>;
+    verifyEmail(token: string): Promise<void>;
+    resendVerificationEmail(email: string): Promise<void>;
   }

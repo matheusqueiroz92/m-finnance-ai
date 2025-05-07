@@ -14,6 +14,7 @@ import accountRoutes from './routes/accountRoutes';
 import categoryRoutes from './routes/categoryRoutes';
 import goalRoutes from './routes/goalRoutes';
 import reportRoutes from './routes/reportRoutes';
+import fileRoutes from './routes/fileRoutes';
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use('/api/accounts', accountRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/goals', goalRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/files', fileRoutes);
 
 // Home route
 app.get('/', (req, res) => {

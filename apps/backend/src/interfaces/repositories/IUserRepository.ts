@@ -10,4 +10,5 @@ export interface IUserRepository {
   update(id: string, updateData: Partial<IUser>, options?: { session?: ClientSession }): Promise<IUser | null>;
   delete(id: string): Promise<IUser | null>;
   checkPassword(id: string, password: string): Promise<boolean>;
+  findByEmailVerificationToken(token: string): Promise<IUser | null>;
 }

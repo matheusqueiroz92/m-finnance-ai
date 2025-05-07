@@ -13,58 +13,70 @@ import {
 import { generateToken } from '../config/jwt';
 import { ApiError } from '../utils/ApiError';
 import { TransactionManager } from '../utils/TransactionManager';
+import { INotificationService } from '../interfaces/services/INotificationService';
+import { TokenUtils } from '../utils/Tokenutils';
 
 @injectable()
 export class UserService implements IUserService {
   constructor(
     @inject('UserRepository')
-    private userRepository: IUserRepository
+    private userRepository: IUserRepository,
+    @inject('NotificationService')
+    private notificationService: INotificationService
   ) {}
 
   /**
    * Register a new user
    */
-  async register(userData: IUserRegisterDTO): Promise<IAuthResult> {
-    // Check if user already exists
-    const userExists = await this.userRepository.findByEmail(userData.email);
-    
-    if (userExists) {
-      throw new ApiError('Usuário já existe', 400);
-    }
-    
-    // Converter dateOfBirth de string para Date, se necessário
-    const processedUserData: any = {
-      ...userData,
-      isPremium: false,
-      twoFactorEnabled: false,
-      newsletterEnabled: true
-    };
-    
-    // Se dateOfBirth for uma string, converter para Date
-    if (typeof userData.dateOfBirth === 'string') {
-      processedUserData.dateOfBirth = new Date(userData.dateOfBirth);
-    }
-    
-    // Create new user
-    const user = await this.userRepository.create(processedUserData);
-
-    if (!user) {
-      throw new ApiError('Erro ao criar usuário', 500);
-    }
-    
-    // Generate token - Converter _id para string com verificação de tipo
-    const userId = user._id?.toString();
-    if (!userId) {
-      throw new ApiError('Erro ao gerar token', 500);
-    }
-    
-    const token = generateToken(userId);
-    
-    // Return user data without password
-    return {
-      user: this.sanitizeUser(user),
-      token,
-    };
+  async register(userData: IUserRegisterDTO): Promise<{ user: IUserDTO; token: string }> {
+    return TransactionManager.executeInTransaction(async (session) => {
+      // Verificar se usuário já existe
+      const userExists = await this.userRepository.findByEmail(userData.email);
+      
+      if (userExists) {
+        throw new ApiError('Usuário já existe', 400);
+      }
+      
+      // Criar token de verificação de email
+      const verificationToken = TokenUtils.generateEmailVerificationToken();
+      const verificationExpires = TokenUtils.generateEmailVerificationExpiry();
+      
+      // Preparar dados do usuário - com conversão de tipos
+      const processedUserData: any = {
+        ...userData,
+        isEmailVerified: false,
+        emailVerificationToken: verificationToken,
+        emailVerificationExpires: verificationExpires,
+      };
+      
+      // Converter dateOfBirth para Date se for string
+      if (typeof processedUserData.dateOfBirth === 'string') {
+        processedUserData.dateOfBirth = new Date(processedUserData.dateOfBirth);
+      }
+      
+      // Criar usuário
+      const user = await this.userRepository.create(processedUserData, { session });
+      
+      if (!user) {
+        throw new ApiError('Erro ao criar usuário', 500);
+      }
+      
+      // Enviar email de verificação
+      await this.sendVerificationEmail(user);
+      
+      // Gerar token de autenticação
+      const userId = user._id?.toString();
+      if (!userId) {
+        throw new ApiError('Erro ao gerar token - ID de usuário inválido', 500);
+      }
+      
+      const token = generateToken(userId);
+      
+      return {
+        user: this.sanitizeUser(user),
+        token,
+      };
+    });
   }
   
   /**
@@ -189,8 +201,110 @@ export class UserService implements IUserService {
   }
   
   /**
-   * Remove sensitive data from user object
+   * Verify email using token
    */
+  async verifyEmail(token: string): Promise<void> {
+    const user = await this.userRepository.findByEmailVerificationToken(token);
+    
+    if (!user) {
+      throw new ApiError('Token de verificação inválido', 400);
+    }
+    
+    if (!user.emailVerificationExpires || user.emailVerificationExpires < new Date()) {
+      throw new ApiError('Token de verificação expirado', 400);
+    }
+    
+    // Obter o ID do usuário
+    const userId = user._id?.toString();
+    if (!userId) {
+      throw new ApiError('ID de usuário inválido', 500);
+    }
+    
+    // Atualizar usuário como verificado
+    await this.userRepository.update(userId, {
+      isEmailVerified: true,
+      emailVerificationToken: undefined, // Usar undefined em vez de null
+      emailVerificationExpires: undefined, // Usar undefined em vez de null
+    });
+  }
+  
+  /**
+   * Resend verification email
+   */
+  async resendVerificationEmail(userId: string): Promise<void> {
+    const user = await this.userRepository.findById(userId);
+    
+    if (!user) {
+      throw new ApiError('Usuário não encontrado', 404);
+    }
+    
+    if (user.isEmailVerified) {
+      throw new ApiError('E-mail já verificado', 400);
+    }
+    
+    // Gerar novo token
+    const verificationToken = TokenUtils.generateEmailVerificationToken();
+    const verificationExpires = TokenUtils.generateEmailVerificationExpiry();
+    
+    // Atualizar usuário
+    await this.userRepository.update(userId, {
+      emailVerificationToken: verificationToken,
+      emailVerificationExpires: verificationExpires,
+    });
+    
+    // Criar um novo objeto user com os dados atualizados
+    const updatedUser: IUser = {
+      ...user.toObject(),
+      emailVerificationToken: verificationToken,
+      emailVerificationExpires: verificationExpires
+    };
+    
+    // Enviar email
+    await this.sendVerificationEmail(updatedUser);
+  }
+  
+  /**
+   * Send verification email to user
+   */
+  private async sendVerificationEmail(user: IUser): Promise<void> {
+    // Verificar se temos o ID do usuário
+    const userId = user._id?.toString();
+    if (!userId || !user.emailVerificationToken) {
+      console.error('Erro ao enviar e-mail de verificação: dados de usuário incompletos');
+      return;
+    }
+    
+    const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${user.emailVerificationToken}`;
+    
+    const emailSubject = 'Verifique seu e-mail - FinanceAI';
+    const emailContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2>Olá, ${user.name}!</h2>
+        <p>Bem-vindo ao FinanceAI. Por favor, confirme seu endereço de e-mail clicando no botão abaixo:</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${verificationUrl}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            Verificar E-mail
+          </a>
+        </div>
+        <p>Ou copie e cole o seguinte link no seu navegador:</p>
+        <p>${verificationUrl}</p>
+        <p>Este link expirará em 24 horas.</p>
+        <p>Se você não se cadastrou no FinanceAI, ignore este e-mail.</p>
+        <p>Atenciosamente,<br>Equipe FinanceAI</p>
+      </div>
+    `;
+    
+    try {
+      await this.notificationService.sendEmail(user.email, emailSubject, emailContent);
+    } catch (error) {
+      console.error('Erro ao enviar e-mail de verificação:', error);
+      // Não lançamos o erro para não interromper o fluxo de cadastro
+    }
+  }
+
+  /**
+  * Remove sensitive data from user object
+  */
   private sanitizeUser(user: IUser): IUserDTO {
     // Verificar se o método toObject existe
     const userObj = user.toObject ? user.toObject() : user;

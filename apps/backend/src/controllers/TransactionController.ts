@@ -16,10 +16,22 @@ export class TransactionController {
    */
   createTransaction = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { account, category, amount, type, description, date, isRecurring, recurrenceInterval, notes } = req.body;
+      const { 
+        account, 
+        category, 
+        amount, 
+        type, 
+        description, 
+        date, 
+        isRecurring, 
+        recurrenceInterval, 
+        notes,
+        fileType,
+        fileDescription
+      } = req.body;
       
-      // Preparar dados da transação
-      const transactionData = {
+      // Definir o tipo para incluir attachments
+      const transactionData: any = {
         account,
         category,
         amount,
@@ -28,11 +40,23 @@ export class TransactionController {
         date: date || new Date(),
         isRecurring: isRecurring || false,
         recurrenceInterval,
-        notes,
-        attachments: req.files && Array.isArray(req.files) ? 
-          (req.files as Express.Multer.File[]).map(file => file.path) : 
-          undefined
+        notes
       };
+      
+      // Processar os uploads de arquivos com metadados
+      if (req.files && Array.isArray(req.files)) {
+        const attachmentType = fileType || 'receipt'; // Valor padrão
+        const attachmentDescription = fileDescription || ''; // Valor padrão
+        
+        transactionData.attachments = (req.files as Express.Multer.File[]).map(
+          (file) => ({
+            path: file.path.replace(/\\/g, '/'),
+            type: attachmentType,
+            description: attachmentDescription,
+            uploadedAt: new Date()
+          })
+        );
+      }
       
       const transaction = await this.transactionService.createTransaction(req.user._id, transactionData);
       
@@ -42,6 +66,9 @@ export class TransactionController {
     }
   };
   
+  /**
+   * Get all transactions for the user
+   */
   getUserTransactions = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const filters = {
@@ -98,9 +125,23 @@ export class TransactionController {
         throw new ApiError('ID da transação é obrigatório', 400);
       }
       
-      const { account, category, amount, type, description, date, isRecurring, recurrenceInterval, notes } = req.body;
+      const { 
+        account, 
+        category, 
+        amount, 
+        type, 
+        description, 
+        date, 
+        isRecurring, 
+        recurrenceInterval, 
+        notes,
+        fileType,
+        fileDescription,
+        keepExistingAttachments
+      } = req.body;
       
-      const updateData = {
+      // Definir o tipo para incluir attachments
+      const updateData: any = {
         account,
         category,
         amount,
@@ -109,19 +150,50 @@ export class TransactionController {
         date,
         isRecurring,
         recurrenceInterval,
-        notes,
-        // Tratar anexos apenas se houver arquivos no request
-        attachments: req.files && Array.isArray(req.files) ? 
-          (req.files as Express.Multer.File[]).map(file => file.path) : 
-          undefined
+        notes
       };
       
-      // Remover campos undefined
+      // Remover campos indefinidos
       Object.keys(updateData).forEach(key => {
-        if (updateData[key as keyof typeof updateData] === undefined) {
-          delete updateData[key as keyof typeof updateData];
+        if (updateData[key] === undefined) {
+          delete updateData[key];
         }
       });
+      
+      // Processar os uploads de arquivos com metadados
+      if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+        const attachmentType = fileType || 'receipt'; // Valor padrão
+        const attachmentDescription = fileDescription || ''; // Valor padrão
+        
+        const newAttachments = (req.files as Express.Multer.File[]).map(
+          (file) => ({
+            path: file.path.replace(/\\/g, '/'),
+            type: attachmentType,
+            description: attachmentDescription,
+            uploadedAt: new Date()
+          })
+        );
+        
+        // Verificar se deve manter os anexos existentes ou substituí-los
+        const shouldKeepExistingAttachments = keepExistingAttachments === 'true';
+        
+        if (shouldKeepExistingAttachments) {
+          // Buscar a transação atual para obter os anexos existentes
+          const currentTransaction = await this.transactionService.getTransactionById(
+            req.params.id,
+            req.user._id
+          );
+          
+          // Combinar anexos existentes com os novos
+          updateData.attachments = [
+            ...(currentTransaction.attachments || []),
+            ...newAttachments
+          ];
+        } else {
+          // Substituir anexos existentes pelos novos
+          updateData.attachments = newAttachments;
+        }
+      }
       
       const transaction = await this.transactionService.updateTransaction(
         req.params.id,
@@ -165,6 +237,30 @@ export class TransactionController {
       const stats = await this.transactionService.getTransactionStats(req.user._id, period);
       
       ApiResponse.success(res, stats, 'Estatísticas recuperadas com sucesso');
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * 
+   * Remove an attachment from a transaction
+   */
+  removeAttachment = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { transactionId, attachmentId } = req.params;
+      
+      if (!transactionId || !attachmentId) {
+        throw new ApiError('ID da transação e do anexo são obrigatórios', 400);
+      }
+      
+      const transaction = await this.transactionService.removeAttachment(
+        transactionId,
+        req.user._id,
+        attachmentId
+      );
+      
+      ApiResponse.success(res, transaction, 'Anexo removido com sucesso');
     } catch (error) {
       next(error);
     }

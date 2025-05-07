@@ -93,4 +93,8 @@ export class UserRepository implements IUserRepository {
     if (!user) return false;
     return await user.comparePassword(password);
   }
+
+  async findByEmailVerificationToken(token: string): Promise<IUser | null> {
+    return await UserModel.findOne({ emailVerificationToken: token });
+  }
 }

@@ -14,4 +14,5 @@ import {
     updateTransaction(transactionId: string, userId: string, updateData: ITransactionUpdateDTO): Promise<ITransactionPopulated>;
     deleteTransaction(transactionId: string, userId: string): Promise<{ success: boolean }>;
     getTransactionStats(userId: string, period: 'day' | 'week' | 'month' | 'year'): Promise<ITransactionStats>;
+    removeAttachment(transactionId: string, userId: string, attachmentId: string): Promise<ITransactionPopulated>;
   }
