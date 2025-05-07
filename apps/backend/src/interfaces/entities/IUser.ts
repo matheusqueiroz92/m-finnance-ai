@@ -1,6 +1,22 @@
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
+
+export type SocialProvider = 'google' | 'facebook' | 'github';
+
+export interface ISocialProfileData {
+  provider: SocialProvider;
+  providerId: string;
+}
+
+export interface ISocialUser {
+  id: string;
+  provider: SocialProvider;
+  email: string;
+  name: string;
+  photo?: string;
+}
 
 export interface IUser extends Document {
+  _id: Types.ObjectId;
   name: string;
   email: string;
   password: string;
@@ -15,6 +31,7 @@ export interface IUser extends Document {
   isEmailVerified: boolean;
   emailVerificationToken?: string;
   emailVerificationExpires?: Date;
+  socialProfiles?: ISocialProfileData[];
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;

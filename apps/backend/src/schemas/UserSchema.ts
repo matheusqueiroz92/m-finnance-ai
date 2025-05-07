@@ -64,6 +64,17 @@ const userSchema = new Schema<IUser>(
       type: Date,
       default: null,
     },
+    socialProfiles: [{
+      provider: {
+        type: String,
+        required: true,
+        enum: ['google', 'facebook', 'github']
+      },
+      providerId: {
+        type: String,
+        required: true
+      }
+    }],
   },
   {
     timestamps: true,

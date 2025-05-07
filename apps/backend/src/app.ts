@@ -16,7 +16,8 @@ import goalRoutes from './routes/goalRoutes';
 import reportRoutes from './routes/reportRoutes';
 import fileRoutes from './routes/fileRoutes';
 import subscriptionRoutes from './routes/subscriptionRoutes';
-import paymentRoutes from './routes/PaymentRoutes';
+import paymentRoutes from './routes/paymentRoutes';
+import authRoutes from './routes/authRoutes';
 
 const app = express();
 
@@ -42,6 +43,7 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/files', fileRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/auth', authRoutes);
 
 // Home route
 app.get('/', (req, res) => {

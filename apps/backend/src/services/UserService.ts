@@ -1,4 +1,5 @@
 import { injectable, inject, container } from 'tsyringe';
+import crypto from 'crypto';
 import { IUserService } from '../interfaces/services/IUserService';
 import { IUserRepository } from '../interfaces/repositories/IUserRepository';
 import { 
@@ -8,14 +9,17 @@ import {
   IChangePasswordDTO, 
   IAuthResult, 
   IUserDTO,
-  IUser
+  IUser,
+  SocialProvider
 } from '../interfaces/entities/IUser';
 import { generateToken } from '../config/jwt';
 import { ApiError } from '../utils/ApiError';
 import { TransactionManager } from '../utils/TransactionManager';
 import { INotificationService } from '../interfaces/services/INotificationService';
-import { TokenUtils } from '../utils/Tokenutils';
+import { TokenUtils } from '../utils/TokenUtils';
 import { ISubscriptionService } from '../interfaces/services/ISubscriptionService';
+import { ISocialUser } from '../interfaces/entities/IAuth';
+import { ICategoryService } from '../interfaces/services/ICategoryService';
 
 @injectable()
 export class UserService implements IUserService {
@@ -119,6 +123,129 @@ export class UserService implements IUserService {
       user: this.sanitizeUser(user),
       token,
     };
+  }
+
+  /**
+   * Login with social provider
+   */
+  async loginWithSocialProvider(profile: ISocialUser): Promise<IAuthResult> {
+    return TransactionManager.executeInTransaction(async (session) => {
+      // Verificar se o email está disponível
+      let email = profile.email;
+      
+      // Garantir que o provider é do tipo correto
+      const provider = profile.provider as SocialProvider;
+      
+      // GitHub e alguns outros provedores podem não fornecer email diretamente
+      if (!email && provider === 'github') {
+        // Opção 1: Gerar email temporário (não ideal para produção)
+        email = `${provider}-${profile.id}@tempmail.organfinancialai.com`;
+        console.warn(`Usuário ${provider} sem email disponível: ${profile.id}. Usando email temporário.`);
+      }
+      
+      if (!email) {
+        throw new ApiError('Email não disponível pelo provedor social', 400);
+      }
+      
+      // Verificar se o usuário já existe com este email
+      let user = await this.userRepository.findByEmail(email);
+      
+      if (!user) {
+        // Criar novo usuário
+        const randomPassword = crypto.randomBytes(16).toString('hex');
+        
+        const userData: Partial<IUser> = {
+          name: profile.name || `Usuário ${provider}`,
+          email: email,
+          password: randomPassword,
+          isEmailVerified: true,
+          socialProfiles: [{
+            provider, // Agora provider é garantidamente do tipo SocialProvider
+            providerId: profile.id
+          }]
+        };
+        
+        if (profile.photo) {
+          userData.avatar = profile.photo;
+        }
+        
+        const createdUser = await this.userRepository.create(userData, { session });
+        
+        if (!createdUser) {
+          throw new ApiError('Falha ao criar usuário', 500);
+        }
+        
+        user = createdUser;
+        
+        // Criar assinatura de teste para o novo usuário
+        try {
+          const subscriptionService = container.resolve<ISubscriptionService>('SubscriptionService');
+          await subscriptionService.createTrialSubscription(user._id.toString());
+        } catch (error) {
+          console.error('Erro ao criar assinatura de teste:', error);
+        }
+        
+        // Opcionalmente, criar categorias padrão para o novo usuário
+        try {
+          const categoryService = container.resolve<ICategoryService>('CategoryService');
+          await categoryService.createDefaultCategories(user._id.toString());
+        } catch (error) {
+          console.error('Erro ao criar categorias padrão:', error);
+        }
+      } else {
+        // Verificar se já tem perfil social deste provedor
+        const hasSocialProfile = user.socialProfiles && 
+                                 user.socialProfiles.some(p => 
+                                   p.provider === provider && 
+                                   p.providerId === profile.id
+                                 );
+        
+        if (!hasSocialProfile) {
+          // Adicionar perfil social ao usuário existente
+          const socialProfiles = user.socialProfiles || [];
+          
+          socialProfiles.push({
+            provider, // Usar a variável tipada
+            providerId: profile.id
+          });
+          
+          const updatedUser = await this.userRepository.update(user._id.toString(), { 
+            socialProfiles 
+          }, { session });
+          
+          if (updatedUser) {
+            user = updatedUser;
+          }
+        }
+        
+        // Se o usuário tinha uma foto de perfil padrão e o provedor social fornece uma, atualizar
+        if (profile.photo && (!user.avatar || user.avatar.includes('default-avatar'))) {
+          const updatedUser = await this.userRepository.update(user._id.toString(), {
+            avatar: profile.photo
+          }, { session });
+          
+          if (updatedUser) {
+            user = updatedUser;
+          }
+        }
+      }
+      
+      // Se chegamos aqui, user não pode ser null
+      if (!user) {
+        throw new ApiError('Erro inesperado ao processar login social', 500);
+      }
+      
+      // Gerar token
+      const token = generateToken(user._id.toString());
+      
+      // Registrar login social no log (opcional)
+      console.info(`Login social bem-sucedido: ${provider} para usuário ${user._id} (${user.email})`);
+      
+      return {
+        user: this.sanitizeUser(user),
+        token
+      };
+    });
   }
   
   /**
