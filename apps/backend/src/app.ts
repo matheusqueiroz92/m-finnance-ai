@@ -23,7 +23,11 @@ const app = express();
 
 // Middlewares
 app.use(cors());
+
+// Rota do Stripe webhook precisa do raw body
 app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
+
+// Configuração padrão para rotas que usam JSON
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

@@ -49,15 +49,25 @@ import { QUERY_KEYS } from '@/lib/constants/query-keys';
 import { transactionFilterSchema } from '@/lib/validators/transactionValidator';
 import { CreateTransactionModal } from '@/components/transactions/CreateTransactionModal';
 
+const filterSchema = z.object({
+  type: z.enum(['income', 'expense', 'investment']).optional(),
+  category: z.string().optional(),
+  account: z.string().optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+  page: z.number().default(1),
+  limit: z.number().default(10),
+});
+
 type FilterFormValues = z.infer<typeof transactionFilterSchema>;
 
-export default function TransacoesPage() {
+export default function TransactionsPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTransactionId, setSelectedTransactionId] = useState<string | null>(null);
   
   const filterForm = useForm<FilterFormValues>({
-    resolver: zodResolver(transactionFilterSchema),
+    resolver: zodResolver(filterSchema),
     defaultValues: {
       type: undefined,
       category: undefined,
@@ -182,15 +192,15 @@ export default function TransacoesPage() {
                   <FormItem className="w-full sm:w-auto">
                     <FormLabel>Tipo</FormLabel>
                     <FormControl>
-                      <Select 
+                    <Select 
                         onValueChange={field.onChange} 
-                        value={field.value}
+                        value={field.value || 'all'}  // Use um valor válido sempre
                       >
                         <SelectTrigger className="w-full sm:w-32">
                           <SelectValue placeholder="Todas" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">Todas</SelectItem>
+                        <SelectItem value="all">Todas</SelectItem>
                           <SelectItem value="income">Receita</SelectItem>
                           <SelectItem value="expense">Despesa</SelectItem>
                           <SelectItem value="investment">Investimento</SelectItem>
@@ -210,13 +220,13 @@ export default function TransacoesPage() {
                     <FormControl>
                       <Select 
                         onValueChange={field.onChange} 
-                        value={field.value}
+                        value={field.value || 'all'}  // Use um valor válido sempre
                       >
                         <SelectTrigger className="w-full sm:w-40">
                           <SelectValue placeholder="Todas" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">Todas</SelectItem>
+                          <SelectItem value="all">Todas</SelectItem>
                           {categories?.map((category) => (
                             <SelectItem key={category._id} value={category._id}>
                               {category.name}
@@ -238,13 +248,13 @@ export default function TransacoesPage() {
                     <FormControl>
                       <Select 
                         onValueChange={field.onChange} 
-                        value={field.value}
+                        value={field.value || 'all'}  // Use um valor válido sempre
                       >
                         <SelectTrigger className="w-full sm:w-40">
                           <SelectValue placeholder="Todas" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">Todas</SelectItem>
+                          <SelectItem value="all">Todas</SelectItem>
                           {accounts?.map((account) => (
                             <SelectItem key={account._id} value={account._id}>
                               {account.name}

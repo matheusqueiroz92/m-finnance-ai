@@ -4,8 +4,8 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Plus, Target, Pencil, Trash2, ChevronRight, Check, Plane, Car, Home, Briefcase } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Plus, Target, Pencil, Trash2, Check, Plane, Car, Home, Briefcase } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import {
@@ -22,7 +22,7 @@ import { QUERY_KEYS } from '@/lib/constants/query-keys';
 import { CreateGoalModal } from '@/components/goals/CreateGoalModal';
 import { UpdateGoalModal } from '@/components/goals/UpdateGoalModal';
 
-export default function ObjetivosPage() {
+export default function GoalsPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedGoalId, setSelectedGoalId] = useState<string | null>(null);
   const [goalToDelete, setGoalToDelete] = useState<string | null>(null);

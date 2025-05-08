@@ -8,10 +8,22 @@ export const transactionCreateSchema = z.object({
     errorMap: () => ({ message: 'Tipo inválido. Deve ser income, expense ou investment' })
   }),
   description: z.string().min(1, 'Descrição é obrigatória'),
-  date: z.string().optional().transform(val => val ? new Date(val) : new Date()),
+  date: z.string().or(z.date()).optional().default(() => new Date()),
   isRecurring: z.boolean().optional().default(false),
   recurrenceInterval: z.enum(['daily', 'weekly', 'monthly', 'yearly']).optional(),
   notes: z.string().optional(),
+  // Esses campos são apenas para processamento, não vão para o banco
+  fileType: z.string().optional(),
+  fileDescription: z.string().optional(),
+}).refine(data => {
+  // Se isRecurring for true, recurrenceInterval é obrigatório
+  if (data.isRecurring && !data.recurrenceInterval) {
+    return false;
+  }
+  return true;
+}, {
+  message: 'Intervalo de recorrência é obrigatório para transações recorrentes',
+  path: ['recurrenceInterval'],
 });
 
 export const transactionUpdateSchema = z.object({
@@ -22,10 +34,20 @@ export const transactionUpdateSchema = z.object({
     errorMap: () => ({ message: 'Tipo inválido. Deve ser income, expense ou investment' })
   }).optional(),
   description: z.string().min(1, 'Descrição é obrigatória').optional(),
-  date: z.string().optional().transform(val => val ? new Date(val) : undefined),
+  date: z.string().or(z.date()).optional(),
   isRecurring: z.boolean().optional(),
   recurrenceInterval: z.enum(['daily', 'weekly', 'monthly', 'yearly']).optional(),
   notes: z.string().optional(),
+}).refine(data => {
+  // Se isRecurring for true e recurrenceInterval não estiver definido no update
+  // então verificamos se existe um recurrenceInterval
+  if (data.isRecurring === true && data.recurrenceInterval === undefined) {
+    return false;
+  }
+  return true;
+}, {
+  message: 'Intervalo de recorrência é obrigatório para transações recorrentes',
+  path: ['recurrenceInterval'],
 });
 
 export const transactionFilterSchema = z.object({

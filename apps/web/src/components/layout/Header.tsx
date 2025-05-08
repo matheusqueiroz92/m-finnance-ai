@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Bell, Mail } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,

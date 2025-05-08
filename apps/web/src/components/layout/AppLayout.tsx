@@ -4,7 +4,7 @@ import React from 'react';
 import { usePathname } from 'next/navigation';
 import Sidebar from './SideBar';
 import Header from './Header';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/lib/auth';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -15,7 +15,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const pathname = usePathname();
   
   const isAuthPage = ['/login', '/register', '/verify-email', '/forgot-password', '/reset-password'].some(
-    route => pathname.startsWith(route)
+    route => pathname?.startsWith(route)
   );
   
   if (isLoading) {

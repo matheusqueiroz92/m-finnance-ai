@@ -41,15 +41,13 @@ const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilt
 };
 
 // Cria opção de upload
-const upload = multer({
+export const upload = multer({
   storage,
   limits: {
     fileSize: 5 * 1024 * 1024, // limite de 5MB 
   },
   fileFilter,
 });
-
-export default upload;
 
 export const avatarUpload = multer({
   storage: multer.diskStorage({

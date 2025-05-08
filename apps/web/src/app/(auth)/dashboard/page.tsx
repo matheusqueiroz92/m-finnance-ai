@@ -25,13 +25,13 @@ import {
 } from 'recharts';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/lib/auth';
 import { getAccountSummary } from '@/services/accountService';
 import { getTransactionStats } from '@/services/transactionService';
 import { getGoalStats } from '@/services/goalService';
 import { QUERY_KEYS } from '@/lib/constants/query-keys';
 
-export default function Dashboard() {
+export default function DashboardPage() {
   const { user } = useAuth();
   const [period, setPeriod] = useState<'day' | 'week' | 'month' | 'year'>('month');
   
@@ -130,7 +130,6 @@ export default function Dashboard() {
           </CardContent>
         </Card>
         
-        // Continuação de src/app/(app)/dashboard/page.tsx
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">

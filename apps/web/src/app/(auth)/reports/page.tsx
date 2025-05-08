@@ -18,7 +18,7 @@ import { PageTitle } from '@/components/shared/PageTitle';
 import { generateReport, getInsights } from '@/services/reportService';
 import { QUERY_KEYS } from '@/lib/constants/query-keys';
 
-export default function RelatoriosPage() {
+export default function ReportsPage() {
   const [exportPeriod, setExportPeriod] = useState<'month' | 'quarter' | 'year'>('month');
   const [exportFormat, setExportFormat] = useState<'pdf' | 'excel'>('pdf');
   const [isGenerating, setIsGenerating] = useState(false);

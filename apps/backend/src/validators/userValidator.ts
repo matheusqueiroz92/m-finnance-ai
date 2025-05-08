@@ -8,6 +8,7 @@ export const userRegisterSchema = z.object({
   cpf: z.string().optional(),
   phone: z.string().optional(),
   language: z.string().optional().default('pt-BR'),
+  avatar: z.string().optional(),
 });
 
 export const userLoginSchema = z.object({
@@ -23,6 +24,7 @@ export const userUpdateSchema = z.object({
   language: z.string().optional(),
   twoFactorEnabled: z.boolean().optional(),
   newsletterEnabled: z.boolean().optional(),
+  avatar: z.string().optional(), // Adicione esta propriedade
 });
 
 export const changePasswordSchema = z.object({

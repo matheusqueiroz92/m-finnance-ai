@@ -19,9 +19,9 @@ import { PageTitle } from '@/components/shared/PageTitle';
 import { getAccounts, getAccountSummary } from '@/services/accountService';
 import { getTransactions } from '@/services/transactionService';
 import { QUERY_KEYS } from '@/lib/constants/query-keys';
-import { CreateAccountModal } from '@/components/carteira/CreateAccountModal';
+import { CreateAccountModal } from '@/components/wallet/CreateAccountModal';
 
-export default function CarteiraPage() {
+export default function WalletPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   
   const { data: accounts } = useQuery({

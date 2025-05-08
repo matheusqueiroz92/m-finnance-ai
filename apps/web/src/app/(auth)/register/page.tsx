@@ -16,17 +16,19 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/lib/auth';
 import { registerSchema } from '@/lib/validators/authValidator';
 
-type FormValues = z.infer<typeof registerSchema>;
+// Definir explicitamente o tipo para corresponder ao schema
+const formSchema = registerSchema;
+type FormValues = z.infer<typeof formSchema>;
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
-  const { register, isLoading } = useAuth();
+  const { register: registerUser, isLoading } = useAuth();
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
       email: '',
@@ -40,13 +42,12 @@ export default function RegisterPage() {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      await register(values);
+      await registerUser(values);
     } catch (error) {
       console.error('Erro ao registrar:', error);
-      // Você pode adicionar uma notificação de erro aqui
     }
   };
-
+  
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Coluna da esquerda - Imagem/Branding */}

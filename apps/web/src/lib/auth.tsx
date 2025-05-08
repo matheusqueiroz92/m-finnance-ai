@@ -1,11 +1,12 @@
-'use client';
+"use client";
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-import * as authService from '@/services/authService';
 import { LoginCredentials, RegisterData, User } from '@/types/user';
+import * as authService from '@/services/authService';
 
+// Interface para o contexto
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
@@ -17,7 +18,8 @@ interface AuthContextType {
   updateUserData: (data: Partial<User>) => void;
 }
 
-const AuthContext = createContext<AuthContextType>({
+// Contexto padrão
+const defaultAuthContext: AuthContextType = {
   user: null,
   isLoading: true,
   isAuthenticated: false,
@@ -26,11 +28,18 @@ const AuthContext = createContext<AuthContextType>({
   register: async () => {},
   logout: () => {},
   updateUserData: () => {},
-});
+};
 
-export const useAuth = () => useContext(AuthContext);
+// Contexto de autenticação
+const AuthContext = createContext<AuthContextType>(defaultAuthContext);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+// Hook personalizado
+export function useAuth() {
+  return useContext(AuthContext);
+}
+
+// Provedor de autenticação
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
@@ -96,20 +105,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const value = {
+    user,
+    isLoading,
+    isAuthenticated,
+    isPremium,
+    login,
+    register,
+    logout,
+    updateUserData,
+  };
+
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isLoading,
-        isAuthenticated,
-        isPremium,
-        login,
-        register,
-        logout,
-        updateUserData,
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
-};
+}

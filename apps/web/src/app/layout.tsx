@@ -4,7 +4,7 @@ import './globals.css';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { Toaster } from '@/components/ui/sonner';
 import { QueryProvider } from '@/components/providers/QueryProvider';
-import { AuthProvider } from '@/contexts/AuthContext';
+import { AuthProvider } from '@/lib/auth';
 import AppLayout from '@/components/layout/AppLayout';
 
 const inter = Inter({ subsets: ['latin'] });

@@ -57,11 +57,11 @@ export interface IUserRegisterDTO {
   name: string;
   email: string;
   password: string;
-  dateOfBirth?: Date | string;
+  dateOfBirth?: Date;
   cpf?: string;
   phone?: string;
-  avatar?: string;
   language?: string;
+  avatar?: string;
 }
 
 export interface IUserLoginDTO {
@@ -72,12 +72,12 @@ export interface IUserLoginDTO {
 export interface IUserUpdateDTO {
   name?: string;
   email?: string;
-  dateOfBirth?: Date | string;
+  dateOfBirth?: Date;
   phone?: string;
-  avatar?: string;
   language?: string;
   twoFactorEnabled?: boolean;
   newsletterEnabled?: boolean;
+  avatar?: string;
 }
 
 export interface IChangePasswordDTO {

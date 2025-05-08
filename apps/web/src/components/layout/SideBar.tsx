@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/lib/auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   LayoutDashboard,
@@ -12,15 +12,17 @@ import {
   Target,
   TrendingUp,
   Settings,
+  ChartColumnBig
 } from 'lucide-react';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
-  { icon: CreditCard, label: 'Carteira', href: '/carteira' },
-  { icon: ArrowRightLeft, label: 'Transações', href: '/transacoes' },
-  { icon: Target, label: 'Objetivos', href: '/objetivos' },
+  { icon: CreditCard, label: 'Carteira', href: '/wallet' },
+  { icon: ArrowRightLeft, label: 'Transações', href: '/transactions' },
+  { icon: Target, label: 'Objetivos', href: '/goals' },
   { icon: TrendingUp, label: 'Investimentos', href: '/investimentos' },
-  { icon: Settings, label: 'Configurações', href: '/configuracoes' },
+  { icon: Settings, label: 'Configurações', href: '/settings' },
+  { icon: ChartColumnBig, label: 'Relatórios', href: '/reports' },
 ];
 
 export default function Sidebar() {

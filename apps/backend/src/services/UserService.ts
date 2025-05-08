@@ -27,7 +27,9 @@ export class UserService implements IUserService {
     @inject('UserRepository')
     private userRepository: IUserRepository,
     @inject('NotificationService')
-    private notificationService: INotificationService
+    private notificationService: INotificationService,
+    @inject('CategoryService')
+    private categoryService: ICategoryService 
   ) {}
 
   /**
@@ -59,9 +61,13 @@ export class UserService implements IUserService {
         processedUserData.dateOfBirth = new Date(processedUserData.dateOfBirth);
       }
       
+      // Tratar o CPF - se for vazio ou undefined, remove o campo
+      if (!processedUserData.cpf || processedUserData.cpf.trim() === '') {
+        delete processedUserData.cpf;
+      }
+      
       // Criar usuário
       const user = await this.userRepository.create(processedUserData, { session });
-      
       if (!user) {
         throw new ApiError('Erro ao criar usuário', 500);
       }
@@ -76,7 +82,7 @@ export class UserService implements IUserService {
       }
       
       const token = generateToken(userId);
-
+  
       const subscriptionService = container.resolve<ISubscriptionService>('SubscriptionService');
     
       try {
@@ -85,6 +91,14 @@ export class UserService implements IUserService {
       } catch (error) {
         console.error('Erro ao criar assinatura de teste:', error);
         // Continuar mesmo se houver erro na criação da assinatura
+      }
+      
+      try {
+        // Criar categorias padrão para o novo usuário
+        await this.categoryService.createDefaultCategories(userId);
+      } catch (error) {
+        console.error('Erro ao criar categorias padrão:', error);
+        // Continuar mesmo se houver erro na criação das categorias
       }
       
       return {

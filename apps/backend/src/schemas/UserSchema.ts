@@ -28,6 +28,17 @@ const userSchema = new Schema<IUser>(
       type: String,
       unique: true,
       sparse: true,
+      validate: {
+        validator: function(v: string | null | undefined) {
+          // Se for undefined ou null, retorna true (válido)
+          if (v === undefined || v === null) return true;
+          // Se for string vazia, retorna false (inválido)
+          if (v === '') return false;
+          // Adicione aqui validação de CPF se necessário
+          return true;
+        },
+        message: 'CPF inválido ou vazio'
+      }
     },
     phone: {
       type: String,

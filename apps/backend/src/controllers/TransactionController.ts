@@ -3,6 +3,8 @@ import { injectable, inject } from 'tsyringe';
 import { ITransactionService } from '../interfaces/services/ITransactionService';
 import { ApiResponse } from '../utils/ApiResponse';
 import { ApiError } from '../utils/ApiError';
+import { transactionCreateSchema, transactionUpdateSchema } from '../validators/transactionValidator';
+import { ZodError } from 'zod';
 
 @injectable()
 export class TransactionController {
@@ -16,52 +18,83 @@ export class TransactionController {
    */
   createTransaction = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { 
-        account, 
-        category, 
-        amount, 
-        type, 
-        description, 
-        date, 
-        isRecurring, 
-        recurrenceInterval, 
-        notes,
-        fileType,
-        fileDescription
-      } = req.body;
+      console.log('Dados recebidos no controller:', req.body);
+      console.log('Arquivos recebidos:', req.files);
       
-      // Definir o tipo para incluir attachments
-      const transactionData: any = {
-        account,
-        category,
-        amount,
-        type,
-        description,
-        date: date || new Date(),
-        isRecurring: isRecurring || false,
-        recurrenceInterval,
-        notes
+      // Preparar os dados para validação
+      const transactionData = {
+        account: req.body.account,
+        category: req.body.category,
+        amount: req.body.amount ? parseFloat(req.body.amount) : undefined,
+        type: req.body.type,
+        description: req.body.description,
+        date: req.body.date || new Date().toISOString(),
+        isRecurring: req.body.isRecurring === 'true',
+        recurrenceInterval: req.body.recurrenceInterval,
+        notes: req.body.notes,
+        fileType: req.body.fileType,
+        fileDescription: req.body.fileDescription
       };
       
-      // Processar os uploads de arquivos com metadados
-      if (req.files && Array.isArray(req.files)) {
-        const attachmentType = fileType || 'receipt'; // Valor padrão
-        const attachmentDescription = fileDescription || ''; // Valor padrão
+      console.log('Dados preparados para validação:', transactionData);
+      
+      // Validar os dados manualmente
+      try {
+        // Usar o schema Zod para validação
+        const validatedData = transactionCreateSchema.parse(transactionData);
+        console.log('Dados validados com sucesso:', validatedData);
         
-        transactionData.attachments = (req.files as Express.Multer.File[]).map(
-          (file) => ({
-            path: file.path.replace(/\\/g, '/'),
-            type: attachmentType,
-            description: attachmentDescription,
-            uploadedAt: new Date()
-          })
-        );
+        // Preparar os dados para criação da transação
+        const finalTransactionData: any = {
+          ...validatedData,
+          // Remover campos que não devem ir para o serviço
+          fileType: undefined,
+          fileDescription: undefined
+        };
+        
+        // Remover campos undefined
+        Object.keys(finalTransactionData).forEach(key => {
+          if (finalTransactionData[key] === undefined) {
+            delete finalTransactionData[key];
+          }
+        });
+        
+        // Processar os uploads de arquivos com metadados
+        if (req.files && Array.isArray(req.files)) {
+          const attachmentType = req.body.fileType || 'receipt'; // Valor padrão
+          const attachmentDescription = req.body.fileDescription || ''; // Valor padrão
+          
+          finalTransactionData.attachments = (req.files as Express.Multer.File[]).map(
+            (file) => ({
+              path: file.path.replace(/\\/g, '/'),
+              type: attachmentType,
+              description: attachmentDescription,
+              uploadedAt: new Date()
+            })
+          );
+        }
+        
+        console.log('Dados finais para criação da transação:', finalTransactionData);
+        
+        const transaction = await this.transactionService.createTransaction(req.user._id, finalTransactionData);
+        
+        ApiResponse.created(res, transaction, 'Transação criada com sucesso');
+      } catch (validationError) {
+        console.error('Erro de validação:', validationError);
+        
+        if (validationError instanceof ZodError) {
+          const formattedErrors = validationError.errors.map(err => ({
+            field: err.path.join('.') || 'dados',
+            message: `Campo ${err.path.join('.') || 'desconhecido'}: ${err.message}`
+          }));
+          
+          throw new ApiError('Erro de validação dos dados da transação', 400, formattedErrors);
+        } else {
+          throw validationError;
+        }
       }
-      
-      const transaction = await this.transactionService.createTransaction(req.user._id, transactionData);
-      
-      ApiResponse.created(res, transaction, 'Transação criada com sucesso');
     } catch (error) {
+      console.error('Erro ao criar transação:', error);
       next(error);
     }
   };
@@ -125,84 +158,98 @@ export class TransactionController {
         throw new ApiError('ID da transação é obrigatório', 400);
       }
       
-      const { 
-        account, 
-        category, 
-        amount, 
-        type, 
-        description, 
-        date, 
-        isRecurring, 
-        recurrenceInterval, 
-        notes,
-        fileType,
-        fileDescription,
-        keepExistingAttachments
-      } = req.body;
+      console.log('Dados recebidos para atualização:', req.body);
+      console.log('Arquivos recebidos:', req.files);
       
-      // Definir o tipo para incluir attachments
+      // Preparar os dados para validação
       const updateData: any = {
-        account,
-        category,
-        amount,
-        type,
-        description,
-        date,
-        isRecurring,
-        recurrenceInterval,
-        notes
+        account: req.body.account,
+        category: req.body.category,
+        amount: req.body.amount ? parseFloat(req.body.amount) : undefined,
+        type: req.body.type,
+        description: req.body.description,
+        date: req.body.date,
+        isRecurring: req.body.isRecurring === 'true' ? true : 
+                    req.body.isRecurring === 'false' ? false : undefined,
+        recurrenceInterval: req.body.recurrenceInterval,
+        notes: req.body.notes
       };
       
-      // Remover campos indefinidos
+      // Remover campos undefined para não sobrescrever dados existentes
       Object.keys(updateData).forEach(key => {
         if (updateData[key] === undefined) {
           delete updateData[key];
         }
       });
       
-      // Processar os uploads de arquivos com metadados
-      if (req.files && Array.isArray(req.files) && req.files.length > 0) {
-        const attachmentType = fileType || 'receipt'; // Valor padrão
-        const attachmentDescription = fileDescription || ''; // Valor padrão
+      console.log('Dados preparados para validação:', updateData);
+      
+      // Validar os dados manualmente
+      try {
+        // Usar o schema Zod para validação
+        const validatedData = transactionUpdateSchema.parse(updateData) as typeof updateData & { attachments?: { path: string; type: string; description: string; uploadedAt: Date }[] };
+        console.log('Dados validados com sucesso:', validatedData);
         
-        const newAttachments = (req.files as Express.Multer.File[]).map(
-          (file) => ({
-            path: file.path.replace(/\\/g, '/'),
-            type: attachmentType,
-            description: attachmentDescription,
-            uploadedAt: new Date()
-          })
-        );
-        
-        // Verificar se deve manter os anexos existentes ou substituí-los
-        const shouldKeepExistingAttachments = keepExistingAttachments === 'true';
-        
-        if (shouldKeepExistingAttachments) {
-          // Buscar a transação atual para obter os anexos existentes
-          const currentTransaction = await this.transactionService.getTransactionById(
-            req.params.id,
-            req.user._id
+        // Processar os uploads de arquivos com metadados
+        if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+          const attachmentType = req.body.fileType || 'receipt'; // Valor padrão
+          const attachmentDescription = req.body.fileDescription || ''; // Valor padrão
+          
+          const newAttachments = (req.files as Express.Multer.File[]).map(
+            (file) => ({
+              path: file.path.replace(/\\/g, '/'),
+              type: attachmentType,
+              description: attachmentDescription,
+              uploadedAt: new Date()
+            })
           );
           
-          // Combinar anexos existentes com os novos
-          updateData.attachments = [
-            ...(currentTransaction.attachments || []),
-            ...newAttachments
-          ];
+          // Verificar se deve manter os anexos existentes ou substituí-los
+          const shouldKeepExistingAttachments = req.body.keepExistingAttachments === 'true';
+          
+          if (shouldKeepExistingAttachments) {
+            // Buscar a transação atual para obter os anexos existentes
+            const currentTransaction = await this.transactionService.getTransactionById(
+              req.params.id,
+              req.user._id
+            );
+            
+            // Combinar anexos existentes com os novos
+            validatedData.attachments = [
+              ...(currentTransaction.attachments || []),
+              ...newAttachments
+            ];
+          } else {
+            // Substituir anexos existentes pelos novos
+            validatedData.attachments = newAttachments;
+          }
+        }
+        
+        console.log('Dados finais para atualização da transação:', validatedData);
+        
+        const transaction = await this.transactionService.updateTransaction(
+          req.params.id,
+          req.user._id,
+          validatedData
+        );
+        
+        ApiResponse.success(res, transaction, 'Transação atualizada com sucesso');
+      } catch (validationError) {
+        console.error('Erro de validação:', validationError);
+        
+        if (validationError instanceof ZodError) {
+          const formattedErrors = validationError.errors.map(err => ({
+            field: err.path.join('.') || 'dados',
+            message: `Campo ${err.path.join('.') || 'desconhecido'}: ${err.message}`
+          }));
+          
+          throw new ApiError('Erro de validação dos dados da transação', 400, formattedErrors);
         } else {
-          // Substituir anexos existentes pelos novos
-          updateData.attachments = newAttachments;
+          throw validationError;
         }
       }
-      
-      const transaction = await this.transactionService.updateTransaction(
-        req.params.id,
-        req.user._id,
-        updateData
-      );
-      
-      ApiResponse.success(res, transaction, 'Transação atualizada com sucesso');
     } catch (error) {
+      console.error('Erro ao atualizar transação:', error);
       next(error);
     }
   };

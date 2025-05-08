@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Settings, CreditCard, Bell, User, Plus, Pencil, Trash2 } from 'lucide-react';
+import { Settings, Bell, User } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -29,7 +29,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { PageTitle } from '@/components/shared/PageTitle';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/lib/auth';
 import { userUpdateSchema, changePasswordSchema } from '@/lib/validators/authValidator';
 import { updateProfile, changePassword } from '@/services/authService';
 import { QUERY_KEYS } from '@/lib/constants/query-keys';
@@ -37,7 +37,7 @@ import { QUERY_KEYS } from '@/lib/constants/query-keys';
 type ProfileFormValues = z.infer<typeof userUpdateSchema>;
 type PasswordFormValues = z.infer<typeof changePasswordSchema>;
 
-export default function ConfiguracoesPage() {
+export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('perfil');
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);

@@ -8,19 +8,25 @@ export const validate = (schema: AnyZodObject) => (
   next: NextFunction
 ) => {
   try {
+    console.log('Dados recebidos para validação:', req.body);
+    
     // Validar o corpo da requisição com o schema Zod
     const validatedData = schema.parse(req.body);
     
     // Atualizar o req.body com os dados validados (e possivelmente transformados)
     req.body = validatedData;
     
+    console.log('Dados validados:', req.body);
+    
     next();
   } catch (error) {
+    console.error('Erro de validação:', error);
+    
     if (error instanceof ZodError) {
-      // Formatar os erros de validação
+      // Formatar os erros de validação de forma mais clara
       const formattedErrors = error.errors.map((err) => ({
-        field: err.path.join('.'),
-        message: err.message,
+        field: err.path.join('.') || 'dados',
+        message: `${err.path.join('.') || 'Campo'} - ${err.message}`,
       }));
       
       next(new ApiError('Erro de validação', 400, formattedErrors));
