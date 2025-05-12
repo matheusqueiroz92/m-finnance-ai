@@ -27,6 +27,10 @@ const accountSchema = new Schema<IAccount>(
       required: [true, 'Nome da instituição é obrigatório'],
       trim: true,
     },
+    bankBranch: {
+      type: String,
+      trim: true,
+    },
     accountNumber: {
       type: String,
       trim: true,

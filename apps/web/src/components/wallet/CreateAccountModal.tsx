@@ -147,6 +147,20 @@ export function CreateAccountModal({ isOpen, onClose }: CreateAccountModalProps)
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="bankBranch"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Agência</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Ex: 0001" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               
               <FormField
                 control={form.control}

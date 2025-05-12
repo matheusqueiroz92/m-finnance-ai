@@ -4,6 +4,7 @@ export interface Account {
   type: 'checking' | 'savings' | 'investment' | 'credit';
   balance: number;
   institution: string;
+  bankBranch?: string;
   accountNumber?: string;
   isActive: boolean;
   createdAt: Date;
@@ -15,6 +16,7 @@ export interface AccountCreateData {
   type: 'checking' | 'savings' | 'investment' | 'credit';
   balance?: number;
   institution: string;
+  bankBranch?: string;
   accountNumber?: string;
   isActive?: boolean;
 }
@@ -22,6 +24,7 @@ export interface AccountCreateData {
 export interface AccountUpdateData {
   name?: string;
   institution?: string;
+  bankBranch?: string;
   accountNumber?: string;
   isActive?: boolean;
 }

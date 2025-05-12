@@ -6,6 +6,7 @@ export interface IAccount extends Document {
   type: 'checking' | 'savings' | 'investment' | 'credit';
   balance: number;
   institution: string;
+  bankBranch?: string;
   accountNumber?: string;
   isActive: boolean;
   createdAt: Date;
@@ -18,6 +19,7 @@ export interface IAccountDTO {
   type: 'checking' | 'savings' | 'investment' | 'credit';
   balance: number;
   institution: string;
+  bankBranch?: string;
   accountNumber?: string;
   isActive: boolean;
   createdAt: Date;
@@ -29,6 +31,7 @@ export interface IAccountCreateDTO {
   type: 'checking' | 'savings' | 'investment' | 'credit';
   balance?: number;
   institution: string;
+  bankBranch?: string;
   accountNumber?: string;
   isActive?: boolean;
 }
@@ -36,6 +39,7 @@ export interface IAccountCreateDTO {
 export interface IAccountUpdateDTO {
   name?: string;
   institution?: string;
+  bankBranch?: string;
   accountNumber?: string;
   isActive?: boolean;
 }

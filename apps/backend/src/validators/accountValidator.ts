@@ -7,6 +7,7 @@ export const accountCreateSchema = z.object({
   }),
   balance: z.number().default(0),
   institution: z.string().min(2, 'Nome da instituição é obrigatório'),
+  bankBrach: z.string().optional(),
   accountNumber: z.string().optional(),
   isActive: z.boolean().default(true),
 });
@@ -14,6 +15,7 @@ export const accountCreateSchema = z.object({
 export const accountUpdateSchema = z.object({
   name: z.string().min(2, 'O nome da conta deve ter pelo menos 2 caracteres').optional(),
   institution: z.string().min(2, 'Nome da instituição é obrigatório').optional(),
+  bankBrach: z.string().optional(),
   accountNumber: z.string().optional(),
   isActive: z.boolean().optional(),
 });
