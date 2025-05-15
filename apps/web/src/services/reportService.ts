@@ -1,7 +1,7 @@
 import api from '@/lib/api/axios';
 import { API_ROUTES } from '@/lib/constants/api-routes';
-import { FinancialInsights } from '@/types/report';
 import { ApiResponse } from '@/types/api-response';
+import { FinancialInsights } from '@/types/report';
 
 export const generateReport = async (
   period: 'month' | 'quarter' | 'year' = 'month',

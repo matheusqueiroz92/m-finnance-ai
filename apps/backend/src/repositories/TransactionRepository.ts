@@ -12,7 +12,8 @@ export class TransactionRepository implements ITransactionRepository {
     
     return (await saved.populate([
       { path: 'category', select: 'name type icon color' },
-      { path: 'account', select: 'name type institution' }
+      { path: 'account', select: 'name type institution' },
+      { path: 'creditCard', select: 'cardNumber cardBrand cardholderName' }
     ])) as unknown as ITransactionPopulated;
   }
 

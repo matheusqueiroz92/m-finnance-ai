@@ -1,5 +1,6 @@
 import api from '@/lib/api/axios';
 import { API_ROUTES } from '@/lib/constants/api-routes';
+import { ApiResponse } from '@/types/api-response';
 import { 
   LoginCredentials, 
   RegisterData, 
@@ -8,7 +9,6 @@ import {
   UserUpdateData, 
   User 
 } from '@/types/user';
-import { ApiResponse } from '@/types/api-response';
 import Cookies from 'js-cookie';
 
 export const login = async (credentials: LoginCredentials): Promise<AuthResponse> => {

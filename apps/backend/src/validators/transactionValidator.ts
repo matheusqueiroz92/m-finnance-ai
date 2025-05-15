@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const transactionCreateSchema = z.object({
   account: z.string().min(1, 'Conta é obrigatória'),
   category: z.string().min(1, 'Categoria é obrigatória'),
+  creditCard: z.string().optional(),
   amount: z.number().positive('O valor deve ser maior que zero'),
   type: z.enum(['income', 'expense', 'investment'], {
     errorMap: () => ({ message: 'Tipo inválido. Deve ser income, expense ou investment' })
@@ -29,6 +30,7 @@ export const transactionCreateSchema = z.object({
 export const transactionUpdateSchema = z.object({
   account: z.string().min(1, 'Conta é obrigatória').optional(),
   category: z.string().min(1, 'Categoria é obrigatória').optional(),
+  creditCard: z.string().optional(),
   amount: z.number().positive('O valor deve ser maior que zero').optional(),
   type: z.enum(['income', 'expense', 'investment'], {
     errorMap: () => ({ message: 'Tipo inválido. Deve ser income, expense ou investment' })

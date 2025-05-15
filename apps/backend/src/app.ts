@@ -18,6 +18,7 @@ import fileRoutes from './routes/fileRoutes';
 import subscriptionRoutes from './routes/subscriptionRoutes';
 import paymentRoutes from './routes/paymentRoutes';
 import authRoutes from './routes/authRoutes';
+import creditCardRoutes from './routes/creditCardRoutes';
 
 const app = express();
 
@@ -48,9 +49,10 @@ app.use('/api/files', fileRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/credit-card', creditCardRoutes);
 
 // Home route
-app.get('/', (req, res) => {
+app.get('/', (_req, res) => {
   res.json({
     message: 'FinanceAI API',
     version: '1.0.0',

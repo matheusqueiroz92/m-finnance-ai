@@ -47,7 +47,7 @@ import { getCategories } from '@/services/categoryService';
 import { getAccounts } from '@/services/accountService';
 import { QUERY_KEYS } from '@/lib/constants/query-keys';
 import { transactionFilterSchema } from '@/lib/validators/transactionValidator';
-import { CreateTransactionModal } from '@/components/transactions/CreateTransactionModal';
+import { CreateTransactionModal } from '@/components/Transactions/CreateTransactionModal';
 
 const filterSchema = z.object({
   type: z.enum(['income', 'expense', 'investment']).optional(),

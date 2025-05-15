@@ -25,6 +25,11 @@ export const API_ROUTES = {
     ATTACHMENT: (transactionId: string, attachmentId: string) => 
       `/transactions/${transactionId}/attachments/${attachmentId}`,
   },
+  CREDIT_CARDS: {
+    BASE: '/credit-cards',
+    DETAIL: (id: string) => `/credit-cards/${id}`,
+    BALANCE: (id: string) => `/credit-cards/${id}/balance`,
+  },
   CATEGORIES: {
     BASE: '/categories',
     DETAIL: (id: string) => `/categories/${id}`,

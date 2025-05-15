@@ -7,6 +7,8 @@ import { IAccountRepository } from '../interfaces/repositories/IAccountRepositor
 import { ICategoryRepository } from '../interfaces/repositories/ICategoryRepository';
 import { ITransactionRepository } from '../interfaces/repositories/ITransactionRepository';
 import { IGoalRepository } from '../interfaces/repositories/IGoalRepository';
+import { ISubscriptionRepository } from '../interfaces/repositories/ISubscriptionRepository';
+import { ICreditCardRepository } from '../interfaces/repositories/ICreditCardRepository';
 
 // Interfaces - Services
 import { IUserService } from '../interfaces/services/IUserService';
@@ -17,10 +19,10 @@ import { IGoalService } from '../interfaces/services/IGoalService';
 import { IReportService } from '../interfaces/services/IReportService';
 import { IAIAnalysisService } from '../interfaces/services/IAIAnalysisService';
 import { INotificationService } from '../interfaces/services/INotificationService';
+import { ISubscriptionService } from '../interfaces/services/ISubscriptionService';
 import { IPaymentService } from '../interfaces/services/IPaymentService';
-import { StripePaymentService } from '../services/StripePaymentService';
 import { IBillingService } from '../interfaces/services/IBillingService';
-import { BillingService } from '../services/BillingService';
+import { ICreditCardService } from '../interfaces/services/ICreditCardService';
 
 // Implementations - Repositories
 import { UserRepository } from '../repositories/UserRepository';
@@ -28,6 +30,8 @@ import { AccountRepository } from '../repositories/AccountRepository';
 import { CategoryRepository } from '../repositories/CategoryRepository';
 import { TransactionRepository } from '../repositories/TransactionRepository';
 import { GoalRepository } from '../repositories/GoalRepository';
+import { SubscriptionRepository } from '../repositories/SubscriptionRepository';
+import { CreditCardRepository } from '../repositories/CreditCardRepository';
 
 // Implementations - Services
 import { UserService } from '../services/UserService';
@@ -39,10 +43,10 @@ import { ReportService } from '../services/ReportService';
 import { AIAnalysisService } from '../services/AIAnalysisService';
 // import { NotificationService } from '../services/NotificationService';
 import { MockNotificationService } from '../services/MockNotificationService';
-import { ISubscriptionService } from '../interfaces/services/ISubscriptionService';
 import { SubscriptionService } from '../services/SubscriptionService';
-import { SubscriptionRepository } from '../repositories/SubscriptionRepository';
-import { ISubscriptionRepository } from '../interfaces/repositories/ISubscriptionRepository';
+import { StripePaymentService } from '../services/StripePaymentService';
+import { BillingService } from '../services/BillingService';
+import { CreditCardService } from '../services/CreditCardService';
 
 // Register Repositories
 container.registerSingleton<IUserRepository>('UserRepository', UserRepository);
@@ -51,6 +55,7 @@ container.registerSingleton<ICategoryRepository>('CategoryRepository', CategoryR
 container.registerSingleton<ITransactionRepository>('TransactionRepository', TransactionRepository);
 container.registerSingleton<IGoalRepository>('GoalRepository', GoalRepository);
 container.registerSingleton<ISubscriptionRepository>('SubscriptionRepository', SubscriptionRepository);
+container.registerSingleton<ICreditCardRepository>('CreditCardRepository', CreditCardRepository);
 
 // Register Services
 container.registerSingleton<IUserService>('UserService', UserService);
@@ -65,5 +70,6 @@ container.registerSingleton<INotificationService>('NotificationService', MockNot
 container.registerSingleton<ISubscriptionService>('SubscriptionService', SubscriptionService);
 container.registerSingleton<IPaymentService>('PaymentService', StripePaymentService);
 container.registerSingleton<IBillingService>('BillingService', BillingService);
+container.registerSingleton<ICreditCardService>('CreditCardService', CreditCardService)
 
 export { container };

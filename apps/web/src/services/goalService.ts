@@ -1,12 +1,12 @@
 import api from '@/lib/api/axios';
 import { API_ROUTES } from '@/lib/constants/api-routes';
+import { ApiResponse } from '@/types/api-response';
 import { 
   Goal,
   GoalCreateData, 
   GoalUpdateData,
   GoalStats
 } from '@/types/goal';
-import { ApiResponse } from '@/types/api-response';
 
 export const createGoal = async (data: GoalCreateData): Promise<Goal> => {
   const response = await api.post<ApiResponse<Goal>>(API_ROUTES.GOALS.BASE, data);

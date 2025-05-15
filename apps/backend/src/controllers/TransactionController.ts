@@ -25,6 +25,7 @@ export class TransactionController {
       const transactionData = {
         account: req.body.account,
         category: req.body.category,
+        creditCard: req.body.creditCard,
         amount: req.body.amount ? parseFloat(req.body.amount) : undefined,
         type: req.body.type,
         description: req.body.description,

@@ -4,6 +4,7 @@ export interface ITransaction extends Document {
   user: Types.ObjectId;
   account: Types.ObjectId;
   category: Types.ObjectId;
+  creditCard?: Types.ObjectId;
   amount: number;
   type: 'income' | 'expense' | 'investment';
   description: string;

@@ -1,4 +1,4 @@
-import { injectable, inject } from 'tsyringe';
+import { injectable, inject, container } from 'tsyringe';
 import mongoose from 'mongoose';
 import { ITransactionService } from '../interfaces/services/ITransactionService';
 import { ITransactionRepository } from '../interfaces/repositories/ITransactionRepository';
@@ -13,6 +13,7 @@ import {
 } from '../interfaces/entities/ITransaction';
 import { ApiError } from '../utils/ApiError';
 import { TransactionManager } from '../utils/TransactionManager';
+import { ICreditCardRepository } from '../interfaces/repositories/ICreditCardRepository';
 
 @injectable()
 export class TransactionService implements ITransactionService {
@@ -36,33 +37,47 @@ export class TransactionService implements ITransactionService {
         ...processedData,
         user: new mongoose.Types.ObjectId(userId),
         account: new mongoose.Types.ObjectId(processedData.account),
-        category: new mongoose.Types.ObjectId(processedData.category)
+        category: new mongoose.Types.ObjectId(processedData.category),
+        creditCard: processedData.creditCard ? new mongoose.Types.ObjectId(processedData.creditCard) : undefined
       };
       
       // Criar a transação
       const transaction = await this.transactionRepository.create(newTransaction, { session });
       
-      // Atualizar o saldo da conta
-      const account = await this.accountRepository.findById(processedData.account, userId) as { _id: mongoose.Types.ObjectId; balance: number } | null;
-      
-      if (!account) {
-        throw new ApiError('Conta não encontrada', 404);
+      // Se for transação com cartão de crédito
+      if (processedData.creditCard && processedData.type === 'expense') {
+        const creditCardRepository = container.resolve<ICreditCardRepository>('CreditCardRepository');
+        
+        // Atualizar o saldo do cartão
+        await creditCardRepository.updateBalance(
+          processedData.creditCard,
+          userId,
+          processedData.amount,
+          { session }
+        );
+      } else {
+        // Atualizar o saldo da conta normal
+        const account = await this.accountRepository.findById(processedData.account, userId) as { _id: mongoose.Types.ObjectId; balance: number } | null;
+        
+        if (!account) {
+          throw new ApiError('Conta não encontrada', 404);
+        }
+        
+        const amount = processedData.amount || 0;
+        
+        if (processedData.type === 'income') {
+          account.balance += amount;
+        } else if (processedData.type === 'expense') {
+          account.balance -= amount;
+        }
+        
+        await this.accountRepository.update(
+          account._id.toString(), 
+          userId, 
+          { balance: account.balance }, 
+          { session }
+        );
       }
-      
-      const amount = processedData.amount || 0;
-      
-      if (processedData.type === 'income') {
-        account.balance += amount;
-      } else if (processedData.type === 'expense') {
-        account.balance -= amount;
-      }
-      
-      await this.accountRepository.update(
-        account._id.toString(), 
-        userId, 
-        { balance: account.balance }, 
-        { session }
-      );
       
       return transaction;
     });

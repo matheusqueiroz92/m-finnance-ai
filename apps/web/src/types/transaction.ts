@@ -13,6 +13,12 @@ export interface Transaction {
     icon?: string;
     color?: string;
   };
+  creditCard?: {
+    _id: string;
+    cardNumber: string;
+    cardBrand: string;
+    cardholderName: string;
+  };
   amount: number;
   type: 'income' | 'expense' | 'investment';
   description: string;
@@ -36,6 +42,7 @@ export interface Attachment {
 export interface TransactionCreateData {
   account: string;
   category: string;
+  creditCard?: string;
   amount: number;
   type: 'income' | 'expense' | 'investment';
   description: string;
@@ -48,6 +55,7 @@ export interface TransactionCreateData {
 export interface TransactionUpdateData {
   account?: string;
   category?: string;
+  creditCard?: string;
   amount?: number;
   type?: 'income' | 'expense' | 'investment';
   description?: string;

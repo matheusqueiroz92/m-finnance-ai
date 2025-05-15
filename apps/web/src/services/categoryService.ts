@@ -1,11 +1,11 @@
 import api from '@/lib/api/axios';
 import { API_ROUTES } from '@/lib/constants/api-routes';
+import { ApiResponse } from '@/types/api-response';
 import { 
   Category,
   CategoryCreateData, 
   CategoryUpdateData
 } from '@/types/category';
-import { ApiResponse } from '@/types/api-response';
 
 export const createCategory = async (data: CategoryCreateData): Promise<Category> => {
   const response = await api.post<ApiResponse<Category>>(API_ROUTES.CATEGORIES.BASE, data);

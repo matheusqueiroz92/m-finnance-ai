@@ -13,6 +13,11 @@ const transactionSchema = new Schema<ITransaction>(
       ref: 'Account',
       required: true,
     },
+    creditCard: {
+      type: Schema.Types.ObjectId,
+      ref: 'CreditCard',
+      required: false,
+    },
     category: {
       type: Schema.Types.ObjectId,
       ref: 'Category',

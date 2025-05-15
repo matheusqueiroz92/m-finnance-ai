@@ -2,9 +2,9 @@
 
 import React from 'react';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '@/lib/auth';
 import Sidebar from './SideBar';
 import Header from './Header';
-import { useAuth } from '@/lib/auth';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -27,7 +27,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   }
   
   if (!isAuthenticated && !isAuthPage) {
-    return null; // O middleware vai redirecionar
+    return null;
   }
   
   if (isAuthPage) {

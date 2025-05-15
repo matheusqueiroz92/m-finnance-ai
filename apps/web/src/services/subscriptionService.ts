@@ -1,11 +1,11 @@
 import api from '@/lib/api/axios';
 import { API_ROUTES } from '@/lib/constants/api-routes';
+import { ApiResponse } from '@/types/api-response';
 import { 
   Subscription,
   SubscriptionUpdateData,
   SubscriptionPlanType
 } from '@/types/subscription';
-import { ApiResponse } from '@/types/api-response';
 
 export const getCurrentSubscription = async (): Promise<Subscription | null> => {
   try {
