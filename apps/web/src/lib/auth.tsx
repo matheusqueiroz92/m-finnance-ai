@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import { LoginCredentials, RegisterData, User } from '@/types/user';
 import * as authService from '@/services/authService';
+import { handleError } from '@/lib/errors';
 
 // Interface para o contexto
 interface AuthContextType {
@@ -35,7 +36,11 @@ const AuthContext = createContext<AuthContextType>(defaultAuthContext);
 
 // Hook personalizado
 export function useAuth() {
-  return useContext(AuthContext);
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth deve ser usado dentro de um AuthProvider');
+  }
+  return context;
 }
 
 // Provedor de autenticação
@@ -44,9 +49,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
+  // Valores computados
   const isAuthenticated = !!user;
   const isPremium = user?.isPremium || false;
 
+  // Efeito para verificar autenticação inicial
   useEffect(() => {
     const checkAuth = async () => {
       const token = Cookies.get('token');
@@ -60,6 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const userData = await authService.getProfile();
         setUser(userData);
       } catch (error) {
+        handleError(error);
         Cookies.remove('token');
       } finally {
         setIsLoading(false);
@@ -70,24 +78,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = async (credentials: LoginCredentials) => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
       const response = await authService.login(credentials);
       setUser(response.user);
       Cookies.set('token', response.token, { expires: 7 });
+      
+      // Aguardar um pouco para garantir que o estado seja atualizado
+      await new Promise(resolve => setTimeout(resolve, 100));
       router.push('/dashboard');
+    } catch (error) {
+      handleError(error);
     } finally {
       setIsLoading(false);
     }
   };
 
   const register = async (data: RegisterData) => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
       const response = await authService.register(data);
       setUser(response.user);
       Cookies.set('token', response.token, { expires: 7 });
+      
+      // Aguardar um pouco para garantir que o estado seja atualizado
+      await new Promise(resolve => setTimeout(resolve, 100));
       router.push('/dashboard');
+    } catch (error) {
+      handleError(error);
     } finally {
       setIsLoading(false);
     }
@@ -105,7 +123,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const value = {
+  const value: AuthContextType = {
     user,
     isLoading,
     isAuthenticated,

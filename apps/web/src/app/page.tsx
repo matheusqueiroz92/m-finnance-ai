@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
+import { LoadingSpinner } from '@/components/ui/spinner';
 
 export default function HomePage() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -20,7 +21,7 @@ export default function HomePage() {
 
   return (
     <div className="flex items-center justify-center min-h-screen">
-      <div className="loader">Carregando...</div>
+      <LoadingSpinner fullScreen />
     </div>
   );
 }
