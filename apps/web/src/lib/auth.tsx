@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -84,12 +84,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(response.user);
       Cookies.set('token', response.token, { expires: 7 });
       
-      // Aguardar um pouco para garantir que o estado seja atualizado
-      await new Promise(resolve => setTimeout(resolve, 100));
-      router.push('/dashboard');
+      // Usar router.replace em vez de router.push para evitar problemas com histórico
+      router.replace('/dashboard');
     } catch (error) {
       handleError(error);
-    } finally {
       setIsLoading(false);
     }
   };
@@ -101,12 +99,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(response.user);
       Cookies.set('token', response.token, { expires: 7 });
       
-      // Aguardar um pouco para garantir que o estado seja atualizado
-      await new Promise(resolve => setTimeout(resolve, 100));
-      router.push('/dashboard');
+      // Usar router.replace em vez de router.push
+      router.replace('/dashboard');
     } catch (error) {
       handleError(error);
-    } finally {
       setIsLoading(false);
     }
   };
@@ -114,7 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     authService.logout();
     setUser(null);
-    router.push('/login');
+    router.replace('/login');
   };
 
   const updateUserData = (data: Partial<User>) => {

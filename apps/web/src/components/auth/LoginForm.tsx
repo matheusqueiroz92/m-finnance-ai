@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -17,6 +18,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/lib/auth';
 import { loginSchema } from '@/lib/validators/authValidator';
 import { LoadingOverlay } from '@/components/ui/loading-overlay';
@@ -25,7 +27,10 @@ type FormValues = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const { login, isLoading } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { login } = useAuth();
+  const searchParams = useSearchParams();
+  const resetSuccess = searchParams.get('reset') === 'success';
 
   const form = useForm<FormValues>({
     resolver: zodResolver(loginSchema),
@@ -36,13 +41,27 @@ export default function LoginForm() {
   });
 
   const onSubmit = async (values: FormValues) => {
-    await login(values);
+    setIsSubmitting(true);
+    try {
+      await login(values);
+      // Nota: não resetamos o isSubmitting aqui pois o redirecionamento vai acontecer
+    } catch (error) {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <LoadingOverlay isLoading={isLoading} message="Fazendo login...">
+    <LoadingOverlay isLoading={isSubmitting} message="Fazendo login...">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          {resetSuccess && (
+            <Alert className="bg-emerald-50 border-emerald-200 mb-4">
+              <AlertDescription className="text-emerald-800">
+                Senha redefinida com sucesso! Faça login com sua nova senha.
+              </AlertDescription>
+            </Alert>
+          )}
+          
           {/* Campo de email */}
           <FormField
             control={form.control}
@@ -108,8 +127,8 @@ export default function LoginForm() {
           </div>
           
           {/* Botão de login */}
-          <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-300 text-[#25343b] p-5" disabled={isLoading}>
-            {isLoading ? 'Processando...' : 'ENTRAR'}
+          <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-300 text-[#25343b] p-5" disabled={isSubmitting}>
+            {isSubmitting ? 'Processando...' : 'ENTRAR'}
           </Button>
         </form>
       </Form>

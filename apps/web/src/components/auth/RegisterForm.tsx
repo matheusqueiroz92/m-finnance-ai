@@ -146,11 +146,11 @@ export default function RegisterForm() {
           
           <div className="text-sm text-zinc-50 mt-4">
             Ao clicar em Cadastrar, você concorda com nossos{' '}
-            <Link href="/termos" className="text-emerald-300 hover:text-emerald-100">
+            <Link href="/terms-service" target='_blank' className="text-emerald-300 hover:text-emerald-100">
               Termos de Serviço
             </Link>{' '}
             e{' '}
-            <Link href="/privacidade" className="text-emerald-300 hover:text-emerald-100">
+            <Link href="/privacy-policies" target='_blank' className="text-emerald-300 hover:text-emerald-100">
               Política de Privacidade
             </Link>
             .

@@ -8,6 +8,8 @@ export const API_ROUTES = {
     RESEND_VERIFICATION: '/users/resend-verification',
     PROFILE: '/users/profile',
     CHANGE_PASSWORD: '/users/change-password',
+    FORGOT_PASSWORD: '/users/forgot-password',
+    RESET_PASSWORD: '/users/reset-password',
     GOOGLE: '/auth/google',
     FACEBOOK: '/auth/facebook',
     GITHUB: '/auth/github',
@@ -17,6 +19,11 @@ export const API_ROUTES = {
     BASE: '/accounts',
     DETAIL: (id: string) => `/accounts/${id}`,
     SUMMARY: '/accounts/summary',
+  },
+  CONTACT: {
+    SEND: '/contact/send',
+    SUPPORT: '/contact/support',
+    FEEDBACK: '/contact/feedback',
   },
   TRANSACTIONS: {
     BASE: '/transactions',

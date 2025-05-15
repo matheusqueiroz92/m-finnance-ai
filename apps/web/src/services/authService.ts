@@ -63,6 +63,14 @@ export const changePassword = async (data: ChangePasswordData): Promise<void> =>
   await api.post<ApiResponse<null>>(API_ROUTES.AUTH.CHANGE_PASSWORD, data);
 };
 
+export const forgotPassword = async (email: string): Promise<void> => {
+  await api.post<ApiResponse<null>>(API_ROUTES.AUTH.FORGOT_PASSWORD, { email });
+};
+
+export const resetPassword = async (token: string, password: string): Promise<void> => {
+  await api.post<ApiResponse<null>>(API_ROUTES.AUTH.RESET_PASSWORD, { token, password });
+};
+
 export const verifyEmail = async (token: string): Promise<void> => {
   await api.post<ApiResponse<null>>(API_ROUTES.AUTH.VERIFY_EMAIL, { token });
 };

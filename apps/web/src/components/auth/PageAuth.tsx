@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import BrainImage from '../../../public/images/cerebro-de-curiosidade.png';
+import Logo from '../../../public/images/logo-m-finnance-ai.png';
 import { Button } from '../ui/button';
 
 interface PageAuthProps {
@@ -29,32 +29,24 @@ export default function PageAuth({
     <div className="min-h-screen bg-gray-50 flex">
       {/* Coluna da esquerda - Logo e imagem */}
       <div className="hidden md:flex md:w-1/2 bg-emerald-800 text-white p-10 flex-col">
-        <div className="flex items-center mb-8">
-          <div className="h-8 w-8 mr-2">
-            <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </div>
-          <h1 className="text-2xl font-bold">O'Finance AI</h1>
-        </div>
-        
-        <div className="flex-1 flex flex-col justify-center">
-          <h2 className="text-3xl font-bold mb-4">Transforme sua gestão financeira com IA</h2>
-          <p className="mb-6">Controle suas finanças, defina metas e receba insights personalizados para tomar melhores decisões.</p>
-          
+        <div className="w-full max-w-auto flex-1 flex flex-col gap-12 justify-center p-32">
           <Image 
-            src={BrainImage}
+            src={Logo}
             alt="Cerebro de curiosidade"
-            width={400}
-            height={400}
+            width={500}
+            height={500}
             className="max-w-md mx-auto"
           />
+          <p className="pl-8 text-[16px]"><span className="text-emerald-300 font-bold">Transforme</span> sua gestão financeira com IA.
+            <span className="text-emerald-300 font-bold"> Controle suas finanças</span>, defina metas e receba insights personalizados para tomar melhores decisões.</p>
         </div>
       </div>
       
       {/* Coluna da direita - Formulário */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-8 bg-[#25343b]">
         <div className="w-full max-w-md">
+
+          {/* Mobile */}
           <div className="flex items-center justify-center mb-8 md:hidden">
             <div className="h-8 w-8 mr-2">
               <svg viewBox="0 0 24 24" fill="#047857" xmlns="http://www.w3.org/2000/svg">
@@ -64,6 +56,7 @@ export default function PageAuth({
             <h1 className="text-2xl font-bold text-emerald-600">OFinanceAI</h1>
           </div>
           
+          {/* Título e subtítulo */}
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-emerald-300">{title}</h2>
             <p className="text-zinc-50 mt-2">{subtitle}</p>
@@ -138,6 +131,15 @@ export default function PageAuth({
               </Link>
             </p>
           </div>
+
+          {/* Rodapé */}
+          <footer className="mt-12 text-center text-xs text-zinc-300">
+            <p>
+              © {new Date().getFullYear()} Todos os direitos
+              reservados. Desenvolvido por{" "}
+              <span className="font-bold">Matheus Queiroz</span>
+            </p>
+          </footer>
         </div>
       </div>
     </div>

@@ -9,7 +9,7 @@ interface LoadingOverlayProps {
 
 export function LoadingOverlay({ isLoading, message = 'Processando...', children }: LoadingOverlayProps) {
   return (
-    <>
+    <div className="relative">
       {children}
       {isLoading && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
@@ -19,6 +19,6 @@ export function LoadingOverlay({ isLoading, message = 'Processando...', children
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

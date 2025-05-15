@@ -12,21 +12,26 @@ import {
   Target,
   TrendingUp,
   Settings,
-  ChartColumnBig
+  ChartColumnBig,
+  LogOut,
+  Wallet,
+  Receipt,
 } from 'lucide-react';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
-  { icon: CreditCard, label: 'Carteira', href: '/wallet' },
+  { icon: Wallet, label: 'Carteira', href: '/wallet' },
   { icon: ArrowRightLeft, label: 'Transações', href: '/transactions' },
   { icon: Target, label: 'Objetivos', href: '/goals' },
   { icon: TrendingUp, label: 'Investimentos', href: '/investimentos' },
+  { icon: Receipt, label: 'Contas Bancárias', href: '/accounts' },
+  { icon: CreditCard, label: 'Cartões de Crédito', href: '/credit-cards' },
   { icon: Settings, label: 'Configurações', href: '/settings' },
   { icon: ChartColumnBig, label: 'Relatórios', href: '/reports' },
 ];
 
 export default function Sidebar() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const pathname = usePathname();
 
   return (
@@ -57,8 +62,8 @@ export default function Sidebar() {
         </div>
       </div>
       
-      <nav className="p-4 flex-1">
-        <ul className="space-y-1">
+      <nav className="p-4 flex-1 flex flex-col">
+        <ul className="space-y-1 flex-1">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
             
@@ -79,6 +84,17 @@ export default function Sidebar() {
             );
           })}
         </ul>
+        
+        {/* Botão de Logout */}
+        <div className="pt-4 border-t border-emerald-700">
+          <button
+            onClick={logout}
+            className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-emerald-100 hover:bg-emerald-700/50 transition-colors"
+          >
+            <LogOut size={20} />
+            <span>Sair</span>
+          </button>
+        </div>
       </nav>
     </div>
   );
