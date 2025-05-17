@@ -14,4 +14,8 @@ export const QUERY_KEYS = {
     REPORTS_INSIGHTS: 'reports-insights',
     PAYMENT_METHODS: 'payment-methods',
     SUBSCRIPTION: 'subscription',
+    INVESTMENTS: 'investments',
+    INVESTMENT_SUMMARY: 'investment-summary',
+    INVESTMENT_PERFORMANCE: 'investment-performance',
+    INVESTMENT_DETAIL: (id: string) => ['investment', id],
   };

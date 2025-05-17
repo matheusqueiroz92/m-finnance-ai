@@ -1,9 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 import { useTheme } from 'next-themes';
-import { useAuth } from '@/lib/auth';
 import { Menu, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,23 +23,11 @@ const pageTitles: Record<string, string> = {
 };
 
 export default function Header() {
-  const { user } = useAuth();
-  const pathname = usePathname();
   const { theme } = useTheme();
-  const [pageTitle, setPageTitle] = useState('Dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const isDark = theme === 'dark';
-
-  // Define o título da página com base no pathname
-  useEffect(() => {
-    if (pathname) {
-      const title = pageTitles[pathname] || 'OFinanceAI';
-      setPageTitle(title);
-      document.title = `${title} | OFinanceAI`;
-    }
-  }, [pathname]);
 
   // Função para toggle da sidebar
   const toggleSidebar = () => {
@@ -68,12 +54,6 @@ export default function Header() {
             <Menu className="h-6 w-6" />
             <span className="sr-only">Toggle Sidebar</span>
           </Button>
-          <div className="hidden md:flex">
-            <h1 className={`text-xl font-semibold transition-colors duration-200
-                            ${isDark ? 'text-white' : 'text-gray-900'}`}>
-              {pageTitle}
-            </h1>
-          </div>
         </div>
         
         <div className="flex items-center gap-4">

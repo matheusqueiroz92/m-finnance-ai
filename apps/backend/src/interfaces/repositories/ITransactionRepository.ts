@@ -1,4 +1,4 @@
-import { ClientSession, Types } from 'mongoose';
+import { ClientSession } from 'mongoose';
 import { 
   ITransaction, 
   ITransactionPopulated 
@@ -14,4 +14,5 @@ export interface ITransactionRepository {
   findByDateRange(userId: string, startDate: Date, endDate: Date): Promise<ITransactionPopulated[]>;
   findByCategory(userId: string, categoryId: string): Promise<ITransactionPopulated[]>;
   findByAccount(userId: string, accountId: string): Promise<ITransactionPopulated[]>;
+  findByInvestment(userId: string, investmentId: string): Promise<ITransactionPopulated[]>; // Novo método
 }

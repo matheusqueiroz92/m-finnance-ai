@@ -13,7 +13,8 @@ export class TransactionRepository implements ITransactionRepository {
     return (await saved.populate([
       { path: 'category', select: 'name type icon color' },
       { path: 'account', select: 'name type institution' },
-      { path: 'creditCard', select: 'cardNumber cardBrand cardholderName' }
+      { path: 'creditCard', select: 'cardNumber cardBrand cardholderName' },
+      { path: 'investment', select: 'name type symbol' } // Adicionar população do investimento
     ])) as unknown as ITransactionPopulated;
   }
 
@@ -25,7 +26,8 @@ export class TransactionRepository implements ITransactionRepository {
     
     const transaction = await TransactionModel.findOne(query)
       .populate('category', 'name type icon color')
-      .populate('account', 'name type institution');
+      .populate('account', 'name type institution')
+      .populate('investment', 'name type symbol'); // Adicionar população do investimento
       
     return transaction as unknown as ITransactionPopulated;
   }
@@ -36,6 +38,7 @@ export class TransactionRepository implements ITransactionRepository {
     if (filters.type) query.type = filters.type;
     if (filters.category) query.category = filters.category;
     if (filters.account) query.account = filters.account;
+    if (filters.investment) query.investment = filters.investment; // Adicionar filtro por investimento
     
     if (filters.startDate || filters.endDate) {
       query.date = {};
@@ -49,6 +52,7 @@ export class TransactionRepository implements ITransactionRepository {
     const transactions = await TransactionModel.find(query)
       .populate('category', 'name type icon color')
       .populate('account', 'name type institution')
+      .populate('investment', 'name type symbol') // Adicionar população do investimento
       .sort({ date: -1 })
       .limit(limit)
       .skip(skip);
@@ -62,6 +66,7 @@ export class TransactionRepository implements ITransactionRepository {
     if (filters.type) query.type = filters.type;
     if (filters.category) query.category = filters.category;
     if (filters.account) query.account = filters.account;
+    if (filters.investment) query.investment = filters.investment; // Adicionar filtro por investimento
     
     if (filters.startDate || filters.endDate) {
       query.date = {};
@@ -85,7 +90,8 @@ export class TransactionRepository implements ITransactionRepository {
       }
     )
     .populate('category', 'name type icon color')
-    .populate('account', 'name type institution');
+    .populate('account', 'name type institution')
+    .populate('investment', 'name type symbol'); // Adicionar população do investimento
     
     return updated as unknown as ITransactionPopulated;
   }
@@ -108,6 +114,7 @@ export class TransactionRepository implements ITransactionRepository {
     })
       .populate('category', 'name type')
       .populate('account', 'name type')
+      .populate('investment', 'name type symbol') // Adicionar população do investimento
       .sort({ date: 1 });
       
     return transactions as unknown as ITransactionPopulated[];
@@ -122,6 +129,7 @@ export class TransactionRepository implements ITransactionRepository {
     })
       .populate('category', 'name type icon color')
       .populate('account', 'name type institution')
+      .populate('investment', 'name type symbol') // Adicionar população do investimento
       .sort({ date: -1 });
       
     return transactions as unknown as ITransactionPopulated[];
@@ -136,6 +144,22 @@ export class TransactionRepository implements ITransactionRepository {
     })
       .populate('category', 'name type icon color')
       .populate('account', 'name type institution')
+      .populate('investment', 'name type symbol') // Adicionar população do investimento
+      .sort({ date: -1 });
+      
+    return transactions as unknown as ITransactionPopulated[];
+  }
+
+  async findByInvestment(userId: string, investmentId: string): Promise<ITransactionPopulated[]> {
+    if (!mongoose.Types.ObjectId.isValid(investmentId)) return [];
+    
+    const transactions = await TransactionModel.find({
+      user: userId,
+      investment: investmentId,
+    })
+      .populate('category', 'name type icon color')
+      .populate('account', 'name type institution')
+      .populate('investment', 'name type symbol')
       .sort({ date: -1 });
       
     return transactions as unknown as ITransactionPopulated[];

@@ -67,4 +67,10 @@ export const API_ROUTES = {
     DOWNLOAD: (transactionId: string, attachmentId: string) => 
       `/files/download/attachment/${transactionId}/${attachmentId}`,
   },
+  INVESTMENTS: {
+    BASE: '/investments',
+    DETAIL: (id: string) => `/investments/${id}`,
+    SUMMARY: '/investments/summary',
+    PERFORMANCE: '/investments/performance',
+  },
 };

@@ -27,7 +27,7 @@ const navItems = [
   { icon: Wallet, label: 'Carteira', href: '/wallet' },
   { icon: ArrowRightLeft, label: 'Transações', href: '/transactions' },
   { icon: Target, label: 'Objetivos', href: '/goals' },
-  { icon: TrendingUp, label: 'Investimentos', href: '/investimentos' },
+  { icon: TrendingUp, label: 'Investimentos', href: '/investments' },
   { icon: Receipt, label: 'Contas Bancárias', href: '/accounts' },
   { icon: CreditCard, label: 'Cartões de Crédito', href: '/credit-cards' },
   { icon: Settings, label: 'Configurações', href: '/settings' },
@@ -47,18 +47,18 @@ export default function Sidebar() {
                      ${isDark 
                         ? 'bg-[#1a2329] text-white' 
                         : 'bg-emerald-600 text-white'}`}>
-      <div className={`p-6 border-b transition-colors duration-200
+      <div className={`px-4 py-6 border-b transition-colors duration-200
                       ${isDark 
                          ? 'border-white/10' 
                          : 'border-emerald-700'}`}>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center">
           <Link href="/dashboard">
             <Image src={imageTheme} alt={'Logo-sidebar'} height={100}/>
           </Link>
         </div>
       </div>
       
-      <div className={`p-4 border-b transition-colors duration-200
+      <div className={`px-4 py-6 border-b transition-colors duration-200
                       ${isDark 
                          ? 'border-white/10' 
                          : 'border-emerald-700'}`}>

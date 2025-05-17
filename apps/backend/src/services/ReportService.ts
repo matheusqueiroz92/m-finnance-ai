@@ -166,6 +166,44 @@ export class ReportService implements IReportService {
         });
       
       doc.moveDown(2);
+
+      // Investimentos por tipo
+      doc
+        .fontSize(16)
+        .text('Investimentos por Tipo', { underline: true })
+        .moveDown(1);
+
+      doc.fontSize(12);
+      const investmentTransactions = transactions.filter(t => t.type === 'investment');
+      const totalInvestments = investmentTransactions.reduce((sum, t) => sum + t.amount, 0);
+
+      if (investmentTransactions.length > 0) {
+        const investmentsByType: Record<string, number> = {};
+        
+        // Agrupar investimentos por tipo
+        investmentTransactions.forEach(t => {
+          const typeName = t.investment ? t.investment.type : 
+                          t.category ? t.category.name : 'Outros';
+          
+          if (!investmentsByType[typeName]) {
+            investmentsByType[typeName] = 0;
+          }
+          
+          investmentsByType[typeName] += t.amount;
+        });
+        
+        // Mostrar investimentos por tipo
+        Object.entries(investmentsByType)
+          .sort((a, b) => b[1] - a[1])
+          .forEach(([type, amount]) => {
+            const percentage = (amount / totalInvestments * 100).toFixed(1);
+            doc.text(`${type}: R$ ${amount.toFixed(2)} (${percentage}%)`);
+          });
+      } else {
+        doc.text('Nenhum investimento registrado neste período.');
+      }
+
+      doc.moveDown(2);
       
       // Add insights from AI analysis
       doc

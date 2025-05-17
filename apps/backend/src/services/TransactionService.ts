@@ -14,6 +14,7 @@ import {
 import { ApiError } from '../utils/ApiError';
 import { TransactionManager } from '../utils/TransactionManager';
 import { ICreditCardRepository } from '../interfaces/repositories/ICreditCardRepository';
+import { IInvestmentRepository } from '../interfaces/repositories/IInvestmentRepository';
 
 @injectable()
 export class TransactionService implements ITransactionService {
@@ -38,7 +39,8 @@ export class TransactionService implements ITransactionService {
         user: new mongoose.Types.ObjectId(userId),
         account: new mongoose.Types.ObjectId(processedData.account),
         category: new mongoose.Types.ObjectId(processedData.category),
-        creditCard: processedData.creditCard ? new mongoose.Types.ObjectId(processedData.creditCard) : undefined
+        creditCard: processedData.creditCard ? new mongoose.Types.ObjectId(processedData.creditCard) : undefined,
+        investment: processedData.investment ? new mongoose.Types.ObjectId(processedData.investment) : undefined // Incluir referência ao investimento
       };
       
       // Criar a transação
@@ -55,6 +57,36 @@ export class TransactionService implements ITransactionService {
           processedData.amount,
           { session }
         );
+      } else if (processedData.investment && processedData.type === 'investment') {
+        // Se for transação de investimento, atualizar o investimento
+        const investmentRepository = container.resolve<IInvestmentRepository>('InvestmentRepository');
+        
+        // Buscar o investimento para obter valor atual
+        const investment = await investmentRepository.findById(processedData.investment, userId);
+        
+        if (investment) {
+          // Atualizar valores do investimento
+          const currentValue = investment.currentValue + processedData.amount;
+          
+          // Calcular novos valores de performance
+          const performance = {
+            absoluteReturn: currentValue - investment.initialValue,
+            percentageReturn: investment.initialValue > 0 
+              ? ((currentValue - investment.initialValue) / investment.initialValue) * 100 
+              : 0
+          };
+          
+          // Atualizar o investimento
+          await investmentRepository.update(
+            processedData.investment,
+            userId,
+            { 
+              currentValue,
+              performance
+            },
+            { session }
+          );
+        }
       } else {
         // Atualizar o saldo da conta normal
         const account = await this.accountRepository.findById(processedData.account, userId) as { _id: mongoose.Types.ObjectId; balance: number } | null;
@@ -68,6 +100,9 @@ export class TransactionService implements ITransactionService {
         if (processedData.type === 'income') {
           account.balance += amount;
         } else if (processedData.type === 'expense') {
+          account.balance -= amount;
+        } else if (processedData.type === 'investment') {
+          // Transações de investimento também são consideradas saídas da conta
           account.balance -= amount;
         }
         
@@ -129,6 +164,10 @@ export class TransactionService implements ITransactionService {
         processedUpdateData.category = new mongoose.Types.ObjectId(processedUpdateData.category);
       }
       
+      if (processedUpdateData.investment) {
+        processedUpdateData.investment = new mongoose.Types.ObjectId(processedUpdateData.investment);
+      }
+      
       // Obter a transação original
       const originalTransaction = await this.transactionRepository.findById(transactionId, userId);
       
@@ -142,8 +181,15 @@ export class TransactionService implements ITransactionService {
         (updateData.type !== undefined && updateData.type !== originalTransaction.type) ||
         (updateData.account !== undefined && updateData.account !== originalTransaction.account._id.toString());
       
+      // Verificar se houve alteração no investimento
+      const needsInvestmentUpdate = 
+        originalTransaction.type === 'investment' &&
+        ((updateData.amount !== undefined && updateData.amount !== originalTransaction.amount) ||
+         (updateData.investment !== undefined && originalTransaction.investment && 
+          updateData.investment !== originalTransaction.investment._id.toString()));
+      
       if (needsAccountUpdate) {
-        // Reverter o efeito da transação original
+        // Reverter o efeito da transação original na conta
         const originalAccount = await this.accountRepository.findById(
           originalTransaction.account._id.toString(),
           userId
@@ -156,7 +202,7 @@ export class TransactionService implements ITransactionService {
         // Reverter o efeito
         if (originalTransaction.type === 'income') {
           originalAccount.balance -= originalTransaction.amount;
-        } else if (originalTransaction.type === 'expense') {
+        } else if (originalTransaction.type === 'expense' || originalTransaction.type === 'investment') {
           originalAccount.balance += originalTransaction.amount;
         }
         
@@ -189,7 +235,7 @@ export class TransactionService implements ITransactionService {
         
         if (newType === 'income') {
           targetAccount.balance += newAmount;
-        } else if (newType === 'expense') {
+        } else if (newType === 'expense' || newType === 'investment') {
           targetAccount.balance -= newAmount;
         }
         
@@ -199,6 +245,73 @@ export class TransactionService implements ITransactionService {
           { balance: targetAccount.balance },
           { session }
         );
+      }
+      
+      // Se for uma transação de investimento e houve alteração no valor ou no investimento
+      if (needsInvestmentUpdate) {
+        const investmentRepository = container.resolve<IInvestmentRepository>('InvestmentRepository');
+        
+        // Se havia um investimento associado, reverter o efeito
+        if (originalTransaction.investment && originalTransaction.investment._id) {
+          const originalInvestment = await investmentRepository.findById(
+            originalTransaction.investment._id.toString(),
+            userId
+          ) as { _id: mongoose.Types.ObjectId; currentValue: number; initialValue: number } | null;
+          
+          if (originalInvestment) {
+            // Reverter o valor da transação
+            const updatedCurrentValue = originalInvestment.currentValue - originalTransaction.amount;
+            
+            // Recalcular performance
+            const performance = {
+              absoluteReturn: updatedCurrentValue - originalInvestment.initialValue,
+              percentageReturn: originalInvestment.initialValue > 0 
+                ? ((updatedCurrentValue - originalInvestment.initialValue) / originalInvestment.initialValue) * 100 
+                : 0
+            };
+            
+            await investmentRepository.update(
+              originalInvestment._id.toString(),
+              userId,
+              { 
+                currentValue: updatedCurrentValue,
+                performance
+              },
+              { session }
+            );
+          }
+        }
+        
+        // Se há um novo investimento ou o mesmo investimento com valor atualizado
+        const newInvestmentId = updateData.investment || 
+          (originalTransaction.investment && originalTransaction.investment._id.toString());
+          
+        if (newInvestmentId) {
+          const targetInvestment = await investmentRepository.findById(newInvestmentId, userId) as { _id: mongoose.Types.ObjectId; currentValue: number; initialValue: number } | null;
+          
+          if (targetInvestment) {
+            const newAmount = updateData.amount !== undefined ? updateData.amount : originalTransaction.amount;
+            const updatedCurrentValue = targetInvestment.currentValue + newAmount;
+            
+            // Calcular nova performance
+            const performance = {
+              absoluteReturn: updatedCurrentValue - targetInvestment.initialValue,
+              percentageReturn: targetInvestment.initialValue > 0 
+                ? ((updatedCurrentValue - targetInvestment.initialValue) / targetInvestment.initialValue) * 100 
+                : 0
+            };
+            
+            await investmentRepository.update(
+              targetInvestment._id.toString(),
+              userId,
+              { 
+                currentValue: updatedCurrentValue,
+                performance
+              },
+              { session }
+            );
+          }
+        }
       }
       
       // Atualizar a transação
@@ -226,6 +339,38 @@ export class TransactionService implements ITransactionService {
         throw new ApiError('Transação não encontrada', 404);
       }
       
+      // Se for uma transação de investimento, atualizar o investimento
+      if (transaction.type === 'investment' && transaction.investment) {
+        const investmentRepository = container.resolve<IInvestmentRepository>('InvestmentRepository');
+        const investment = await investmentRepository.findById(
+          transaction.investment._id.toString(),
+          userId
+        ) as { _id: mongoose.Types.ObjectId; currentValue: number; initialValue: number } | null;
+        
+        if (investment) {
+          // Reverter o valor da transação
+          const updatedCurrentValue = investment.currentValue - transaction.amount;
+          
+          // Recalcular performance
+          const performance = {
+            absoluteReturn: updatedCurrentValue - investment.initialValue,
+            percentageReturn: investment.initialValue > 0 
+              ? ((updatedCurrentValue - investment.initialValue) / investment.initialValue) * 100 
+              : 0
+          };
+          
+          await investmentRepository.update(
+            investment._id.toString(),
+            userId,
+            { 
+              currentValue: updatedCurrentValue,
+              performance
+            },
+            { session }
+          );
+        }
+      }
+      
       // Reverter o efeito da transação na conta
       const account = await this.accountRepository.findById(
         transaction.account._id.toString(),
@@ -238,7 +383,7 @@ export class TransactionService implements ITransactionService {
       
       if (transaction.type === 'income') {
         account.balance -= transaction.amount;
-      } else if (transaction.type === 'expense') {
+      } else if (transaction.type === 'expense' || transaction.type === 'investment') {
         account.balance += transaction.amount;
       }
       
@@ -279,11 +424,13 @@ export class TransactionService implements ITransactionService {
     // Obter transações no intervalo de datas
     const transactions = await this.transactionRepository.findByDateRange(userId, startDate, now);
 
-    // Calcular receitas e despesas
+    // Calcular receitas, despesas e investimentos
     let totalIncome = 0;
     let totalExpenses = 0;
+    let totalInvestment = 0;
     let incomeByCategory: Record<string, number> = {};
     let expensesByCategory: Record<string, number> = {};
+    let investmentsByType: Record<string, number> = {};
     
     transactions.forEach((transaction) => {
       if (transaction.type === 'income') {
@@ -306,14 +453,26 @@ export class TransactionService implements ITransactionService {
         }
         
         expensesByCategory[categoryName] += transaction.amount;
+      } else if (transaction.type === 'investment') {
+        totalInvestment += transaction.amount;
+        
+        // Usar o tipo do investimento se disponível, senão usar a categoria
+        const typeName = transaction.investment ? transaction.investment.type : 
+                         transaction.category ? transaction.category.name : 'Outros';
+        
+        if (!investmentsByType[typeName]) {
+          investmentsByType[typeName] = 0;
+        }
+        
+        investmentsByType[typeName] += transaction.amount;
       }
     });
     
     // Calcular saldo
-    const balance = totalIncome - totalExpenses;
+    const balance = totalIncome - totalExpenses - totalInvestment;
     
     // Dados para gráfico por dia
-    const transactionsByDay: Record<string, { income: number; expense: number }> = {};
+    const transactionsByDay: Record<string, { income: number; expense: number; investment: number }> = {};
     
     // Inicializar dias
     const dayCount = Math.ceil((now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
@@ -322,7 +481,7 @@ export class TransactionService implements ITransactionService {
       date.setDate(date.getDate() + i);
       const dateKey = date.toISOString().split('T')[0];
       if (dateKey) {
-        transactionsByDay[dateKey] = { income: 0, expense: 0 };
+        transactionsByDay[dateKey] = { income: 0, expense: 0, investment: 0 };
       }
     }
     
@@ -341,6 +500,8 @@ export class TransactionService implements ITransactionService {
             transactionsByDay[dateKey].income += transaction.amount;
           } else if (transaction.type === 'expense') {
             transactionsByDay[dateKey].expense += transaction.amount;
+          } else if (transaction.type === 'investment') {
+            transactionsByDay[dateKey].investment += transaction.amount;
           }
         }
       } catch (error) {
@@ -354,6 +515,7 @@ export class TransactionService implements ITransactionService {
       date,
       income: data.income,
       expense: data.expense,
+      investment: data.investment
     })).sort((a, b) => a.date.localeCompare(b.date));
     
     // Categorias com mais despesas
@@ -376,15 +538,30 @@ export class TransactionService implements ITransactionService {
       .sort((a, b) => b.amount - a.amount)
       .slice(0, 5);
     
+    // Tipos de investimentos
+    const topInvestmentTypes = Object.entries(investmentsByType)
+      .map(([type, amount]) => ({
+        type,
+        amount,
+        percentage: totalInvestment > 0 ? (amount / totalInvestment) * 100 : 0,
+      }))
+      .sort((a, b) => b.amount - a.amount);
+    
     return {
       overview: {
         totalIncome,
         totalExpenses,
+        totalInvestment,
         balance,
         period,
       },
       expensesByCategory: topExpenseCategories,
       incomeByCategory: topIncomeCategories,
+      investmentsByType: topInvestmentTypes.map(({ type, amount, percentage }) => ({
+        category: type,
+        amount,
+        percentage,
+      })),
       chartData,
     };
   }
@@ -429,5 +606,10 @@ export class TransactionService implements ITransactionService {
       
       return updatedTransaction;
     });
+  }
+  
+  async getTransactionsByInvestment(userId: string, investmentId: string): Promise<ITransactionPopulated[]> {
+    const transactions = await this.transactionRepository.findByInvestment(userId, investmentId);
+    return transactions;
   }
 }

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { injectable, inject } from 'tsyringe';
+import { injectable, inject, container } from 'tsyringe';
 import { ITransactionService } from '../interfaces/services/ITransactionService';
 import { ApiResponse } from '../utils/ApiResponse';
 import { ApiError } from '../utils/ApiError';
@@ -309,6 +309,27 @@ export class TransactionController {
       );
       
       ApiResponse.success(res, transaction, 'Anexo removido com sucesso');
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * Get transactions by investment
+   */
+  getTransactionsByInvestment = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      if (!req.params.id) {
+        throw new ApiError('ID do investimento é obrigatório', 400);
+      }
+      
+      const transactionService = container.resolve<ITransactionService>('TransactionService');
+      const transactions = await transactionService.getTransactionsByInvestment(
+        req.user._id,
+        req.params.id
+      );
+      
+      ApiResponse.success(res, transactions, 'Transações do investimento recuperadas com sucesso');
     } catch (error) {
       next(error);
     }

@@ -18,6 +18,11 @@ const transactionSchema = new Schema<ITransaction>(
       ref: 'CreditCard',
       required: false,
     },
+    investment: {
+      type: Schema.Types.ObjectId,
+      ref: 'Investment',
+      required: false,
+    },
     category: {
       type: Schema.Types.ObjectId,
       ref: 'Category',
@@ -76,5 +81,12 @@ const transactionSchema = new Schema<ITransaction>(
     timestamps: true,
   }
 );
+
+// Índices para melhorar a performance das consultas
+transactionSchema.index({ user: 1, date: -1 });
+transactionSchema.index({ user: 1, account: 1 });
+transactionSchema.index({ user: 1, category: 1 });
+transactionSchema.index({ user: 1, type: 1 });
+transactionSchema.index({ user: 1, investment: 1 }); // Novo índice para consultas por investimento
 
 export const TransactionModel = model<ITransaction>('Transaction', transactionSchema);

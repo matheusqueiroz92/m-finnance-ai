@@ -5,6 +5,7 @@ export interface ITransaction extends Document {
   account: Types.ObjectId;
   category: Types.ObjectId;
   creditCard?: Types.ObjectId;
+  investment?: Types.ObjectId;
   amount: number;
   type: 'income' | 'expense' | 'investment';
   description: string;
@@ -33,6 +34,12 @@ export interface ITransactionPopulated {
     icon?: string;
     color?: string;
   };
+  investment?: {
+    _id: string;
+    name: string;
+    type: string;
+    symbol?: string;
+  };
   amount: number;
   type: 'income' | 'expense' | 'investment';
   description: string;
@@ -48,6 +55,7 @@ export interface ITransactionPopulated {
 export interface ITransactionCreateDTO {
   account: string;
   category: string;
+  investment?: string;
   amount: number;
   type: 'income' | 'expense' | 'investment';
   description: string;
@@ -60,6 +68,7 @@ export interface ITransactionCreateDTO {
 export interface ITransactionUpdateDTO {
   account?: string;
   category?: string;
+  investment?: string;
   amount?: number;
   type?: 'income' | 'expense' | 'investment';
   description?: string;
@@ -72,6 +81,7 @@ export interface ITransactionUpdateDTO {
 export interface ITransactionFilters {
   type?: 'income' | 'expense' | 'investment';
   category?: string;
+  investment?: string;
   startDate?: Date;
   endDate?: Date;
   account?: string;
@@ -91,6 +101,7 @@ export interface ITransactionStats {
   overview: {
     totalIncome: number;
     totalExpenses: number;
+    totalInvestment: number;
     balance: number;
     period: 'day' | 'week' | 'month' | 'year';
   };
@@ -104,10 +115,16 @@ export interface ITransactionStats {
     amount: number;
     percentage: number;
   }[];
+  investmentsByType: {
+    category: string;
+    amount: number;
+    percentage: number;
+  }[];
   chartData: {
     date: string;
     income: number;
     expense: number;
+    investment: number;
   }[];
 }
 

@@ -56,6 +56,7 @@ export class CategoryRepository implements ICategoryRepository {
       { name: 'Investimentos', type: 'income', icon: 'trending-up', color: '#2196F3', isDefault: true },
       { name: 'Bônus', type: 'income', icon: 'star', color: '#FFC107', isDefault: true },
       { name: 'Outros', type: 'income', icon: 'plus-circle', color: '#9C27B0', isDefault: true },
+      { name: 'Retirada de Investimento', type: 'income', icon: 'log-out', color: '#607D8B', isDefault: true },
       
       // Expense categories
       { name: 'Alimentação', type: 'expense', icon: 'shopping-bag', color: '#F44336', isDefault: true },
@@ -72,6 +73,13 @@ export class CategoryRepository implements ICategoryRepository {
       { name: 'Fundos', type: 'investment', icon: 'briefcase', color: '#2196F3', isDefault: true },
       { name: 'Renda Fixa', type: 'investment', icon: 'shield', color: '#FFC107', isDefault: true },
       { name: 'Criptomoedas', type: 'investment', icon: 'dollar-sign', color: '#FF9800', isDefault: true },
+      { name: 'Aporte em Ações', type: 'investment', icon: 'trending-up', color: '#4CAF50', isDefault: true },
+      { name: 'Aporte em Fundos', type: 'investment', icon: 'briefcase', color: '#2196F3', isDefault: true },
+      { name: 'Aporte em Renda Fixa', type: 'investment', icon: 'shield', color: '#FFC107', isDefault: true },
+      { name: 'Aporte em Criptomoedas', type: 'investment', icon: 'dollar-sign', color: '#FF9800', isDefault: true },
+      { name: 'Imóveis', type: 'investment', icon: 'home', color: '#795548', isDefault: true },
+      { name: 'Previdência', type: 'investment', icon: 'shield', color: '#3F51B5', isDefault: true },
+      { name: 'Outros Investimentos', type: 'investment', icon: 'more-horizontal', color: '#9E9E9E', isDefault: true }
     ];
     
     // Add user ID to each category

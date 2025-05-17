@@ -19,6 +19,7 @@ import subscriptionRoutes from './routes/subscriptionRoutes';
 import paymentRoutes from './routes/paymentRoutes';
 import authRoutes from './routes/authRoutes';
 import creditCardRoutes from './routes/creditCardRoutes';
+import investmentRoutes from './routes/investmentRoutes';
 
 const app = express();
 
@@ -50,6 +51,7 @@ app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/credit-card', creditCardRoutes);
+app.use('/api/investments', investmentRoutes);
 
 // Home route
 app.get('/', (_req, res) => {

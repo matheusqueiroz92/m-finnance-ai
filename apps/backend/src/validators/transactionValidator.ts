@@ -4,6 +4,7 @@ export const transactionCreateSchema = z.object({
   account: z.string().min(1, 'Conta é obrigatória'),
   category: z.string().min(1, 'Categoria é obrigatória'),
   creditCard: z.string().optional(),
+  investment: z.string().optional(), // Adicionado campo de investimento
   amount: z.number().positive('O valor deve ser maior que zero'),
   type: z.enum(['income', 'expense', 'investment'], {
     errorMap: () => ({ message: 'Tipo inválido. Deve ser income, expense ou investment' })
@@ -21,16 +22,23 @@ export const transactionCreateSchema = z.object({
   if (data.isRecurring && !data.recurrenceInterval) {
     return false;
   }
+  
+  // Se o tipo for 'investment', o campo investment deve estar preenchido
+  if (data.type === 'investment' && !data.investment) {
+    return false;
+  }
+  
   return true;
 }, {
-  message: 'Intervalo de recorrência é obrigatório para transações recorrentes',
-  path: ['recurrenceInterval'],
+  message: 'Intervalo de recorrência é obrigatório para transações recorrentes ou ID do investimento é obrigatório para transações do tipo investimento',
+  path: ['recurrenceInterval', 'investment'],
 });
 
 export const transactionUpdateSchema = z.object({
   account: z.string().min(1, 'Conta é obrigatória').optional(),
   category: z.string().min(1, 'Categoria é obrigatória').optional(),
   creditCard: z.string().optional(),
+  investment: z.string().optional(), // Adicionado campo de investimento
   amount: z.number().positive('O valor deve ser maior que zero').optional(),
   type: z.enum(['income', 'expense', 'investment'], {
     errorMap: () => ({ message: 'Tipo inválido. Deve ser income, expense ou investment' })
@@ -46,16 +54,23 @@ export const transactionUpdateSchema = z.object({
   if (data.isRecurring === true && data.recurrenceInterval === undefined) {
     return false;
   }
+  
+  // Se o tipo for alterado para 'investment' e o campo investment não estiver definido
+  if (data.type === 'investment' && data.investment === undefined) {
+    return false;
+  }
+  
   return true;
 }, {
-  message: 'Intervalo de recorrência é obrigatório para transações recorrentes',
-  path: ['recurrenceInterval'],
+  message: 'Intervalo de recorrência é obrigatório para transações recorrentes ou ID do investimento é obrigatório para transações do tipo investimento',
+  path: ['recurrenceInterval', 'investment'],
 });
 
 export const transactionFilterSchema = z.object({
   type: z.enum(['income', 'expense', 'investment']).optional(),
   category: z.string().optional(),
   account: z.string().optional(),
+  investment: z.string().optional(), // Adicionado filtro por investimento
   startDate: z.string().optional().transform(val => val ? new Date(val) : undefined),
   endDate: z.string().optional().transform(val => val ? new Date(val) : undefined),
   page: z.string().optional().transform(val => val ? parseInt(val, 10) : 1),

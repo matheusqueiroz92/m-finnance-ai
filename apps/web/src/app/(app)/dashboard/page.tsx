@@ -14,6 +14,7 @@ import { SummaryCard } from '@/components/dashboard/SummaryCard';
 import { CashFlowChart } from '@/components/dashboard/CashFlowChart';
 import { ExpensesChart } from '@/components/dashboard/ExpensesChart';
 import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
+import { PageTitle } from '@/components/shared/PageTitle';
 
 export default function DashboardPage() {
   const { user, isLoading: authLoading } = useAuth();
@@ -35,10 +36,10 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8 p-6 min-h-screen bg-white dark:bg-[#25343b] text-gray-800 dark:text-white transition-colors duration-200">
       {/* Cabeçalho de boas-vindas */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
-        <p className="text-gray-600 dark:text-emerald-300">Bem-vindo de volta, {user?.name?.split(' ')[0] || 'Usuário'}!</p>
-      </div>
+      <PageTitle
+        title="Dashboard" 
+        description={`Bem-vindo de volta, ${user?.name?.split(' ')[0] || 'Usuário'}! Visualize suas finanças e acompanhe seus gastos.`}
+      />
       
       {/* Cards de Resumo */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

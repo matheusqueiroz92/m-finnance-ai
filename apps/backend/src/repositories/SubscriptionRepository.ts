@@ -1,5 +1,5 @@
 import { injectable } from 'tsyringe';
-import mongoose, { ClientSession } from 'mongoose';
+import { ClientSession } from 'mongoose';
 import { SubscriptionModel } from '../schemas/SubscriptionSchema';
 import { ISubscriptionRepository } from '../interfaces/repositories/ISubscriptionRepository';
 import { ISubscription, SubscriptionStatus, SubscriptionPlanType } from '../interfaces/entities/ISubscription';
