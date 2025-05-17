@@ -18,4 +18,8 @@ export const QUERY_KEYS = {
     INVESTMENT_SUMMARY: 'investment-summary',
     INVESTMENT_PERFORMANCE: 'investment-performance',
     INVESTMENT_DETAIL: (id: string) => ['investment', id],
+    CREDIT_CARDS: 'credit-cards',
+    CREDIT_CARD_SUMMARY: 'credit-card-summary',
+    CREDIT_CARD_BILLINGS: 'credit-card-billings',
+    CREDIT_CARD_DETAIL: (id: string) => ['credit-card', id],
   };

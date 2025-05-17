@@ -15,16 +15,19 @@ export const API_ROUTES = {
     GITHUB: '/auth/github',
     SOCIAL_CALLBACK: '/auth/social-callback',
   },
+
   ACCOUNTS: {
     BASE: '/accounts',
     DETAIL: (id: string) => `/accounts/${id}`,
     SUMMARY: '/accounts/summary',
   },
+
   CONTACT: {
     SEND: '/contact/send',
     SUPPORT: '/contact/support',
     FEEDBACK: '/contact/feedback',
   },
+
   TRANSACTIONS: {
     BASE: '/transactions',
     DETAIL: (id: string) => `/transactions/${id}`,
@@ -32,45 +35,61 @@ export const API_ROUTES = {
     ATTACHMENT: (transactionId: string, attachmentId: string) => 
       `/transactions/${transactionId}/attachments/${attachmentId}`,
   },
+
   CREDIT_CARDS: {
-    BASE: '/credit-cards',
-    DETAIL: (id: string) => `/credit-cards/${id}`,
-    BALANCE: (id: string) => `/credit-cards/${id}/balance`,
+  BASE: '/credit-card',
+  DETAIL: (id: string) => `/credit-card/${id}`,
+  SUMMARY: '/credit-card/summary',
+  BILLINGS: '/credit-card/billings',
+  VALIDATE_SECURITY_CODE: (id: string) => `/credit-card/${id}/validate-security-code`,
   },
+
   CATEGORIES: {
     BASE: '/categories',
     DETAIL: (id: string) => `/categories/${id}`,
   },
+
   GOALS: {
     BASE: '/goals',
     DETAIL: (id: string) => `/goals/${id}`,
     STATS: '/goals/stats',
   },
+
+  INVESTMENTS: {
+    BASE: '/investments',
+    DETAIL: (id: string) => `/investments/${id}`,
+    SUMMARY: '/investments/summary',
+    PERFORMANCE: '/investments/performance',
+  },
+
   REPORTS: {
     GENERATE: '/reports/generate',
     INSIGHTS: '/reports/insights',
   },
+
   SUBSCRIPTIONS: {
     BASE: '/subscriptions',
     TRIAL: '/subscriptions/trial',
     CANCEL: '/subscriptions/cancel',
     PLAN: '/subscriptions/plan',
   },
+  
   PAYMENTS: {
     CHECKOUT: '/payments/checkout',
     METHODS: '/payments/methods',
   },
+
+  NOTIFICATIONS: {
+    BASE: '/notifications',
+    MARK_AS_READ: (id: string) => `/notifications/${id}/mark-as-read`,
+    MARK_ALL_AS_READ: '/notifications/mark-all-as-read',
+  },
+
   FILES: {
     AVATAR: (filename: string) => `/files/avatar/${filename}`,
     ATTACHMENT: (transactionId: string, attachmentId: string) => 
       `/files/attachment/${transactionId}/${attachmentId}`,
     DOWNLOAD: (transactionId: string, attachmentId: string) => 
       `/files/download/attachment/${transactionId}/${attachmentId}`,
-  },
-  INVESTMENTS: {
-    BASE: '/investments',
-    DETAIL: (id: string) => `/investments/${id}`,
-    SUMMARY: '/investments/summary',
-    PERFORMANCE: '/investments/performance',
   },
 };
