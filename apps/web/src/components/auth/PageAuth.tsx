@@ -37,8 +37,8 @@ export default function PageAuth({
             height={500}
             className="max-w-md mx-auto"
           />
-          <p className="pl-8 text-[16px]"><span className="text-emerald-300 font-bold">Transforme</span> sua gestão financeira com IA.
-            <span className="text-emerald-300 font-bold"> Controle suas finanças</span>, defina metas e receba insights personalizados para tomar melhores decisões.</p>
+          <p className="pl-8 text-[16px]"><span className="text-[#25343b] font-extrabold">Transforme</span> sua gestão financeira com IA.
+            <span className="text-[#25343b] font-extrabold"> Controle suas finanças</span>, defina metas e receba insights personalizados para tomar melhores decisões.</p>
         </div>
       </div>
       
@@ -137,7 +137,9 @@ export default function PageAuth({
             <p>
               © {new Date().getFullYear()} Todos os direitos
               reservados. Desenvolvido por{" "}
-              <span className="font-bold">Matheus Queiroz</span>
+              <Link href="https://matheusqueiroz.dev.br" target="_blank" className="text-emerald-300 hover:text-emerald-100">
+                Matheus Queiroz
+              </Link>
             </p>
           </footer>
         </div>

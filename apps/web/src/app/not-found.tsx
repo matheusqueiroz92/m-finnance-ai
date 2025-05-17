@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Home, ArrowLeft } from 'lucide-react';
 import BrainImage from '../../public/images/cerebro-de-curiosidade.png';
+import Logo from '../../public/images/logo-not-found-m-finnance-ai.png';
 import Image from 'next/image';
 
 export default function NotFound() {
@@ -12,12 +13,9 @@ export default function NotFound() {
     <div className="min-h-screen bg-gray-50 flex">
       {/* Coluna da esquerda - Informação */}
       <div className="hidden md:flex md:w-1/2 bg-emerald-800 text-white p-10 flex-col justify-center items-center">
-        {/* <div className="h-8 w-8 mr-2">
-          <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+        <div className='mb-8'>
+          <Image src={Logo} alt={'Logo-m-finnance-ai'} width={300} />
         </div>
-        <h1 className="text-2xl font-bold">O'Finance AI</h1> */}
         <div className="max-w-md text-center">
           <h1 className="text-7xl font-bold mb-4">Erro 404</h1>
           <h2 className="text-3xl font-bold mb-4">Página não encontrada!</h2>
@@ -67,7 +65,7 @@ export default function NotFound() {
             
             <Button 
               variant="outline" 
-              className="w-full p-5 text-[#25343b] hover:bg-emerald-100 hover:text-[#25343b] hover:border-emerald-100 flex items-center justify-center"
+              className="w-full p-5 text-zinc-300 hover:text-emerald-300 flex items-center justify-center"
               onClick={() => window.history.back()}
             >
               <ArrowLeft className="h-5 w-5 mr-2" />

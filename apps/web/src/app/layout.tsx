@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter, Montserrat } from 'next/font/google';
+import { Montserrat } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { Toaster } from '@/components/ui/sonner';
@@ -7,7 +7,6 @@ import { QueryProvider } from '@/components/providers/QueryProvider';
 import { AuthProvider } from '@/lib/auth';
 import { RouteChangeProvider } from '@/components/providers/RouteChangeProvider';
 
-const inter = Inter({ subsets: ['latin'] });
 const montserrat = Montserrat({
   subsets: ['latin'],
   variable: '--font-montserrat',
@@ -29,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <body className={montserrat.className}>
-        <ThemeProvider attribute="class" defaultTheme="light">
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={true}>
           <QueryProvider>
             <AuthProvider>
               <RouteChangeProvider>

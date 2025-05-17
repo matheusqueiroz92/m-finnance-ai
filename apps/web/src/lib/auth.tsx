@@ -84,8 +84,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(response.user);
       Cookies.set('token', response.token, { expires: 7 });
       
-      // Usar router.replace em vez de router.push para evitar problemas com histórico
-      router.replace('/dashboard');
+      // Adicionar esta linha para definir isLoading como false após o login bem-sucedido
+      setIsLoading(false);
+      
+      // Agora podemos redirecionar
+      window.location.href = '/dashboard';
     } catch (error) {
       handleError(error);
       setIsLoading(false);

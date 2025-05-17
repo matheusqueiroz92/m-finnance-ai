@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTheme } from 'next-themes';
 import { useAuth } from '@/lib/auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -17,6 +18,9 @@ import {
   Wallet,
   Receipt,
 } from 'lucide-react';
+import Image from 'next/image';
+import LogoSidebarDark from '../../../public/images/logo-dark-mode-m-finnance-ai.png'
+import LogoSidebarLight from '../../../public/images/logo-light-mode-m-finnance-ai.png';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
@@ -33,29 +37,41 @@ const navItems = [
 export default function Sidebar() {
   const { user, logout } = useAuth();
   const pathname = usePathname();
+  const { theme } = useTheme();
+  
+  const isDark = theme === 'dark';
+  const imageTheme = theme === 'dark' ? LogoSidebarDark : LogoSidebarLight;
 
   return (
-    <div className="w-64 bg-emerald-800 text-white flex flex-col">
-      <div className="p-6 border-b border-emerald-700">
+    <div className={`h-full flex flex-col transition-colors duration-200
+                     ${isDark 
+                        ? 'bg-[#1a2329] text-white' 
+                        : 'bg-emerald-600 text-white'}`}>
+      <div className={`p-6 border-b transition-colors duration-200
+                      ${isDark 
+                         ? 'border-white/10' 
+                         : 'border-emerald-700'}`}>
         <div className="flex items-center space-x-2">
-          <div className="h-8 w-8">
-            <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </div>
-          <span className="text-xl font-bold">OFinanceAI</span>
+          <Link href="/dashboard">
+            <Image src={imageTheme} alt={'Logo-sidebar'} height={100}/>
+          </Link>
         </div>
       </div>
       
-      <div className="p-4 border-b border-emerald-700">
+      <div className={`p-4 border-b transition-colors duration-200
+                      ${isDark 
+                         ? 'border-white/10' 
+                         : 'border-emerald-700'}`}>
         <div className="flex items-center space-x-3">
           <Avatar>
             <AvatarImage src={user?.avatar} alt={user?.name} />
-            <AvatarFallback>{user?.name?.charAt(0) || 'U'}</AvatarFallback>
+            <AvatarFallback className={`${isDark ? 'bg-emerald-800 text-emerald-200' : 'bg-emerald-700 text-white'}`}>
+              {user?.name?.charAt(0) || 'U'}
+            </AvatarFallback>
           </Avatar>
           <div>
             <p className="font-medium">{user?.name}</p>
-            <p className="text-xs text-emerald-300">
+            <p className={`text-xs ${isDark ? 'text-emerald-300' : 'text-emerald-100'}`}>
               {user?.isPremium ? 'Premium' : 'Free'}
             </p>
           </div>
@@ -71,11 +87,15 @@ export default function Sidebar() {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                    isActive
-                      ? 'bg-emerald-700 text-white'
-                      : 'text-emerald-100 hover:bg-emerald-700/50'
-                  }`}
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors 
+                              ${isDark 
+                                ? isActive
+                                  ? 'bg-emerald-700 text-white'
+                                  : 'text-emerald-100 hover:bg-emerald-700/50'
+                                : isActive
+                                  ? 'bg-emerald-700 text-white'
+                                  : 'text-white hover:bg-emerald-700'
+                              }`}
                 >
                   <item.icon size={20} />
                   <span>{item.label}</span>
@@ -86,10 +106,16 @@ export default function Sidebar() {
         </ul>
         
         {/* Botão de Logout */}
-        <div className="pt-4 border-t border-emerald-700">
+        <div className={`pt-4 border-t transition-colors duration-200
+                        ${isDark 
+                           ? 'border-emerald-700' 
+                           : 'border-emerald-700'}`}>
           <button
             onClick={logout}
-            className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-emerald-100 hover:bg-emerald-700/50 transition-colors"
+            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors
+                       ${isDark 
+                          ? 'text-emerald-100 hover:bg-emerald-700/50' 
+                          : 'text-white hover:bg-emerald-700'}`}
           >
             <LogOut size={20} />
             <span>Sair</span>
