@@ -1,29 +1,27 @@
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from 'sonner';
 
 export function useNotification() {
-  const { toast } = useToast();
-
   const showSuccess = (message: string, title: string = "Sucesso!") => {
-    toast({
-      title,
-      description: message,
-      variant: "default",
-      className: "bg-green-50 border-green-300 text-green-800",
+    toast.success(message, {
+      duration: 3000,
     });
   };
 
   const showError = (message: string, title: string = "Erro!") => {
-    toast({
-      title,
-      description: message,
-      variant: "destructive",
+    toast.error(message, {
+      duration: 4000,
     });
   };
 
   const showInfo = (message: string, title?: string) => {
-    toast({
-      title,
-      description: message,
+    toast.info(message, {
+      duration: 3000,
+    });
+  };
+
+  const showWarning = (message: string, title: string = "Atenção!") => {
+    toast.warning(message, {
+      duration: 3000,
     });
   };
 
@@ -31,5 +29,6 @@ export function useNotification() {
     showSuccess,
     showError,
     showInfo,
+    showWarning,
   };
 }
