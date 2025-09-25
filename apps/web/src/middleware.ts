@@ -10,6 +10,8 @@ const publicRoutes = [
   '/terms-service',
   '/privacy-policies',
   '/auth/success',
+  '/auth/social-callback',
+  '/social-callback',
   '/callback',
   '/test'
 ];

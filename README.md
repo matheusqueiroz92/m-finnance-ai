@@ -190,17 +190,20 @@ Todas as interações entre camadas são baseadas em interfaces, não em impleme
 O sistema implementa múltiplas camadas de segurança:
 
 1. **Camada de Autenticação**:
+
    - PKCE para OAuth 2.0
    - JWT com refresh tokens
    - Cookies HttpOnly
    - Validação de state parameter
 
 2. **Camada de Autorização**:
+
    - Middleware de autenticação
    - Verificação de tokens
    - Controle de acesso baseado em roles
 
 3. **Camada de Dados**:
+
    - Validação de tipos TypeScript
    - Sanitização de inputs
    - Criptografia de senhas com bcrypt
@@ -228,16 +231,16 @@ A API é documentada usando o Swagger e está disponível em `/api-docs` quando 
 
 #### Autenticação Segura
 
-| Método | Endpoint              | Descrição                         |
-| ------ | --------------------- | --------------------------------- |
-| POST   | `/api/users/register` | Registrar novo usuário            |
-| POST   | `/api/users/login`    | Login de usuário                  |
+| Método | Endpoint              | Descrição                              |
+| ------ | --------------------- | -------------------------------------- |
+| POST   | `/api/users/register` | Registrar novo usuário                 |
+| POST   | `/api/users/login`    | Login de usuário                       |
 | GET    | `/api/auth/google`    | Iniciar autenticação via Google (PKCE) |
-| GET    | `/api/auth/facebook`  | Iniciar autenticação via Facebook |
-| GET    | `/api/auth/github`    | Iniciar autenticação via GitHub  |
-| POST   | `/api/auth/refresh`   | Renovar access token             |
-| POST   | `/api/auth/logout`    | Logout seguro                     |
-| GET    | `/api/auth/me`        | Verificar status de autenticação |
+| GET    | `/api/auth/facebook`  | Iniciar autenticação via Facebook      |
+| GET    | `/api/auth/github`    | Iniciar autenticação via GitHub        |
+| POST   | `/api/auth/refresh`   | Renovar access token                   |
+| POST   | `/api/auth/logout`    | Logout seguro                          |
+| GET    | `/api/auth/me`        | Verificar status de autenticação       |
 
 #### Usuários
 

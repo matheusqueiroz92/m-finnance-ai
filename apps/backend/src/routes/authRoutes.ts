@@ -178,10 +178,21 @@ router.get(
   (req, res) => {
     const { user, token } = req.user as { user: any; token: string };
 
-    // Redirecionar para frontend com token
-    res.redirect(
-      `${process.env.FRONTEND_URL}/auth/social-callback?token=${token}`
+    // Gerar tokens seguros
+    const tokenService = container.resolve<TokenService>("TokenService");
+    const { accessToken, refreshToken } = tokenService.generateTokenPair(
+      user.user as any
     );
+
+    // Definir cookies seguros
+    CookieManager.setAccessToken(res, accessToken);
+    CookieManager.setRefreshToken(res, refreshToken);
+
+    console.log("✅ Login social realizado com sucesso");
+    console.log("🍪 Cookies seguros definidos");
+
+    // Redirecionar SEM token na URL
+    res.redirect(`${process.env.FRONTEND_URL}/auth/success`);
   }
 );
 
@@ -195,10 +206,21 @@ router.get(
   (req, res) => {
     const { user, token } = req.user as { user: any; token: string };
 
-    // Redirecionar para frontend com token
-    res.redirect(
-      `${process.env.FRONTEND_URL}/auth/social-callback?token=${token}`
+    // Gerar tokens seguros
+    const tokenService = container.resolve<TokenService>("TokenService");
+    const { accessToken, refreshToken } = tokenService.generateTokenPair(
+      user.user as any
     );
+
+    // Definir cookies seguros
+    CookieManager.setAccessToken(res, accessToken);
+    CookieManager.setRefreshToken(res, refreshToken);
+
+    console.log("✅ Login social realizado com sucesso");
+    console.log("🍪 Cookies seguros definidos");
+
+    // Redirecionar SEM token na URL
+    res.redirect(`${process.env.FRONTEND_URL}/auth/success`);
   }
 );
 

@@ -29,6 +29,7 @@ const app = express();
 // Initialize Passport
 const passport = setupPassport();
 app.use(passport.initialize());
+app.use(passport.session());
 
 // Middlewares
 app.use(
