@@ -41,15 +41,15 @@ export const setupPassport = () => {
     }
   };
 
-  // Configurar Google Strategy
-  if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
-    passport.use(new GoogleStrategy({
-      clientID: GOOGLE_CLIENT_ID,
-      clientSecret: GOOGLE_CLIENT_SECRET,
-      callbackURL: `${CALLBACK_URL}/api/auth/google/callback`,
-      scope: ['profile', 'email'],
-    }, (accessToken, refreshToken, profile, done) => processProfile(profile as unknown as ISocialProfile, done)));
-  }
+  // Google Strategy desabilitada - usando PKCE em vez do Passport
+  // if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
+  //   passport.use(new GoogleStrategy({
+  //     clientID: GOOGLE_CLIENT_ID,
+  //     clientSecret: GOOGLE_CLIENT_SECRET,
+  //     callbackURL: `${CALLBACK_URL}/api/auth/google/callback`,
+  //     scope: ['profile', 'email'],
+  //   }, (accessToken, refreshToken, profile, done) => processProfile(profile as unknown as ISocialProfile, done)));
+  // }
 
   // Configurar Facebook Strategy
   if (FACEBOOK_CLIENT_ID && FACEBOOK_CLIENT_SECRET) {
