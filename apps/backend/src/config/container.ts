@@ -51,6 +51,7 @@ import { StripePaymentService } from '../services/StripePaymentService';
 import { BillingService } from '../services/BillingService';
 import { CreditCardService } from '../services/CreditCardService';
 import { InvestmentService } from '../services/InvestmentService';
+import { TokenService } from '../services/TokenService';
 
 // Register Repositories
 container.registerSingleton<IUserRepository>('UserRepository', UserRepository);
@@ -77,5 +78,6 @@ container.registerSingleton<IPaymentService>('PaymentService', StripePaymentServ
 container.registerSingleton<IBillingService>('BillingService', BillingService);
 container.registerSingleton<ICreditCardService>('CreditCardService', CreditCardService);
 container.registerSingleton<IInvestmentService>('InvestmentService', InvestmentService);
+container.registerSingleton<TokenService>('TokenService', TokenService);
 
 export { container };

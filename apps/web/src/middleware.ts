@@ -8,7 +8,10 @@ const publicRoutes = [
   '/forgot-password',
   '/reset-password',
   '/terms-service',
-  '/privacy-policies'
+  '/privacy-policies',
+  '/auth/success',
+  '/callback',
+  '/test'
 ];
 
 export function middleware(request: NextRequest) {

@@ -1,11 +1,14 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
+import session from 'express-session';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocument from './swagger.json';
 import { errorHandler } from './middlewares/errorMiddleware';
 import 'reflect-metadata';
 import './config/container';
+import './types/session';
+import { setupPassport } from './config/passport';
 
 // Import routes
 import userRoutes from './routes/userRoutes';
@@ -23,8 +26,28 @@ import investmentRoutes from './routes/investmentRoutes';
 
 const app = express();
 
+// Initialize Passport
+const passport = setupPassport();
+app.use(passport.initialize());
+
 // Middlewares
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || "http://localhost:3000",
+  credentials: true // Permitir cookies
+}));
+
+// Configuração de sessão
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your-session-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production', // HTTPS apenas em produção
+    httpOnly: true,
+    maxAge: 15 * 60 * 1000, // 15 minutos
+    sameSite: 'strict'
+  }
+}));
 
 // Rota do Stripe webhook precisa do raw body
 app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
