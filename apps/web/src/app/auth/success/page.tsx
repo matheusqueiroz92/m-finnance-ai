@@ -28,7 +28,7 @@ export default function AuthSuccessPage() {
       try {
         // Acessar a rota /api/auth/me para verificar a autenticação
         // e obter os dados do usuário, que agora devem estar nos cookies HttpOnly
-        const response = await fetch('/api/auth/me', {
+        const response = await fetch('http://localhost:3001/api/auth/me', {
           method: 'GET',
           credentials: 'include', // Importante para enviar cookies HttpOnly
         });
