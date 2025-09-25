@@ -37,6 +37,32 @@ M. Finnance AI é uma solução completa para gestão de finanças pessoais com 
 - **Multi-plataforma**: Disponível em web e futuras versões mobile
 - **Segurança**: Dados criptografados e práticas seguras de autenticação
 
+## 🔒 Segurança
+
+### Melhorias de Segurança Implementadas
+
+- **PKCE (Proof Key for Code Exchange)**: Proteção contra ataques de interceptação em OAuth 2.0
+- **Cookies HttpOnly**: Tokens armazenados em cookies seguros, inacessíveis via JavaScript
+- **Refresh Tokens**: Sistema de renovação automática de tokens com rotação
+- **State Parameter**: Proteção CSRF em fluxos OAuth
+- **Sessões Seguras**: Gerenciamento de sessões com express-session
+- **Validação de Tipos**: TypeScript com verificações rigorosas de tipos
+- **Verificação de Autenticação**: Middleware robusto para validação de usuários
+- **Logout Seguro**: Limpeza completa de cookies e sessões
+
+### Fluxo de Autenticação Seguro
+
+1. **Inicialização**: Usuário clica em "Login com Google"
+2. **PKCE Generation**: Backend gera code_verifier, code_challenge e state
+3. **Redirecionamento**: Usuário é redirecionado para Google com PKCE
+4. **Autorização**: Google autentica e retorna código de autorização
+5. **Validação**: Backend valida state e troca código por token
+6. **Criação de Usuário**: Sistema cria/atualiza usuário no banco
+7. **Geração de Tokens**: Backend gera access token e refresh token
+8. **Cookies Seguros**: Tokens são definidos como cookies HttpOnly
+9. **Redirecionamento**: Usuário é redirecionado para página de sucesso
+10. **Verificação**: Frontend verifica autenticação via cookies seguros
+
 ## 🚀 Recursos
 
 ### Gestão Financeira
@@ -70,12 +96,15 @@ M. Finnance AI é uma solução completa para gestão de finanças pessoais com 
 - Período de teste de 30 dias
 - Gerenciamento de pagamentos via Stripe
 
-### Autenticação
+### Autenticação Segura
 
 - Cadastro e login tradicionais
-- Login via redes sociais (Google, Facebook, Twitter)
-- Autenticação JWT
+- Login via redes sociais (Google, Facebook, GitHub) com PKCE
+- Autenticação JWT com refresh tokens
+- Cookies HttpOnly para máxima segurança
+- Proteção CSRF com state parameter
 - Recuperação de senha
+- Sessões seguras com express-session
 
 ## 💻 Tecnologias
 
@@ -86,7 +115,9 @@ M. Finnance AI é uma solução completa para gestão de finanças pessoais com 
 - **Express**: Framework web para Node.js
 - **MongoDB**: Banco de dados NoSQL
 - **Mongoose**: ODM (Object Data Modeling) para MongoDB
-- **JWT**: Autenticação baseada em tokens
+- **JWT**: Autenticação baseada em tokens com refresh tokens
+- **PKCE**: Proof Key for Code Exchange para OAuth 2.0 seguro
+- **Express-Session**: Gerenciamento seguro de sessões
 - **Zod**: Validação de esquemas
 - **Bcrypt**: Hashing de senhas
 - **PDFKit/ExcelJS**: Geração de relatórios em PDF e Excel
@@ -95,6 +126,7 @@ M. Finnance AI é uma solução completa para gestão de finanças pessoais com 
 - **Jest**: Framework de testes
 - **TSyringe**: Injeção de dependência
 - **Multer**: Upload de arquivos
+- **Crypto**: Geração segura de tokens e hashes
 
 ### DevOps
 
@@ -153,6 +185,31 @@ Todas as interações entre camadas são baseadas em interfaces, não em impleme
 - Testes unitários
 - Substituição de implementações (como diferentes gateways de pagamento)
 
+#### Arquitetura de Segurança
+
+O sistema implementa múltiplas camadas de segurança:
+
+1. **Camada de Autenticação**:
+   - PKCE para OAuth 2.0
+   - JWT com refresh tokens
+   - Cookies HttpOnly
+   - Validação de state parameter
+
+2. **Camada de Autorização**:
+   - Middleware de autenticação
+   - Verificação de tokens
+   - Controle de acesso baseado em roles
+
+3. **Camada de Dados**:
+   - Validação de tipos TypeScript
+   - Sanitização de inputs
+   - Criptografia de senhas com bcrypt
+
+4. **Camada de Sessão**:
+   - Express-session com configurações seguras
+   - Limpeza automática de sessões
+   - Proteção contra CSRF
+
 ### Fluxo de Dados
 
 1. As requisições chegam aos Controllers
@@ -169,15 +226,18 @@ A API é documentada usando o Swagger e está disponível em `/api-docs` quando 
 
 ### Endpoints Principais
 
-#### Autenticação
+#### Autenticação Segura
 
 | Método | Endpoint              | Descrição                         |
 | ------ | --------------------- | --------------------------------- |
 | POST   | `/api/users/register` | Registrar novo usuário            |
 | POST   | `/api/users/login`    | Login de usuário                  |
-| GET    | `/api/auth/google`    | Iniciar autenticação via Google   |
+| GET    | `/api/auth/google`    | Iniciar autenticação via Google (PKCE) |
 | GET    | `/api/auth/facebook`  | Iniciar autenticação via Facebook |
-| GET    | `/api/auth/twitter`   | Iniciar autenticação via Twitter  |
+| GET    | `/api/auth/github`    | Iniciar autenticação via GitHub  |
+| POST   | `/api/auth/refresh`   | Renovar access token             |
+| POST   | `/api/auth/logout`    | Logout seguro                     |
+| GET    | `/api/auth/me`        | Verificar status de autenticação |
 
 #### Usuários
 
@@ -318,7 +378,12 @@ MONGODB_URI=mongodb://localhost:27017/organfinancialai
 
 # JWT (Autenticação)
 JWT_SECRET=seu_segredo_jwt_aqui
-JWT_EXPIRES_IN=24h
+JWT_REFRESH_SECRET=seu_segredo_refresh_aqui
+JWT_EXPIRES_IN=15m
+JWT_REFRESH_EXPIRES_IN=7d
+
+# Sessões
+SESSION_SECRET=seu_segredo_sessao_aqui
 
 # URLs
 APP_URL=http://localhost:3001
@@ -334,13 +399,16 @@ SMTP_PASS=sua_senha
 STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 
-# Autenticação Social
+# Autenticação Social (OAuth 2.0 com PKCE)
 GOOGLE_CLIENT_ID=seu_client_id
 GOOGLE_CLIENT_SECRET=seu_client_secret
+GOOGLE_CALLBACK_URL=http://localhost:3001/api/auth/google/callback
 FACEBOOK_CLIENT_ID=seu_app_id
 FACEBOOK_CLIENT_SECRET=seu_app_secret
-TWITTER_CLIENT_ID=sua_api_key
-TWITTER_CLIENT_SECRET=sua_api_secret
+FACEBOOK_CALLBACK_URL=http://localhost:3001/api/auth/facebook/callback
+GITHUB_CLIENT_ID=seu_client_id
+GITHUB_CLIENT_SECRET=seu_client_secret
+GITHUB_CALLBACK_URL=http://localhost:3001/api/auth/github/callback
 ```
 
 ## 🏁 Instalação e Execução
@@ -405,14 +473,18 @@ apps/backend/
 
 ### Funcionalidades Implementadas
 
-- ✅ Autenticação e gerenciamento de usuários
+- ✅ Autenticação segura com JWT e refresh tokens
+- ✅ Login via redes sociais com PKCE (Google, Facebook, GitHub)
+- ✅ Cookies HttpOnly para máxima segurança
+- ✅ Proteção CSRF com state parameter
 - ✅ CRUD de contas, categorias, transações e metas
 - ✅ Relatórios financeiros (PDF e Excel)
 - ✅ Insights baseados em IA
 - ✅ Sistema de assinaturas (Free e Premium)
 - ✅ Integração com Stripe para pagamentos
-- ✅ Login via redes sociais
 - ✅ Upload de anexos para transações
+- ✅ Sessões seguras com express-session
+- ✅ Validação rigorosa de tipos TypeScript
 
 ### Próximos Passos
 
