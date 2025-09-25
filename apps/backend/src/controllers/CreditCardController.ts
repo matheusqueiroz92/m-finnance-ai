@@ -15,7 +15,12 @@ export class CreditCardController {
    * Create a new credit card
    */
   createCreditCard = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       const {
         cardNumber,
         cardBrand,
@@ -38,7 +43,7 @@ export class CreditCardController {
         billingDueDay
       };
       
-      const creditCard = await this.creditCardService.createCreditCard(req.user._id, creditCardData);
+      const creditCard = await this.creditCardService.createCreditCard((req.user as any)._id, creditCardData);
       
       ApiResponse.created(res, creditCard, 'Cartão de crédito criado com sucesso');
     } catch (error) {
@@ -50,12 +55,17 @@ export class CreditCardController {
    * Get credit cards for the authenticated user
    */
   getCreditCards = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       const isActive = req.query.isActive !== undefined 
         ? req.query.isActive === 'true' 
         : undefined;
       
-      const creditCards = await this.creditCardService.getCreditCardsByUserId(req.user._id, isActive);
+      const creditCards = await this.creditCardService.getCreditCardsByUserId((req.user as any)._id, isActive);
       
       ApiResponse.success(res, creditCards, 'Cartões de crédito recuperados com sucesso');
     } catch (error) {
@@ -67,14 +77,19 @@ export class CreditCardController {
    * Get credit card by ID
    */
   getCreditCardById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       if (!req.params.id) {
         throw new ApiError('ID do cartão é obrigatório', 400);
       }
       
       const creditCard = await this.creditCardService.getCreditCardById(
         req.params.id,
-        req.user._id
+        (req.user as any)._id
       );
       
       ApiResponse.success(res, creditCard, 'Cartão de crédito recuperado com sucesso');
@@ -87,7 +102,12 @@ export class CreditCardController {
    * Update a credit card
    */
   updateCreditCard = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       if (!req.params.id) {
         throw new ApiError('ID do cartão é obrigatório', 400);
       }
@@ -119,7 +139,7 @@ export class CreditCardController {
       
       const creditCard = await this.creditCardService.updateCreditCard(
         req.params.id,
-        req.user._id,
+        (req.user as any)._id,
         updateData
       );
       
@@ -133,14 +153,19 @@ export class CreditCardController {
    * Delete a credit card
    */
   deleteCreditCard = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       if (!req.params.id) {
         throw new ApiError('ID do cartão é obrigatório', 400);
       }
       
       await this.creditCardService.deleteCreditCard(
         req.params.id,
-        req.user._id
+        (req.user as any)._id
       );
       
       ApiResponse.success(res, { success: true }, 'Cartão de crédito excluído com sucesso');
@@ -153,14 +178,19 @@ export class CreditCardController {
    * Get credit card balance
    */
   getCreditCardBalance = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       if (!req.params.id) {
         throw new ApiError('ID do cartão é obrigatório', 400);
       }
       
       const balance = await this.creditCardService.getCreditCardBalance(
         req.params.id,
-        req.user._id
+        (req.user as any)._id
       );
       
       ApiResponse.success(res, balance, 'Saldo do cartão recuperado com sucesso');
@@ -173,7 +203,12 @@ export class CreditCardController {
    * Validate security code
    */
   validateSecurityCode = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       if (!req.params.id) {
         throw new ApiError('ID do cartão é obrigatório', 400);
       }
@@ -186,7 +221,7 @@ export class CreditCardController {
       
       const isValid = await this.creditCardService.validateSecurityCode(
         req.params.id,
-        req.user._id,
+        (req.user as any)._id,
         securityCode
       );
       

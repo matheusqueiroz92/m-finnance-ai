@@ -7,13 +7,7 @@ interface TokenPayload {
   id: string;
 }
 
-declare global {
-  namespace Express {
-    interface Request {
-      user?: any;
-    }
-  }
-}
+// Removido - usando types/express.d.ts
 
 export const protect = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   let token: string | undefined;

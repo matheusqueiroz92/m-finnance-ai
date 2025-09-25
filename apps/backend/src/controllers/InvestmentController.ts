@@ -18,7 +18,12 @@ export class InvestmentController {
    * Create a new investment
    */
   createInvestment = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       console.log('Dados recebidos para criação de investimento:', req.body);
       
       // Preparar os dados para validação
@@ -42,7 +47,7 @@ export class InvestmentController {
         const validatedData = investmentCreateSchema.parse(investmentData);
         console.log('Dados validados com sucesso:', validatedData);
         
-        const investment = await this.investmentService.createInvestment(req.user._id, validatedData);
+        const investment = await this.investmentService.createInvestment((req.user as any)._id, validatedData);
         
         ApiResponse.created(res, investment, 'Investimento criado com sucesso');
       } catch (validationError) {
@@ -69,7 +74,12 @@ export class InvestmentController {
    * Get all investments for the user
    */
   getInvestments = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       console.log('Parâmetros de consulta para investimentos:', req.query);
       
       // Validar os filtros
@@ -78,7 +88,7 @@ export class InvestmentController {
         console.log('Filtros validados:', validatedFilters);
         
         const result = await this.investmentService.getInvestmentsByUserId(
-          req.user._id, 
+          (req.user as any)._id, 
           validatedFilters
         );
         
@@ -113,14 +123,19 @@ export class InvestmentController {
    * Get investment by ID
    */
   getInvestmentById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       if (!req.params.id) {
         throw new ApiError('ID do investimento é obrigatório', 400);
       }
       
       const investment = await this.investmentService.getInvestmentById(
         req.params.id,
-        req.user._id
+        (req.user as any)._id
       );
       
       ApiResponse.success(res, investment, 'Investimento recuperado com sucesso');
@@ -133,7 +148,12 @@ export class InvestmentController {
    * Update an investment
    */
   updateInvestment = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       if (!req.params.id) {
         throw new ApiError('ID do investimento é obrigatório', 400);
       }
@@ -168,7 +188,7 @@ export class InvestmentController {
         
         const investment = await this.investmentService.updateInvestment(
           req.params.id,
-          req.user._id,
+          (req.user as any)._id,
           validatedData
         );
         
@@ -197,14 +217,19 @@ export class InvestmentController {
    * Delete an investment
    */
   deleteInvestment = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       if (!req.params.id) {
         throw new ApiError('ID do investimento é obrigatório', 400);
       }
       
       await this.investmentService.deleteInvestment(
         req.params.id,
-        req.user._id
+        (req.user as any)._id
       );
       
       ApiResponse.success(res, { success: true }, 'Investimento excluído com sucesso');
@@ -217,8 +242,13 @@ export class InvestmentController {
    * Get investment summary
    */
   getInvestmentSummary = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const summary = await this.investmentService.getInvestmentSummary(req.user._id);
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
+      const summary = await this.investmentService.getInvestmentSummary((req.user as any)._id);
       
       ApiResponse.success(res, summary, 'Resumo de investimentos recuperado com sucesso');
     } catch (error) {
@@ -230,13 +260,18 @@ export class InvestmentController {
    * Get investments by account
    */
   getInvestmentsByAccount = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       if (!req.params.accountId) {
         throw new ApiError('ID da conta é obrigatório', 400);
       }
       
       const investments = await this.investmentService.getInvestmentsByAccount(
-        req.user._id,
+        (req.user as any)._id,
         req.params.accountId
       );
       
@@ -250,14 +285,19 @@ export class InvestmentController {
    * Get transactions by investment
    */
   getTransactionsByInvestment = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       if (!req.params.id) {
         throw new ApiError('ID do investimento é obrigatório', 400);
       }
       
       const transactionService = container.resolve<ITransactionService>('TransactionService');
       const transactions = await transactionService.getTransactionsByInvestment(
-        req.user._id,
+        (req.user as any)._id,
         req.params.id
       );
       

@@ -37,7 +37,12 @@ router.get('/attachment/:transactionId/:attachmentId', protect, async (req: Requ
     }
     
     // Buscar a transação
-    const transaction = await transactionService.getTransactionById(transactionId, req.user._id);
+    if (!req.user) {
+      ApiResponse.error(res, 'Usuário não autenticado', 401);
+      return;
+    }
+
+    const transaction = await transactionService.getTransactionById(transactionId, (req.user as any)._id);
     
     // Verificar se o anexo existe
     if (!transaction.attachments || transaction.attachments.length === 0) {
@@ -76,7 +81,12 @@ router.get('/attachments/:transactionId', protect, async (req: Request, res: Res
     }
     
     // Buscar a transação
-    const transaction = await transactionService.getTransactionById(transactionId, req.user._id);
+    if (!req.user) {
+      ApiResponse.error(res, 'Usuário não autenticado', 401);
+      return;
+    }
+
+    const transaction = await transactionService.getTransactionById(transactionId, (req.user as any)._id);
     
     // Verificar se há anexos
     if (!transaction.attachments || transaction.attachments.length === 0) {
@@ -109,7 +119,12 @@ router.get('/download/attachment/:transactionId/:attachmentId', protect, async (
     }
     
     // Buscar a transação
-    const transaction = await transactionService.getTransactionById(transactionId, req.user._id);
+    if (!req.user) {
+      ApiResponse.error(res, 'Usuário não autenticado', 401);
+      return;
+    }
+
+    const transaction = await transactionService.getTransactionById(transactionId, (req.user as any)._id);
     
     // Verificar se o anexo existe
     if (!transaction.attachments || transaction.attachments.length === 0) {

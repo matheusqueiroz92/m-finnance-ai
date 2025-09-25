@@ -19,7 +19,12 @@ export class UserController {
    * Register a new user
    */
   register = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       console.log('Dados recebidos no registro:', req.body);
       console.log('Avatar recebido:', req.file);
       
@@ -81,7 +86,12 @@ export class UserController {
    * Login user
    */
   login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       if (!req.body.email || !req.body.password) {
         throw new ApiError('Por favor, forneça email e senha', 400);
       }
@@ -104,8 +114,13 @@ export class UserController {
    * Get user profile
    */
   getProfile = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const user = await this.userService.getUserById(req.user._id);
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
+      const user = await this.userService.getUserById((req.user as any)._id);
       
       ApiResponse.success(res, {
         id: user._id,
@@ -128,7 +143,12 @@ export class UserController {
    * Update user profile
    */
   updateProfile = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       console.log('Dados recebidos para atualização de perfil:', req.body);
       console.log('Avatar recebido:', req.file);
       
@@ -168,7 +188,7 @@ export class UserController {
         
         console.log('Dados finais para atualização de perfil:', validatedData);
         
-        const result = await this.userService.updateProfile(req.user._id, validatedData);
+        const result = await this.userService.updateProfile((req.user as any)._id, validatedData);
         
         ApiResponse.success(res, result, 'Perfil atualizado com sucesso');
       } catch (validationError) {
@@ -195,14 +215,19 @@ export class UserController {
    * Change user password
    */
   changePassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       const { currentPassword, newPassword } = req.body;
       
       if (!currentPassword || !newPassword) {
         throw new ApiError('Por favor, forneça a senha atual e a nova senha', 400);
       }
       
-      await this.userService.changePassword(req.user._id, { currentPassword, newPassword });
+      await this.userService.changePassword((req.user as any)._id, { currentPassword, newPassword });
       
       ApiResponse.success(res, null, 'Senha alterada com sucesso', 200);
     } catch (error) {
@@ -214,7 +239,12 @@ export class UserController {
    * Verify email
    */
   verifyEmail = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       const { token } = req.body;
       
       if (!token) {
@@ -233,8 +263,13 @@ export class UserController {
    * Resend verification email
    */
   resendVerificationEmail = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      await this.userService.resendVerificationEmail(req.user._id);
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
+      await this.userService.resendVerificationEmail((req.user as any)._id);
       
       ApiResponse.success(res, null, 'E-mail de verificação reenviado com sucesso');
     } catch (error) {

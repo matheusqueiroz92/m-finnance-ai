@@ -17,7 +17,12 @@ export class TransactionController {
    * Create a new transaction
    */
   createTransaction = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       console.log('Dados recebidos no controller:', req.body);
       console.log('Arquivos recebidos:', req.files);
       
@@ -77,7 +82,7 @@ export class TransactionController {
         
         console.log('Dados finais para criação da transação:', finalTransactionData);
         
-        const transaction = await this.transactionService.createTransaction(req.user._id, finalTransactionData);
+        const transaction = await this.transactionService.createTransaction((req.user as any)._id, finalTransactionData);
         
         ApiResponse.created(res, transaction, 'Transação criada com sucesso');
       } catch (validationError) {
@@ -104,7 +109,12 @@ export class TransactionController {
    * Get all transactions for the user
    */
   getUserTransactions = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       const filters = {
         type: req.query.type as 'income' | 'expense' | 'investment' | undefined,
         category: req.query.category as string | undefined,
@@ -115,7 +125,7 @@ export class TransactionController {
         page: req.query.page ? parseInt(req.query.page as string, 10) : 1,
       };
       
-      const result = await this.transactionService.getUserTransactions(req.user._id, filters);
+      const result = await this.transactionService.getUserTransactions((req.user as any)._id, filters);
       
       ApiResponse.paginated(
         res, 
@@ -134,14 +144,19 @@ export class TransactionController {
    * Get transaction by ID
    */
   getTransactionById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       if (!req.params.id) {
         throw new ApiError('ID da transação é obrigatório', 400);
       }
       
       const transaction = await this.transactionService.getTransactionById(
         req.params.id,
-        req.user._id
+        (req.user as any)._id
       );
       
       ApiResponse.success(res, transaction, 'Transação recuperada com sucesso');
@@ -154,7 +169,12 @@ export class TransactionController {
    * Update a transaction
    */
   updateTransaction = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       if (!req.params.id) {
         throw new ApiError('ID da transação é obrigatório', 400);
       }
@@ -212,7 +232,7 @@ export class TransactionController {
             // Buscar a transação atual para obter os anexos existentes
             const currentTransaction = await this.transactionService.getTransactionById(
               req.params.id,
-              req.user._id
+              (req.user as any)._id
             );
             
             // Combinar anexos existentes com os novos
@@ -230,7 +250,7 @@ export class TransactionController {
         
         const transaction = await this.transactionService.updateTransaction(
           req.params.id,
-          req.user._id,
+          (req.user as any)._id,
           validatedData
         );
         
@@ -259,14 +279,19 @@ export class TransactionController {
    * Delete a transaction
    */
   deleteTransaction = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       if (!req.params.id) {
         throw new ApiError('ID da transação é obrigatório', 400);
       }
       
       const result = await this.transactionService.deleteTransaction(
         req.params.id,
-        req.user._id
+        (req.user as any)._id
       );
       
       ApiResponse.success(res, result, 'Transação excluída com sucesso');
@@ -279,10 +304,15 @@ export class TransactionController {
    * Get transaction statistics
    */
   getTransactionStats = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       const period = (req.query.period as 'day' | 'week' | 'month' | 'year') || 'month';
       
-      const stats = await this.transactionService.getTransactionStats(req.user._id, period);
+      const stats = await this.transactionService.getTransactionStats((req.user as any)._id, period);
       
       ApiResponse.success(res, stats, 'Estatísticas recuperadas com sucesso');
     } catch (error) {
@@ -295,7 +325,12 @@ export class TransactionController {
    * Remove an attachment from a transaction
    */
   removeAttachment = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       const { transactionId, attachmentId } = req.params;
       
       if (!transactionId || !attachmentId) {
@@ -304,7 +339,7 @@ export class TransactionController {
       
       const transaction = await this.transactionService.removeAttachment(
         transactionId,
-        req.user._id,
+        (req.user as any)._id,
         attachmentId
       );
       
@@ -318,14 +353,19 @@ export class TransactionController {
    * Get transactions by investment
    */
   getTransactionsByInvestment = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       if (!req.params.id) {
         throw new ApiError('ID do investimento é obrigatório', 400);
       }
       
       const transactionService = container.resolve<ITransactionService>('TransactionService');
       const transactions = await transactionService.getTransactionsByInvestment(
-        req.user._id,
+        (req.user as any)._id,
         req.params.id
       );
       

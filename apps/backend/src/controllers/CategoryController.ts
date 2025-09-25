@@ -15,7 +15,12 @@ export class CategoryController {
    * Create a new category
    */
   createCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       const { name, type, icon, color } = req.body;
       
       const categoryData = {
@@ -26,7 +31,7 @@ export class CategoryController {
         isDefault: false,
       };
       
-      const category = await this.categoryService.createCategory(req.user._id, categoryData);
+      const category = await this.categoryService.createCategory((req.user as any)._id, categoryData);
       
       ApiResponse.created(res, category, 'Categoria criada com sucesso');
     } catch (error) {
@@ -38,10 +43,15 @@ export class CategoryController {
    * Get categories for the authenticated user
    */
   getCategories = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       const type = req.query.type as string | undefined;
       
-      const categories = await this.categoryService.getCategoriesByUserId(req.user._id, type);
+      const categories = await this.categoryService.getCategoriesByUserId((req.user as any)._id, type);
       
       ApiResponse.success(res, categories, 'Categorias recuperadas com sucesso');
     } catch (error) {
@@ -53,14 +63,19 @@ export class CategoryController {
    * Get category by ID
    */
   getCategoryById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       if (!req.params.id) {
         throw new ApiError('ID da categoria é obrigatório', 400);
       }
       
       const category = await this.categoryService.getCategoryById(
         req.params.id,
-        req.user._id
+        (req.user as any)._id
       );
       
       ApiResponse.success(res, category, 'Categoria recuperada com sucesso');
@@ -73,7 +88,12 @@ export class CategoryController {
    * Update a category
    */
   updateCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       if (!req.params.id) {
         throw new ApiError('ID da categoria é obrigatório', 400);
       }
@@ -95,7 +115,7 @@ export class CategoryController {
       
       const category = await this.categoryService.updateCategory(
         req.params.id,
-        req.user._id,
+        (req.user as any)._id,
         updateData
       );
       
@@ -109,14 +129,19 @@ export class CategoryController {
    * Delete a category
    */
   deleteCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       if (!req.params.id) {
         throw new ApiError('ID da categoria é obrigatório', 400);
       }
       
       await this.categoryService.deleteCategory(
         req.params.id,
-        req.user._id
+        (req.user as any)._id
       );
       
       ApiResponse.success(res, { success: true }, 'Categoria excluída com sucesso');

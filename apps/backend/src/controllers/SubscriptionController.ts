@@ -16,8 +16,13 @@ export class SubscriptionController {
    * Get the current user's subscription
    */
   getCurrentSubscription = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const subscription = await this.subscriptionService.getUserSubscription(req.user._id);
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
+      const subscription = await this.subscriptionService.getUserSubscription((req.user as any)._id);
       
       if (!subscription) {
         ApiResponse.success(res, null, 'Usuário não possui assinatura');
@@ -34,8 +39,13 @@ export class SubscriptionController {
    * Create a trial subscription for the user
    */
   startTrial = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const subscription = await this.subscriptionService.createTrialSubscription(req.user._id);
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
+      const subscription = await this.subscriptionService.createTrialSubscription((req.user as any)._id);
       
       ApiResponse.created(res, subscription, 'Período de teste iniciado com sucesso');
     } catch (error) {
@@ -47,8 +57,13 @@ export class SubscriptionController {
    * Cancel the current subscription
    */
   cancelSubscription = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const subscription = await this.subscriptionService.cancelSubscription(req.user._id);
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
+      const subscription = await this.subscriptionService.cancelSubscription((req.user as any)._id);
       
       ApiResponse.success(res, subscription, 'Assinatura cancelada com sucesso');
     } catch (error) {
@@ -60,14 +75,19 @@ export class SubscriptionController {
    * Update subscription to a new plan type
    */
   updateSubscriptionPlan = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       const { planType } = req.body;
       
       if (!planType || !Object.values(SubscriptionPlanType).includes(planType)) {
         throw new ApiError('Tipo de plano inválido', 400);
       }
       
-      const subscription = await this.subscriptionService.updateSubscription(req.user._id, { planType });
+      const subscription = await this.subscriptionService.updateSubscription((req.user as any)._id, { planType });
       
       ApiResponse.success(res, subscription, 'Plano atualizado com sucesso');
     } catch (error) {

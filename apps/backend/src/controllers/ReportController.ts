@@ -19,12 +19,17 @@ export class ReportController {
    * Generate financial report
    */
   generateReport = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       const period = (req.query.period as 'month' | 'quarter' | 'year') || 'month';
       const format = (req.query.format as 'pdf' | 'excel') || 'pdf';
       
       const result = await this.reportService.generateFinancialReport(
-        req.user._id,
+        (req.user as any)._id,
         period,
         format
       );
@@ -50,8 +55,13 @@ export class ReportController {
    * Get AI insights
    */
   getInsights = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const insights = await this.aiAnalysisService.generateInsights(req.user._id);
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
+      const insights = await this.aiAnalysisService.generateInsights((req.user as any)._id);
       
       ApiResponse.success(res, insights, 'Insights de IA gerados com sucesso');
     } catch (error) {

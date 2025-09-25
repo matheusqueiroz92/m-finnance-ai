@@ -18,18 +18,23 @@ export class PaymentController {
    * Create checkout session
    */
   createCheckoutSession = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       const { priceId, successUrl, cancelUrl } = req.body;
       
       if (!priceId || !successUrl || !cancelUrl) {
         throw new ApiError('priceId, successUrl e cancelUrl são obrigatórios', 400);
       }
       
-      const checkoutUrl = await this.billingService.createCheckoutSession(req.user._id, {
+      const checkoutUrl = await this.billingService.createCheckoutSession((req.user as any)._id, {
         priceId,
         successUrl,
         cancelUrl,
-        metadata: { userId: req.user._id }
+        metadata: { userId: (req.user as any)._id }
       });
       
       ApiResponse.success(res, { url: checkoutUrl }, 'Sessão de checkout criada com sucesso');
@@ -42,8 +47,13 @@ export class PaymentController {
    * Get payment methods
    */
   getPaymentMethods = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const paymentMethods = await this.billingService.getCustomerPaymentMethods(req.user._id);
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
+      const paymentMethods = await this.billingService.getCustomerPaymentMethods((req.user as any)._id);
       
       ApiResponse.success(res, paymentMethods, 'Métodos de pagamento recuperados com sucesso');
     } catch (error) {
@@ -55,7 +65,12 @@ export class PaymentController {
    * Handle webhook events from payment provider
    */
   handleWebhook = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       const signature = req.headers['stripe-signature'] as string;
       
       if (!signature) {

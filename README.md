@@ -1,8 +1,8 @@
-# OrganFinancialAI 🚀
+# M. Finnance AI 🚀
 
-![OrganFinancialAI Logo](https://via.placeholder.com/300x100?text=OrganFinancialAI)
+![M. Finnance AI Logo](https://via.placeholder.com/300x100?text=OrganFinancialAI)
 
-OrganFinancialAI é uma plataforma completa de gestão financeira pessoal com recursos avançados de inteligência artificial para análise de gastos, orçamentos e planejamento financeiro.
+M. Finnance AI é uma plataforma completa de gestão financeira pessoal com recursos avançados de inteligência artificial para análise de gastos, orçamentos e planejamento financeiro.
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
@@ -28,7 +28,7 @@ OrganFinancialAI é uma plataforma completa de gestão financeira pessoal com re
 
 ## 👁️ Visão Geral
 
-OrganFinancialAI é uma solução completa para gestão de finanças pessoais com análise inteligente de dados financeiros. A plataforma permite aos usuários rastrear receitas, despesas, definir metas financeiras, gerenciar contas e receber insights personalizados baseados em padrões de gastos. Com inteligência artificial integrada, fornecemos recomendações personalizadas para ajudar os usuários a melhorar sua saúde financeira.
+M. Finnance AI é uma solução completa para gestão de finanças pessoais com análise inteligente de dados financeiros. A plataforma permite aos usuários rastrear receitas, despesas, definir metas financeiras, gerenciar contas e receber insights personalizados baseados em padrões de gastos. Com inteligência artificial integrada, fornecemos recomendações personalizadas para ajudar os usuários a melhorar sua saúde financeira.
 
 ### Diferenciais
 
@@ -105,14 +105,14 @@ OrganFinancialAI é uma solução completa para gestão de finanças pessoais co
 
 ## 📐 Arquitetura
 
-OrganFinancialAI segue uma arquitetura moderna baseada em princípios sólidos de engenharia de software:
+M. Finnance AI segue uma arquitetura moderna baseada em princípios sólidos de engenharia de software:
 
 ### Estrutura de Monorepo
 
 O projeto utiliza Turborepo para gerenciar um monorepo com múltiplos pacotes:
 
 ```
-organfinancialai/
+m-finnance-ai/
 ├── apps/
 │   ├── backend/    # API REST em Node.js/Express
 │   ├── web/        # Frontend web (planejado)

@@ -145,7 +145,7 @@ router.get("/google/callback", async (req, res) => {
     // Gerar tokens seguros
     const tokenService = container.resolve<TokenService>("TokenService");
     const { accessToken, refreshToken } = tokenService.generateTokenPair(
-      user.user
+      user.user as any
     );
 
     // Definir cookies seguros

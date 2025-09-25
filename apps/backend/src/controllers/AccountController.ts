@@ -15,7 +15,17 @@ export class AccountController {
    * Create a new account
    */
   createAccount = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
+      if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
       const { name, type, balance, institution, accountNumber } = req.body;
       
       const accountData = {
@@ -27,7 +37,7 @@ export class AccountController {
         isActive: true,
       };
       
-      const account = await this.accountService.createAccount(req.user._id, accountData);
+      const account = await this.accountService.createAccount((req.user as any)._id, accountData);
       
       ApiResponse.created(res, account, 'Conta criada com sucesso');
     } catch (error) {
@@ -39,8 +49,18 @@ export class AccountController {
    * Get accounts for the authenticated user
    */
   getAccounts = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const accounts = await this.accountService.getAccountsByUserId(req.user._id);
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
+      if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      const accounts = await this.accountService.getAccountsByUserId((req.user as any)._id);
       
       ApiResponse.success(res, accounts, 'Contas recuperadas com sucesso');
     } catch (error) {
@@ -52,14 +72,19 @@ export class AccountController {
    * Get account by ID
    */
   getAccountById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       if (!req.params.id) {
         throw new ApiError('ID da conta é obrigatório', 400);
       }
       
       const account = await this.accountService.getAccountById(
         req.params.id,
-        req.user._id
+        (req.user as any)._id
       );
       
       ApiResponse.success(res, account, 'Conta recuperada com sucesso');
@@ -72,7 +97,12 @@ export class AccountController {
    * Update an account
    */
   updateAccount = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       if (!req.params.id) {
         throw new ApiError('ID da conta é obrigatório', 400);
       }
@@ -95,7 +125,7 @@ export class AccountController {
       
       const account = await this.accountService.updateAccount(
         req.params.id,
-        req.user._id,
+        (req.user as any)._id,
         updateData
       );
       
@@ -109,14 +139,19 @@ export class AccountController {
    * Delete an account
    */
   deleteAccount = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
       if (!req.params.id) {
         throw new ApiError('ID da conta é obrigatório', 400);
       }
       
       await this.accountService.deleteAccount(
         req.params.id,
-        req.user._id
+        (req.user as any)._id
       );
       
       ApiResponse.success(res, { success: true }, 'Conta excluída com sucesso');
@@ -129,8 +164,13 @@ export class AccountController {
    * Get account summary with transaction stats
    */
   getAccountSummary = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const summary = await this.accountService.getAccountSummary(req.user._id);
+    if (!req.user) {
+        ApiResponse.error(res, 'Usuário não autenticado', 401);
+        return;
+      }
+
+      try {
+      const summary = await this.accountService.getAccountSummary((req.user as any)._id);
       
       ApiResponse.success(res, summary, 'Resumo das contas recuperado com sucesso');
     } catch (error) {
