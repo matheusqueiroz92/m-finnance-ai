@@ -26,11 +26,6 @@ import investmentRoutes from "./routes/investmentRoutes";
 
 const app = express();
 
-// Initialize Passport
-const passport = setupPassport();
-app.use(passport.initialize());
-app.use(passport.session());
-
 // Middlewares
 app.use(
   cors({
@@ -39,7 +34,7 @@ app.use(
   })
 );
 
-// Configuração de sessão
+// Configuração de sessão (DEVE vir ANTES do Passport)
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "your-session-secret-key",
@@ -53,6 +48,11 @@ app.use(
     },
   })
 );
+
+// Initialize Passport (DEPOIS do express-session)
+const passport = setupPassport();
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Rota do Stripe webhook precisa do raw body
 app.use("/api/payments/webhook", express.raw({ type: "application/json" }));

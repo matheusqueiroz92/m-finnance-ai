@@ -1,9 +1,9 @@
-version: '3'
+version: "3"
 
 services:
   mongodb:
     image: mongo:latest
-    container_name: organ-financial-ai-mongodb
+    container_name: m-finnance-ai-mongodb
     ports:
       - "27017:27017"
     volumes:
@@ -12,13 +12,13 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=password
     networks:
-      - organ-financial-ai-network
+      - m-finnance-ai-network
 
   backend:
     build:
       context: ./apps/backend
       dockerfile: Dockerfile
-    container_name: organ-financial-ai-backend
+    container_name: m-finnance-ai-backend
     ports:
       - "3001:3001"
     volumes:
@@ -28,15 +28,15 @@ services:
       - mongodb
     environment:
       - NODE_ENV=development
-      - MONGODB_URI=mongodb://admin:password@mongodb:27017/organ-financial-ai?authSource=admin
+      - MONGODB_URI=mongodb://admin:password@mongodb:27017/m-finnance-ai?authSource=admin
     networks:
-      - organ-financial-ai-network
+      - m-finnance-ai-network
 
   web:
     build:
       context: ./apps/web
       dockerfile: Dockerfile
-    container_name: organ-financial-ai-web
+    container_name: m-finnance-ai-web
     ports:
       - "3000:3000"
     volumes:
@@ -47,10 +47,10 @@ services:
     environment:
       - NEXT_PUBLIC_API_URL=http://backend:3001
     networks:
-      - organ-financial-ai-network
+      - m-finnance-ai-network
 
 networks:
-  finance-ai-network:
+  m-finnance-ai-network:
     driver: bridge
 
 volumes:

@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Cookies from 'js-cookie';
-import { LoginCredentials, RegisterData, User } from '@/types/user';
-import * as authService from '@/services/authService';
-import { handleError } from '@/lib/errors';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
+import { LoginCredentials, RegisterData, User } from "@/types/user";
+import * as authService from "@/services/authService";
+import { handleError } from "@/lib/errors";
 
 // Interface para o contexto
 interface AuthContextType {
@@ -13,7 +13,7 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   isPremium: boolean;
-  login: (credentials: LoginCredentials) => Promise<void>;
+  login: (credentials: LoginCredentials | string) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   logout: () => void;
   updateUserData: (data: Partial<User>) => void;
@@ -38,7 +38,7 @@ const AuthContext = createContext<AuthContextType>(defaultAuthContext);
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth deve ser usado dentro de um AuthProvider');
+    throw new Error("useAuth deve ser usado dentro de um AuthProvider");
   }
   return context;
 }
@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Efeito para verificar autenticação inicial
   useEffect(() => {
     const checkAuth = async () => {
-      const token = Cookies.get('token');
+      const token = Cookies.get("token");
 
       if (!token) {
         setIsLoading(false);
@@ -68,7 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(userData);
       } catch (error) {
         handleError(error);
-        Cookies.remove('token');
+        Cookies.remove("token");
       } finally {
         setIsLoading(false);
       }
@@ -77,18 +77,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     checkAuth();
   }, []);
 
-  const login = async (credentials: LoginCredentials) => {
+  const login = async (credentials: LoginCredentials | string) => {
     setIsLoading(true);
     try {
-      const response = await authService.login(credentials);
+      let response;
+
+      if (typeof credentials === "string") {
+        // Login com token (social login)
+        Cookies.set("token", credentials, { expires: 7 });
+        const userData = await authService.getProfile();
+        response = { user: userData, token: credentials };
+      } else {
+        // Login com credenciais
+        response = await authService.login(credentials);
+        Cookies.set("token", response.token, { expires: 7 });
+      }
+
       setUser(response.user);
-      Cookies.set('token', response.token, { expires: 7 });
-      
-      // Adicionar esta linha para definir isLoading como false após o login bem-sucedido
       setIsLoading(false);
-      
-      // Agora podemos redirecionar
-      window.location.href = '/dashboard';
+
+      // Redirecionar para dashboard
+      window.location.href = "/dashboard";
     } catch (error) {
       handleError(error);
       setIsLoading(false);
@@ -100,10 +109,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await authService.register(data);
       setUser(response.user);
-      Cookies.set('token', response.token, { expires: 7 });
-      
+      Cookies.set("token", response.token, { expires: 7 });
+      setIsLoading(false);
+
       // Usar router.replace em vez de router.push
-      router.replace('/dashboard');
+      router.replace("/dashboard");
     } catch (error) {
       handleError(error);
       setIsLoading(false);
@@ -113,7 +123,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     authService.logout();
     setUser(null);
-    router.replace('/login');
+    router.replace("/login");
   };
 
   const updateUserData = (data: Partial<User>) => {
@@ -133,9 +143,5 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     updateUserData,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

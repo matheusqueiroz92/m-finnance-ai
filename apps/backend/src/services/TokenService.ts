@@ -1,6 +1,6 @@
 import { injectable } from "tsyringe";
 import jwt from "jsonwebtoken";
-import { IUser } from "../interfaces/entities/IUser";
+import { IUser, IUserDTO } from "../interfaces/entities/IUser";
 
 export interface TokenPair {
   accessToken: string;
@@ -25,7 +25,7 @@ export class TokenService {
   /**
    * Gera um par de tokens (access + refresh)
    */
-  generateTokenPair(user: IUser): TokenPair {
+  generateTokenPair(user: IUser | IUserDTO): TokenPair {
     const accessToken = this.generateAccessToken(user);
     const refreshToken = this.generateRefreshToken(user);
 
@@ -35,7 +35,7 @@ export class TokenService {
   /**
    * Gera access token (curta duração)
    */
-  generateAccessToken(user: IUser): string {
+  generateAccessToken(user: IUser | IUserDTO): string {
     const payload: TokenPayload = {
       userId: user._id.toString(),
       email: user.email,
@@ -52,7 +52,7 @@ export class TokenService {
   /**
    * Gera refresh token (longa duração)
    */
-  generateRefreshToken(user: IUser): string {
+  generateRefreshToken(user: IUser | IUserDTO): string {
     const payload: TokenPayload = {
       userId: user._id.toString(),
       email: user.email,

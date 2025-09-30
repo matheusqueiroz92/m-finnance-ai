@@ -2,12 +2,13 @@
 
 ![M. Finnance AI Logo](https://via.placeholder.com/300x100?text=OrganFinancialAI)
 
-M. Finnance AI é uma plataforma completa de gestão financeira pessoal com recursos avançados de inteligência artificial para análise de gastos, orçamentos e planejamento financeiro.
+M. Finnance AI é uma plataforma completa de gestão financeira pessoal com recursos avançados de inteligência artificial para análise de gastos, orçamentos, investimentos e planejamento financeiro.
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-672C88?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongoose.com/)
+[![Mongoose](https://img.shields.io/badge/Mongoose-47A248?style=for-the-badge&logo=mongoose&logoColor=white)](https://mongoosejs.com//)
 [![Jest](https://img.shields.io/badge/Jest-C21325?style=for-the-badge&logo=jest&logoColor=white)](https://jestjs.io/)
 [![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 [![Stripe](https://img.shields.io/badge/Stripe-008CDD?style=for-the-badge&logo=stripe&logoColor=white)](https://stripe.com/)

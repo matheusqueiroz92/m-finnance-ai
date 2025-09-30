@@ -3,21 +3,32 @@ import passport from "passport";
 import { container } from "../config/container";
 import { ApiResponse } from "../utils/ApiResponse";
 import { setupPassport } from "../config/passport";
+import { CookieManager } from "../middlewares/cookieMiddleware";
+import { TokenService } from "../services/TokenService";
+import { UserService } from "../services/UserService";
 import {
   generateCodeVerifier,
   generateCodeChallenge,
   generateState,
+  validateState,
 } from "../utils/pkce";
-import { CookieManager } from "../middlewares/cookieMiddleware";
-import { TokenService } from "../services/TokenService";
-import { UserService } from "../services/UserService";
 
 const router = express.Router();
 const passportConfig = setupPassport();
 
-// Função para trocar código por token do Google
-async function exchangeCodeForToken(code: string, codeVerifier: string) {
-  const response = await fetch("https://oauth2.googleapis.com/token", {
+// Rota de teste para verificar se as rotas estão funcionando
+router.get("/test", (req, res) => {
+  ApiResponse.success(res, { message: "Auth routes funcionando!" }, "Teste OK");
+});
+
+// Rota para iniciar autenticação Google (usando Passport)
+router.get("/google", (req, res) => {
+  passportConfig.authenticate("google")(req, res);
+});
+
+// Função para trocar código por token (sem PKCE)
+async function exchangeCodeForToken(code: string) {
+  const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
@@ -25,19 +36,18 @@ async function exchangeCodeForToken(code: string, codeVerifier: string) {
     body: new URLSearchParams({
       client_id: process.env.GOOGLE_CLIENT_ID!,
       client_secret: process.env.GOOGLE_CLIENT_SECRET!,
-      code,
+      code: code,
       grant_type: "authorization_code",
       redirect_uri: process.env.GOOGLE_CALLBACK_URL!,
-      code_verifier: codeVerifier,
     }),
   });
 
-  return await response.json();
+  return await tokenResponse.json();
 }
 
-// Função para obter dados do usuário do Google
+// Função para obter dados do usuário
 async function getUserInfoFromGoogle(accessToken: string) {
-  const response = await fetch(
+  const userResponse = await fetch(
     "https://www.googleapis.com/oauth2/v2/userinfo",
     {
       headers: {
@@ -46,183 +56,125 @@ async function getUserInfoFromGoogle(accessToken: string) {
     }
   );
 
-  return await response.json();
+  return await userResponse.json();
 }
 
-// Rota para iniciar autenticação Google com PKCE
-router.get("/google", (req, res) => {
-  try {
-    // Gerar PKCE parameters
-    const codeVerifier = generateCodeVerifier();
-    const codeChallenge = generateCodeChallenge(codeVerifier);
-    const state = generateState();
-
-    // Armazenar na sessão
-    req.session = req.session || {};
-    req.session.codeVerifier = codeVerifier;
-    req.session.oauthState = state;
-
-    console.log(
-      "🔐 PKCE - Code Verifier gerado:",
-      codeVerifier.substring(0, 10) + "..."
-    );
-    console.log(
-      "🔐 PKCE - Code Challenge gerado:",
-      codeChallenge.substring(0, 10) + "..."
-    );
-    console.log("🔐 PKCE - State gerado:", state.substring(0, 10) + "...");
-
-    // Construir URL de autorização com PKCE
-    const authUrl =
-      `https://accounts.google.com/oauth/authorize?` +
-      `client_id=${process.env.GOOGLE_CLIENT_ID}&` +
-      `redirect_uri=${process.env.GOOGLE_CALLBACK_URL}&` +
-      `response_type=code&` +
-      `scope=profile email&` +
-      `code_challenge=${codeChallenge}&` +
-      `code_challenge_method=S256&` +
-      `state=${state}`;
-
-    console.log("🔗 Redirecionando para Google OAuth com PKCE");
-    res.redirect(authUrl);
-  } catch (error) {
-    console.error("❌ Erro ao iniciar OAuth com PKCE:", error);
-    ApiResponse.error(res, "Erro interno do servidor", 500);
-    return;
-  }
-});
-
-// Callback seguro para autenticação Google
+// Callback para Google (usando Passport)
 router.get("/google/callback", async (req, res) => {
   try {
-    const { code, state } = req.query;
-
-    // Verificar state parameter
-    if (!req.session?.oauthState || state !== req.session.oauthState) {
-      console.error("❌ State parameter inválido");
-      return res.redirect(
-        `${process.env.FRONTEND_URL}/login?error=invalid_state`
-      );
-    }
-
-    // Verificar code parameter
-    if (!code) {
-      console.error("❌ Authorization code não fornecido");
-      return res.redirect(
-        `${process.env.FRONTEND_URL}/login?error=missing_code`
-      );
-    }
-
-    console.log("🔐 Callback recebido - Code:", code);
-    console.log("🔐 Callback recebido - State:", state);
-
-    // Trocar código por token do Google
-    const tokenResponse = await exchangeCodeForToken(
-      code as string,
-      req.session.codeVerifier || ""
-    );
-
-    if (!tokenResponse.access_token) {
-      console.error("❌ Falha ao obter token do Google");
-      return res.redirect(
-        `${process.env.FRONTEND_URL}/login?error=token_exchange_failed`
-      );
-    }
-
-    // Obter dados do usuário do Google
-    const userInfo = await getUserInfoFromGoogle(tokenResponse.access_token);
-
-    // Buscar ou criar usuário no banco
-    const userService = container.resolve<UserService>("UserService");
-    const user = await userService.loginWithSocialProvider({
-      provider: "google",
-      id: userInfo.id,
-      email: userInfo.email,
-      name: userInfo.name,
-      photo: userInfo.picture,
+    const authResult = await new Promise((resolve, reject) => {
+      passportConfig.authenticate(
+        "google",
+        { session: false },
+        (err: any, user: any, info: any) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          if (!user) {
+            reject(new Error("Usuário não encontrado"));
+            return;
+          }
+          resolve(user);
+        }
+      )(req, res);
     });
 
-    // Gerar tokens seguros
-    const tokenService = container.resolve<TokenService>("TokenService");
-    const { accessToken, refreshToken } = tokenService.generateTokenPair(
-      user.user as any
-    );
-
-    // Definir cookies seguros
-    CookieManager.setAccessToken(res, accessToken);
-    CookieManager.setRefreshToken(res, refreshToken);
-
-    console.log("✅ Login social realizado com sucesso");
-    console.log("🍪 Cookies seguros definidos");
-
-    // Redirecionar SEM token na URL
-    res.redirect(`${process.env.FRONTEND_URL}/auth/success`);
+    req.user = authResult as any;
+    processCallback(req, res);
   } catch (error) {
-    console.error("❌ Erro no callback OAuth:", error);
+    console.error("Erro no callback Google:", error);
     res.redirect(`${process.env.FRONTEND_URL}/login?error=callback_failed`);
   }
 });
 
-// Rota para iniciar autenticação Facebook
-router.get(
-  "/facebook",
-  passportConfig.authenticate("facebook", {
-    scope: ["email", "public_profile"],
-  })
-);
-
-// Callback para autenticação Facebook
-router.get(
-  "/facebook/callback",
-  passportConfig.authenticate("facebook", { session: false }),
-  (req, res) => {
-    const { user, token } = req.user as { user: any; token: string };
-
-    // Gerar tokens seguros
-    const tokenService = container.resolve<TokenService>("TokenService");
-    const { accessToken, refreshToken } = tokenService.generateTokenPair(
-      user.user as any
-    );
-
-    // Definir cookies seguros
-    CookieManager.setAccessToken(res, accessToken);
-    CookieManager.setRefreshToken(res, refreshToken);
-
-    console.log("✅ Login social realizado com sucesso");
-    console.log("🍪 Cookies seguros definidos");
-
-    // Redirecionar SEM token na URL
-    res.redirect(`${process.env.FRONTEND_URL}/auth/success`);
-  }
-);
-
 // Rota para iniciar autenticação GitHub
-router.get("/github", passportConfig.authenticate("github"));
+router.get("/github", (req, res) => {
+  passportConfig.authenticate("github")(req, res);
+});
 
-// Callback para autenticação GitHub
-router.get(
-  "/github/callback",
-  passportConfig.authenticate("github", { session: false }),
-  (req, res) => {
-    const { user, token } = req.user as { user: any; token: string };
+// Callback para GitHub
+router.get("/github/callback", async (req, res) => {
+  console.log("🔍 CALLBACK /github/callback CHAMADO");
 
-    // Gerar tokens seguros
+  try {
+    // Usar uma abordagem mais direta sem o callback do Passport
+    const authResult = await new Promise((resolve, reject) => {
+      passportConfig.authenticate(
+        "github",
+        { session: false },
+        (err: any, user: any, info: any) => {
+          if (err) {
+            console.error("❌ Erro no Passport GitHub:", err);
+            reject(err);
+            return;
+          }
+          if (!user) {
+            console.error("❌ Usuário não retornado pelo Passport:", info);
+            reject(new Error("Usuário não encontrado"));
+            return;
+          }
+
+          console.log(
+            "🔍 DEBUG - user recebido do Passport:",
+            JSON.stringify(user, null, 2)
+          );
+          resolve(user);
+        }
+      )(req, res);
+    });
+
+    console.log("🔍 DEBUG - authResult:", JSON.stringify(authResult, null, 2));
+
+    // Processar o resultado
+    req.user = authResult as any;
+    processCallback(req, res);
+  } catch (error) {
+    console.error("Erro no callback:", error);
+    res.redirect(`${process.env.FRONTEND_URL}/login?error=callback_failed`);
+  }
+});
+
+function processCallback(req: any, res: any) {
+  try {
+    // Verificar se req.user existe
+    if (!req.user) {
+      console.error("req.user é null/undefined");
+      return res.redirect(
+        `${process.env.FRONTEND_URL}/login?error=user_not_found`
+      );
+    }
+
+    // O Passport retorna { user: IUser, token: string } no req.user
+    const authResult = req.user as { user: any; token: string };
+
+    if (!authResult || !authResult.user) {
+      console.error("Usuário não encontrado no callback");
+      return res.redirect(
+        `${process.env.FRONTEND_URL}/login?error=user_not_found`
+      );
+    }
+
+    // 🔐 GERAR TOKENS SEGUROS
     const tokenService = container.resolve<TokenService>("TokenService");
     const { accessToken, refreshToken } = tokenService.generateTokenPair(
-      user.user as any
+      authResult.user as any
     );
 
-    // Definir cookies seguros
+    // 🍪 DEFINIR COOKIES SEGUROS
     CookieManager.setAccessToken(res, accessToken);
     CookieManager.setRefreshToken(res, refreshToken);
 
-    console.log("✅ Login social realizado com sucesso");
-    console.log("🍪 Cookies seguros definidos");
-
-    // Redirecionar SEM token na URL
-    res.redirect(`${process.env.FRONTEND_URL}/auth/success`);
+    res.redirect(
+      `${process.env.FRONTEND_URL}/auth/success?token=${accessToken}`
+    );
+  } catch (error) {
+    console.error("Erro no callback:", error);
+    res.redirect(`${process.env.FRONTEND_URL}/login?error=callback_failed`);
   }
-);
+}
+
+// Facebook removido - mantendo apenas Google e GitHub
 
 // Rota para refresh token
 router.post("/refresh", async (req, res) => {
@@ -247,15 +199,12 @@ router.post("/refresh", async (req, res) => {
       return;
     }
 
-    // Definir novo access token
+    // 🔐 DEFINIR NOVO ACCESS TOKEN
     CookieManager.setAccessToken(res, result.accessToken);
 
     ApiResponse.success(
       res,
-      {
-        user: result.user,
-        accessToken: result.accessToken,
-      },
+      { user: result.user, accessToken: result.accessToken },
       "Token renovado com sucesso"
     );
   } catch (error) {
@@ -268,14 +217,12 @@ router.post("/refresh", async (req, res) => {
 // Rota para logout seguro
 router.post("/logout", (req, res) => {
   try {
-    // Limpar cookies de autenticação
+    // 🍪 LIMPAR COOKIES DE AUTENTICAÇÃO
     CookieManager.clearAuthCookies(res);
 
-    // Limpar sessão
+    // 🗑️ LIMPAR SESSÃO
     req.session?.destroy((err) => {
-      if (err) {
-        console.error("❌ Erro ao destruir sessão:", err);
-      }
+      if (err) console.error("❌ Erro ao destruir sessão:", err);
     });
 
     console.log("✅ Logout realizado com sucesso");

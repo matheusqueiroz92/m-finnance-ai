@@ -1,5 +1,5 @@
 {
-  "name": "organ-financial-ai",
+  "name": "m-finnance-ai",
   "private": true,
   "scripts": {
     "build": "turbo run build",

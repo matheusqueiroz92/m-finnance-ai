@@ -14,7 +14,9 @@ export default function AuthSuccessPage() {
   useEffect(() => {
     const handleAuthSuccess = async () => {
       if (isAuthenticated) {
-        console.log("AuthSuccessPage - Já autenticado, redirecionando para dashboard");
+        console.log(
+          "AuthSuccessPage - Já autenticado, redirecionando para dashboard"
+        );
         router.replace("/dashboard");
         setPageLoading(false);
         return;
@@ -26,30 +28,26 @@ export default function AuthSuccessPage() {
       }
 
       try {
-        // Acessar a rota /api/auth/me para verificar a autenticação
-        // e obter os dados do usuário, que agora devem estar nos cookies HttpOnly
-        const response = await fetch('http://localhost:3001/api/auth/me', {
-          method: 'GET',
-          credentials: 'include', // Importante para enviar cookies HttpOnly
-        });
+        // 🔍 VERIFICAR SE HÁ TOKEN NA URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get("token");
 
-        if (response.ok) {
-          const { user } = await response.json();
-          console.log("AuthSuccessPage - Usuário autenticado via cookies:", user);
-          // O login no contexto de auth já deve ter sido feito pelo middleware ou pelo checkAuth inicial
-          // Se o user estiver presente, significa que o token foi validado e o estado do usuário foi carregado.
-          // Apenas garantimos que o estado local do useAuth está atualizado.
-          await login(user); // Atualiza o estado do user no AuthContext
+        if (token) {
+          console.log("AuthSuccessPage - Token recebido via URL:", token);
+
+          // 🔐 FAZER LOGIN COM TOKEN
+          await login(token);
+
+          // 🏠 REDIRECIONAR PARA DASHBOARD
           toast.success("Login social realizado com sucesso!");
           router.replace("/dashboard");
         } else {
-          const errorData = await response.json();
-          console.error("AuthSuccessPage - Falha na verificação de autenticação:", errorData);
-          toast.error(`Falha na autenticação: ${errorData.error || 'Erro desconhecido'}`);
+          console.error("AuthSuccessPage - Token não encontrado na URL");
+          toast.error("Token de autenticação não encontrado.");
           router.replace("/login");
         }
       } catch (err) {
-        console.error("AuthSuccessPage - Erro ao verificar autenticação:", err);
+        console.error("AuthSuccessPage - Erro ao processar login social:", err);
         toast.error("Erro ao processar login social.");
         router.replace("/login");
       } finally {
@@ -63,7 +61,10 @@ export default function AuthSuccessPage() {
   if (pageLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[#25343b] text-white">
-        <p>Processando login social seguro...</p>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
+          <p>Processando login social seguro...</p>
+        </div>
       </div>
     );
   }
@@ -71,7 +72,15 @@ export default function AuthSuccessPage() {
   if (pageError) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[#25343b] text-white">
-        <p>Erro: {pageError}</p>
+        <div className="text-center">
+          <p className="text-red-400">Erro: {pageError}</p>
+          <button
+            onClick={() => router.replace("/login")}
+            className="mt-4 px-4 py-2 bg-emerald-500 text-white rounded hover:bg-emerald-600"
+          >
+            Voltar ao Login
+          </button>
+        </div>
       </div>
     );
   }
