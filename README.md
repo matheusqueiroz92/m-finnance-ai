@@ -9,6 +9,7 @@ M. Finnance AI é uma plataforma completa de gestão financeira pessoal com recu
 [![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-672C88?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongoose.com/)
 [![Mongoose](https://img.shields.io/badge/Mongoose-47A248?style=for-the-badge&logo=mongoose&logoColor=white)](https://mongoosejs.com//)
+[![Next.js](https://img.shields.io/badge/Stripe-9C7608D?style=for-the-badge&logo=stripe&logoColor=white)](https://nextjs.org/)
 [![Jest](https://img.shields.io/badge/Jest-C21325?style=for-the-badge&logo=jest&logoColor=white)](https://jestjs.io/)
 [![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 [![Stripe](https://img.shields.io/badge/Stripe-008CDD?style=for-the-badge&logo=stripe&logoColor=white)](https://stripe.com/)
