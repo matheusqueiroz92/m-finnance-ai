@@ -1,6 +1,18 @@
 # M. Finnance AI 🚀
 
-![M. Finnance AI Logo](https://via.placeholder.com/300x100?text=OrganFinancialAI)
+<!--
+Para adicionar a logo da sua aplicação no README, você pode usar a sintaxe abaixo.
+Basta substituir o link da imagem (URL) pelo endereço da sua logo hospedada (por exemplo, no seu repositório ou em algum serviço de hospedagem de imagens).
+
+Exemplo:
+-->
+
+![Logo da M. Finnance AI](apps/web/public/images/logo-dark-mode-m-finnance-ai.png)
+
+<!--
+Se a logo estiver na pasta do projeto (por exemplo, em `public/logo.png`), use:
+![Logo da M. Finnance AI](public/logo.png)
+-->
 
 M. Finnance AI é uma plataforma completa de gestão financeira pessoal com recursos avançados de inteligência artificial para análise de gastos, orçamentos, investimentos e planejamento financeiro.
 
