@@ -43,7 +43,7 @@ M. Finnance AI é uma solução completa para gestão de finanças pessoais com 
 
 ### Melhorias de Segurança Implementadas
 
-- **PKCE (Proof Key for Code Exchange)**: Proteção contra ataques de interceptação em OAuth 2.0
+- **Passport.js**: Estratégias seguras de autenticação social
 - **Cookies HttpOnly**: Tokens armazenados em cookies seguros, inacessíveis via JavaScript
 - **Refresh Tokens**: Sistema de renovação automática de tokens com rotação
 - **State Parameter**: Proteção CSRF em fluxos OAuth
@@ -54,16 +54,15 @@ M. Finnance AI é uma solução completa para gestão de finanças pessoais com 
 
 ### Fluxo de Autenticação Seguro
 
-1. **Inicialização**: Usuário clica em "Login com Google"
-2. **PKCE Generation**: Backend gera code_verifier, code_challenge e state
-3. **Redirecionamento**: Usuário é redirecionado para Google com PKCE
-4. **Autorização**: Google autentica e retorna código de autorização
-5. **Validação**: Backend valida state e troca código por token
-6. **Criação de Usuário**: Sistema cria/atualiza usuário no banco
-7. **Geração de Tokens**: Backend gera access token e refresh token
-8. **Cookies Seguros**: Tokens são definidos como cookies HttpOnly
-9. **Redirecionamento**: Usuário é redirecionado para página de sucesso
-10. **Verificação**: Frontend verifica autenticação via cookies seguros
+1. **Inicialização**: Usuário clica em "Login com Google/GitHub"
+2. **Redirecionamento**: Usuário é redirecionado para provedor OAuth
+3. **Autorização**: Provedor autentica e retorna código de autorização
+4. **Callback**: Backend recebe callback e processa dados do usuário
+5. **Criação de Usuário**: Sistema cria/atualiza usuário no banco
+6. **Geração de Tokens**: Backend gera access token e refresh token
+7. **Cookies Seguros**: Tokens são definidos como cookies HttpOnly
+8. **Redirecionamento**: Usuário é redirecionado para dashboard
+9. **Verificação**: Frontend verifica autenticação via cookies seguros
 
 ## 🚀 Recursos
 
@@ -101,7 +100,7 @@ M. Finnance AI é uma solução completa para gestão de finanças pessoais com 
 ### Autenticação Segura
 
 - Cadastro e login tradicionais
-- Login via redes sociais (Google, Facebook, GitHub) com PKCE
+- Login via redes sociais (Google, GitHub) com Passport.js
 - Autenticação JWT com refresh tokens
 - Cookies HttpOnly para máxima segurança
 - Proteção CSRF com state parameter
@@ -118,7 +117,7 @@ M. Finnance AI é uma solução completa para gestão de finanças pessoais com 
 - **MongoDB**: Banco de dados NoSQL
 - **Mongoose**: ODM (Object Data Modeling) para MongoDB
 - **JWT**: Autenticação baseada em tokens com refresh tokens
-- **PKCE**: Proof Key for Code Exchange para OAuth 2.0 seguro
+- **Passport.js**: Estratégias de autenticação social seguras
 - **Express-Session**: Gerenciamento seguro de sessões
 - **Zod**: Validação de esquemas
 - **Bcrypt**: Hashing de senhas
@@ -193,7 +192,7 @@ O sistema implementa múltiplas camadas de segurança:
 
 1. **Camada de Autenticação**:
 
-   - PKCE para OAuth 2.0
+   - Passport.js para OAuth 2.0
    - JWT com refresh tokens
    - Cookies HttpOnly
    - Validação de state parameter
@@ -237,8 +236,7 @@ A API é documentada usando o Swagger e está disponível em `/api-docs` quando 
 | ------ | --------------------- | -------------------------------------- |
 | POST   | `/api/users/register` | Registrar novo usuário                 |
 | POST   | `/api/users/login`    | Login de usuário                       |
-| GET    | `/api/auth/google`    | Iniciar autenticação via Google (PKCE) |
-| GET    | `/api/auth/facebook`  | Iniciar autenticação via Facebook      |
+| GET    | `/api/auth/google`    | Iniciar autenticação via Google        |
 | GET    | `/api/auth/github`    | Iniciar autenticação via GitHub        |
 | POST   | `/api/auth/refresh`   | Renovar access token                   |
 | POST   | `/api/auth/logout`    | Logout seguro                          |
@@ -404,13 +402,10 @@ SMTP_PASS=sua_senha
 STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 
-# Autenticação Social (OAuth 2.0 com PKCE)
+# Autenticação Social (OAuth 2.0 com Passport.js)
 GOOGLE_CLIENT_ID=seu_client_id
 GOOGLE_CLIENT_SECRET=seu_client_secret
 GOOGLE_CALLBACK_URL=http://localhost:3001/api/auth/google/callback
-FACEBOOK_CLIENT_ID=seu_app_id
-FACEBOOK_CLIENT_SECRET=seu_app_secret
-FACEBOOK_CALLBACK_URL=http://localhost:3001/api/auth/facebook/callback
 GITHUB_CLIENT_ID=seu_client_id
 GITHUB_CLIENT_SECRET=seu_client_secret
 GITHUB_CALLBACK_URL=http://localhost:3001/api/auth/github/callback
@@ -479,7 +474,7 @@ apps/backend/
 ### Funcionalidades Implementadas
 
 - ✅ Autenticação segura com JWT e refresh tokens
-- ✅ Login via redes sociais com PKCE (Google, Facebook, GitHub)
+- ✅ Login via redes sociais com Passport.js (Google, GitHub)
 - ✅ Cookies HttpOnly para máxima segurança
 - ✅ Proteção CSRF com state parameter
 - ✅ CRUD de contas, categorias, transações e metas
@@ -490,6 +485,16 @@ apps/backend/
 - ✅ Upload de anexos para transações
 - ✅ Sessões seguras com express-session
 - ✅ Validação rigorosa de tipos TypeScript
+
+### Correções Recentes (v1.2.0)
+
+- ✅ **Sistema de Autenticação Corrigido**: Erro 401 no registro/login resolvido
+- ✅ **Google OAuth Funcionando**: Implementação com Passport.js
+- ✅ **GitHub OAuth Funcionando**: Callback e redirecionamento corrigidos
+- ✅ **Facebook OAuth Removido**: Simplificação para Google e GitHub apenas
+- ✅ **Loading Infinito Corrigido**: Redirecionamento automático para dashboard
+- ✅ **Middleware de Autenticação**: Suporte a userId corrigido
+- ✅ **Logs de Debug Removidos**: Código limpo para produção
 
 ### Próximos Passos
 
