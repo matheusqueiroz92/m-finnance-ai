@@ -18,7 +18,7 @@ M. Finnance AI é uma plataforma completa de gestão financeira pessoal com recu
 
 ## 📑 Índice
 
-- [Visão Geral](#-visao-geral)
+- [Visão Geral](#🧭-visão-geral)
 - [Recursos](#-recursos)
 - [Tecnologias](#-tecnologias)
 - [Arquitetura](#-arquitetura)
@@ -30,7 +30,7 @@ M. Finnance AI é uma plataforma completa de gestão financeira pessoal com recu
 - [Contribuição](#-contribuição)
 - [Licença](#-licença)
 
-## 👁️ Visão Geral
+## 🧭 Visão Geral
 
 M. Finnance AI é uma solução completa para gestão de finanças pessoais com análise inteligente de dados financeiros. A plataforma permite aos usuários rastrear receitas, despesas, definir metas financeiras, gerenciar contas e receber insights personalizados baseados em padrões de gastos. Com inteligência artificial integrada, fornecemos recomendações personalizadas para ajudar os usuários a melhorar sua saúde financeira.
 
