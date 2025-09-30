@@ -9,14 +9,15 @@ M. Finnance AI é uma plataforma completa de gestão financeira pessoal com recu
 [![Express](https://img.shields.io/badge/Express-808080?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-2E8B57?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongoose.com/)
 [![Mongoose](https://img.shields.io/badge/Mongoose-800000?style=for-the-badge&logo=mongoose&logoColor=white)](https://mongoosejs.com//)
-[![Next.js](https://img.shields.io/badge/Nextjs-000000?style=for-the-badge&logo=nextjs&logoColor=white)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![Jest](https://img.shields.io/badge/Jest-C21325?style=for-the-badge&logo=jest&logoColor=white)](https://jestjs.io/)
 [![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+[![Turborepo](https://img.shields.io/badge/Turborepo-FF1E56?style=for-the-badge&logo=turborepo&logoColor=white)](https://turborepo.com/)
 [![Stripe](https://img.shields.io/badge/Stripe-EE82EE?style=for-the-badge&logo=stripe&logoColor=white)](https://stripe.com/)
 
 ## 📑 Índice
 
-- [Visão Geral](#-visão-geral)
+- [Visão Geral](#-visao-geral)
 - [Recursos](#-recursos)
 - [Tecnologias](#-tecnologias)
 - [Arquitetura](#-arquitetura)
