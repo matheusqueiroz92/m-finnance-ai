@@ -1,23 +1,23 @@
-import type { Metadata } from 'next';
-import { Montserrat } from 'next/font/google';
-import './globals.css';
-import { ThemeProvider } from '@/components/providers/ThemeProvider';
-import { Toaster } from '@/components/ui/sonner';
-import { QueryProvider } from '@/components/providers/QueryProvider';
-import { AuthProvider } from '@/lib/auth';
-import { RouteChangeProvider } from '@/components/providers/RouteChangeProvider';
+import type { Metadata } from "next";
+import { Montserrat } from "next/font/google";
+import "./globals.css";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { Toaster } from "@/components/ui/sonner";
+import { QueryProvider } from "@/components/providers/QueryProvider";
+import { AuthProvider } from "@/lib/auth";
+import { RouteChangeProvider } from "@/components/providers/RouteChangeProvider";
 
 const montserrat = Montserrat({
-  subsets: ['latin'],
-  variable: '--font-montserrat',
-  display: 'swap',
-  weight: ['400', '500', '600', '700'],
+  subsets: ["latin"],
+  variable: "--font-montserrat",
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
-  title: 'OFinanceAI - Controle Financeiro com IA',
-  description: 'Gerencie suas finanças de forma inteligente com a ajuda de IA',
-  keywords: 'termos de serviço, termos de uso, OFinanceAI, gestão financeira',
+  title: "OFinanceAI - Controle Financeiro com IA",
+  description: "Gerencie suas finanças de forma inteligente com a ajuda de IA",
+  keywords: "termos de serviço, termos de uso, OFinanceAI, gestão financeira",
 };
 
 export default function RootLayout({
@@ -28,12 +28,14 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <body className={montserrat.className}>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={true}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem={true}
+        >
           <QueryProvider>
             <AuthProvider>
-              <RouteChangeProvider>
-                {children}
-              </RouteChangeProvider>
+              <RouteChangeProvider>{children}</RouteChangeProvider>
               <Toaster />
             </AuthProvider>
           </QueryProvider>

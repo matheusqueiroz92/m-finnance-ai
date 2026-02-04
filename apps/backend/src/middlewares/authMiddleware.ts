@@ -10,8 +10,6 @@ interface TokenPayload {
   type: string;
 }
 
-// Removido - usando types/express.d.ts
-
 export const protect = async (
   req: Request,
   res: Response,

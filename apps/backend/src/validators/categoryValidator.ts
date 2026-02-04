@@ -1,9 +1,13 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 export const categoryCreateSchema = z.object({
-  name: z.string().min(2, 'O nome da categoria deve ter pelo menos 2 caracteres'),
-  type: z.enum(['income', 'expense', 'investment'], {
-    errorMap: () => ({ message: 'Tipo inválido. Deve ser income, expense ou investment' })
+  name: z
+    .string()
+    .min(2, "O nome da categoria deve ter pelo menos 2 caracteres"),
+  type: z.enum(["income", "expense", "investment"], {
+    errorMap: () => ({
+      message: "Tipo inválido. Deve ser receita, despesa ou investimento",
+    }),
   }),
   icon: z.string().optional(),
   color: z.string().optional(),
@@ -11,7 +15,10 @@ export const categoryCreateSchema = z.object({
 });
 
 export const categoryUpdateSchema = z.object({
-  name: z.string().min(2, 'O nome da categoria deve ter pelo menos 2 caracteres').optional(),
+  name: z
+    .string()
+    .min(2, "O nome da categoria deve ter pelo menos 2 caracteres")
+    .optional(),
   icon: z.string().optional(),
   color: z.string().optional(),
 });

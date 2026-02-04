@@ -27,6 +27,13 @@ export class StripePaymentService implements IPaymentService {
     this.webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
   }
 
+  
+  /**
+   * Create a new Stripe customer
+   * @param email - The email address of the customer
+   * @param name - The name of the customer
+   * @returns A promise that resolves to the customer
+   */
   async createCustomer(email: string, name?: string): Promise<IPaymentCustomerDTO> {
     const customer = await this.stripe.customers.create({
       email,
@@ -40,6 +47,11 @@ export class StripePaymentService implements IPaymentService {
     };
   }
 
+  /**
+   * Retrieve a Stripe customer
+   * @param customerId - The ID of the customer to retrieve
+   * @returns A promise that resolves to the customer
+   */
   async retrieveCustomer(customerId: string): Promise<IPaymentCustomerDTO> {
     const customer = await this.stripe.customers.retrieve(customerId);
     
@@ -54,6 +66,11 @@ export class StripePaymentService implements IPaymentService {
     };
   }
 
+  /**
+   * Create a new Stripe payment intent
+   * @param options - The options for the payment intent
+   * @returns A promise that resolves to the payment intent
+   */
   async createPaymentIntent(options: ICreatePaymentIntentOptions): Promise<IPaymentIntentDTO> {
     const { amount, currency, customerId, metadata } = options;
 
@@ -78,6 +95,11 @@ export class StripePaymentService implements IPaymentService {
     };
   }
 
+  /**
+   * Retrieve a Stripe payment intent
+   * @param paymentIntentId - The ID of the payment intent to retrieve
+   * @returns A promise that resolves to the payment intent
+   */
   async retrievePaymentIntent(paymentIntentId: string): Promise<IPaymentIntentDTO> {
     const paymentIntent = await this.stripe.paymentIntents.retrieve(paymentIntentId);
 
@@ -89,6 +111,11 @@ export class StripePaymentService implements IPaymentService {
     };
   }
 
+  /**
+   * Create a new Stripe checkout session
+   * @param options - The options for the checkout session
+   * @returns A promise that resolves to the checkout session
+   */
   async createCheckoutSession(options: ICreatePaymentSessionOptions): Promise<IPaymentSessionDTO> {
     const { customerId, priceId, successUrl, cancelUrl, metadata } = options;
 
@@ -113,6 +140,11 @@ export class StripePaymentService implements IPaymentService {
     };
   }
 
+  /**
+   * List customer payment methods
+   * @param customerId - The ID of the customer to list the payment methods for
+   * @returns A promise that resolves to the payment methods
+   */
   async listCustomerPaymentMethods(customerId: string): Promise<IPaymentMethodDTO[]> {
     const paymentMethods = await this.stripe.paymentMethods.list({
       customer: customerId,
@@ -129,6 +161,12 @@ export class StripePaymentService implements IPaymentService {
     }));
   }
 
+  /**
+   * Validate a webhook event
+   * @param payload - The payload of the webhook event
+   * @param signature - The signature of the webhook event
+   * @returns A promise that resolves to the webhook event
+   */
   async validateWebhookEvent(payload: any, signature: string): Promise<{ type: string; data: any }> {
     try {
       const event = this.stripe.webhooks.constructEvent(

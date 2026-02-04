@@ -8,6 +8,7 @@ export interface User {
   avatar?: string;
   language: string;
   isPremium: boolean;
+  isEmailVerified: boolean;
   twoFactorEnabled: boolean;
   newsletterEnabled: boolean;
   createdAt: Date;

@@ -1,6 +1,6 @@
-import { Document, Types } from 'mongoose';
+import { Document, Types } from "mongoose";
 
-export type SocialProvider = 'google' | 'facebook' | 'github';
+export type SocialProvider = "google" | "facebook" | "github";
 
 export interface ISocialProfileData {
   provider: SocialProvider;
@@ -47,6 +47,7 @@ export interface IUserDTO {
   avatar?: string;
   language: string;
   isPremium: boolean;
+  isEmailVerified: boolean;
   twoFactorEnabled: boolean;
   newsletterEnabled: boolean;
   createdAt: Date;

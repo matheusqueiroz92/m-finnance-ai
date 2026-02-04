@@ -15,6 +15,10 @@ export class TransactionController {
   
   /**
    * Create a new transaction
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the transaction is created
    */
   createTransaction = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -107,6 +111,10 @@ export class TransactionController {
   
   /**
    * Get all transactions for the user
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the transactions are retrieved
    */
   getUserTransactions = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -142,6 +150,10 @@ export class TransactionController {
 
   /**
    * Get transaction by ID
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the transaction is retrieved
    */
   getTransactionById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -167,6 +179,10 @@ export class TransactionController {
 
   /**
    * Update a transaction
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the transaction is updated
    */
   updateTransaction = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -277,6 +293,10 @@ export class TransactionController {
 
   /**
    * Delete a transaction
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the transaction is deleted
    */
   deleteTransaction = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -302,6 +322,10 @@ export class TransactionController {
 
   /**
    * Get transaction statistics
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the transaction statistics are retrieved
    */
   getTransactionStats = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -323,6 +347,10 @@ export class TransactionController {
   /**
    * 
    * Remove an attachment from a transaction
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the attachment is removed
    */
   removeAttachment = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -351,6 +379,10 @@ export class TransactionController {
 
   /**
    * Get transactions by investment
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the transactions by investment are retrieved
    */
   getTransactionsByInvestment = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {

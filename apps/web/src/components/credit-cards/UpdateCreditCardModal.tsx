@@ -1,12 +1,18 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -14,14 +20,17 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
-import { creditCardUpdateSchema } from '@/lib/validators/creditCardValidator';
-import { getCreditCardById, updateCreditCard } from '@/services/creditCardService';
-import { QUERY_KEYS } from '@/lib/constants/query-keys';
-import CurrencyInput from '@/components/shared/CurrencyInput';
-import { InputMask } from '@/components/shared/InputMask';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { creditCardUpdateSchema } from "@/lib/validators/creditCardValidator";
+import {
+  getCreditCardById,
+  updateCreditCard,
+} from "@/services/creditCardService";
+import { QUERY_KEYS } from "@/lib/constants/query-keys";
+import CurrencyInput from "@/components/shared/CurrencyInput";
+import { InputMask } from "@/components/shared/InputMask";
 
 type FormValues = z.infer<typeof creditCardUpdateSchema>;
 
@@ -31,28 +40,32 @@ interface UpdateCreditCardModalProps {
   onClose: () => void;
 }
 
-export function UpdateCreditCardModal({ isOpen, creditCardId, onClose }: UpdateCreditCardModalProps) {
+export function UpdateCreditCardModal({
+  isOpen,
+  creditCardId,
+  onClose,
+}: UpdateCreditCardModalProps) {
   const queryClient = useQueryClient();
   const [showCvv, setShowCvv] = useState(false);
-  
+
   const { data: creditCard, isLoading } = useQuery({
     queryKey: [QUERY_KEYS.CREDIT_CARD_DETAIL(creditCardId)],
     queryFn: () => getCreditCardById(creditCardId),
     enabled: isOpen && !!creditCardId,
   });
-  
+
   const form = useForm<FormValues>({
     resolver: zodResolver(creditCardUpdateSchema),
     defaultValues: {
-      cardholderName: '',
-      expiryDate: '',
-      securityCode: '',
+      cardholderName: "",
+      expiryDate: "",
+      securityCode: "",
       creditLimit: 0,
       billingDueDay: 1,
       isActive: true,
     },
   });
-  
+
   // Preencher o formulário quando os dados do cartão forem carregados
   useEffect(() => {
     if (creditCard) {
@@ -65,24 +78,28 @@ export function UpdateCreditCardModal({ isOpen, creditCardId, onClose }: UpdateC
       });
     }
   }, [creditCard, form]);
-  
+
   const updateCreditCardMutation = useMutation({
     mutationFn: (data: FormValues) => updateCreditCard(creditCardId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CREDIT_CARDS] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CREDIT_CARD_SUMMARY] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CREDIT_CARD_DETAIL(creditCardId)] });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.CREDIT_CARD_SUMMARY],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.CREDIT_CARD_DETAIL(creditCardId)],
+      });
       onClose();
     },
   });
-  
+
   const onSubmit = (values: FormValues) => {
     // Filtra campos que não foram alterados (não atualiza código de segurança se estiver vazio)
     const updatedValues = { ...values };
     if (!updatedValues.securityCode) {
       delete updatedValues.securityCode;
     }
-    
+
     updateCreditCardMutation.mutate(updatedValues);
   };
 
@@ -90,14 +107,19 @@ export function UpdateCreditCardModal({ isOpen, creditCardId, onClose }: UpdateC
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle className="text-xl">Atualizar Cartão de Crédito</DialogTitle>
+          <DialogTitle className="text-xl">
+            Atualizar Cartão de Crédito
+          </DialogTitle>
         </DialogHeader>
-        
+
         {isLoading ? (
           <div className="py-8 text-center">Carregando...</div>
         ) : (
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-4 py-4"
+            >
               <FormField
                 control={form.control}
                 name="cardholderName"
@@ -111,7 +133,7 @@ export function UpdateCreditCardModal({ isOpen, creditCardId, onClose }: UpdateC
                   </FormItem>
                 )}
               />
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -124,14 +146,14 @@ export function UpdateCreditCardModal({ isOpen, creditCardId, onClose }: UpdateC
                           mask="99/99"
                           placeholder="MM/AA"
                           {...field}
-                          value={field.value || ''}
+                          value={field.value || ""}
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="securityCode"
@@ -140,12 +162,12 @@ export function UpdateCreditCardModal({ isOpen, creditCardId, onClose }: UpdateC
                       <FormLabel>Novo Código de Segurança (opcional)</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <Input 
-                            type={showCvv ? "text" : "password"} 
+                          <Input
+                            type={showCvv ? "text" : "password"}
                             placeholder="Deixe em branco para manter"
                             maxLength={4}
                             {...field}
-                            value={field.value || ''}
+                            value={field.value || ""}
                           />
                           <Button
                             type="button"
@@ -154,7 +176,7 @@ export function UpdateCreditCardModal({ isOpen, creditCardId, onClose }: UpdateC
                             className="absolute right-0 top-0 h-full px-3"
                             onClick={() => setShowCvv(!showCvv)}
                           >
-                            {showCvv ? 'Ocultar' : 'Mostrar'}
+                            {showCvv ? "Ocultar" : "Mostrar"}
                           </Button>
                         </div>
                       </FormControl>
@@ -163,7 +185,7 @@ export function UpdateCreditCardModal({ isOpen, creditCardId, onClose }: UpdateC
                   )}
                 />
               </div>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -181,7 +203,7 @@ export function UpdateCreditCardModal({ isOpen, creditCardId, onClose }: UpdateC
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="billingDueDay"
@@ -189,10 +211,10 @@ export function UpdateCreditCardModal({ isOpen, creditCardId, onClose }: UpdateC
                     <FormItem>
                       <FormLabel>Dia de Vencimento</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="number" 
-                          min={1} 
-                          max={31} 
+                        <Input
+                          type="number"
+                          min={1}
+                          max={31}
                           {...field}
                           onChange={(e) => {
                             const value = parseInt(e.target.value);
@@ -207,7 +229,7 @@ export function UpdateCreditCardModal({ isOpen, creditCardId, onClose }: UpdateC
                   )}
                 />
               </div>
-              
+
               <FormField
                 control={form.control}
                 name="isActive"
@@ -228,21 +250,23 @@ export function UpdateCreditCardModal({ isOpen, creditCardId, onClose }: UpdateC
                   </FormItem>
                 )}
               />
-              
+
               <DialogFooter className="mt-6">
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   onClick={onClose}
                   disabled={updateCreditCardMutation.isPending}
                 >
                   Cancelar
                 </Button>
-                <Button 
+                <Button
                   type="submit"
                   disabled={updateCreditCardMutation.isPending}
                 >
-                  {updateCreditCardMutation.isPending ? 'Atualizando...' : 'Atualizar Cartão'}
+                  {updateCreditCardMutation.isPending
+                    ? "Atualizando..."
+                    : "Atualizar Cartão"}
                 </Button>
               </DialogFooter>
             </form>

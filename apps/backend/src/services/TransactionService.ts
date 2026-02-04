@@ -25,6 +25,12 @@ export class TransactionService implements ITransactionService {
     private accountRepository: IAccountRepository
   ) {}
 
+  /**
+   * Create a new transaction
+   * @param userId - The ID of the user to create the transaction for
+   * @param transactionData - The data for the new transaction
+   * @returns A promise that resolves to the created transaction
+   */
   async createTransaction(userId: string, transactionData: ITransactionCreateDTO): Promise<ITransactionPopulated> {
     return TransactionManager.executeInTransaction(async (session) => {
       // Convertendo objetos de string para Date quando necessário
@@ -118,6 +124,12 @@ export class TransactionService implements ITransactionService {
     });
   }
   
+  /**
+   * Get user transactions
+   * @param userId - The ID of the user to get the transactions for
+   * @param filters - The filters to apply to the transactions
+   * @returns A promise that resolves to the transactions
+   */
   async getUserTransactions(userId: string, filters: ITransactionFilters): Promise<ITransactionListResult> {
     // Processar datas nos filtros
     const processedFilters = { ...filters };
@@ -137,6 +149,12 @@ export class TransactionService implements ITransactionService {
     };
   }
   
+  /**
+   * Get transaction by ID
+   * @param transactionId - The ID of the transaction to get
+   * @param userId - The ID of the user to get the transaction for
+   * @returns A promise that resolves to the transaction
+   */
   async getTransactionById(transactionId: string, userId: string): Promise<ITransactionPopulated> {
     const transaction = await this.transactionRepository.findById(transactionId, userId);
     
@@ -147,6 +165,13 @@ export class TransactionService implements ITransactionService {
     return transaction;
   }
   
+  /**
+   * Update a transaction
+   * @param transactionId - The ID of the transaction to update
+   * @param userId - The ID of the user to update the transaction for
+   * @param updateData - The data to update the transaction with
+   * @returns A promise that resolves to the updated transaction
+   */
   async updateTransaction(transactionId: string, userId: string, updateData: ITransactionUpdateDTO): Promise<ITransactionPopulated> {
     return TransactionManager.executeInTransaction(async (session) => {
       // Processar data se for string
@@ -330,6 +355,12 @@ export class TransactionService implements ITransactionService {
     });
   }
   
+  /**
+   * Delete a transaction
+   * @param transactionId - The ID of the transaction to delete
+   * @param userId - The ID of the user to delete the transaction for
+   * @returns A promise that resolves to the success of the deletion
+   */
   async deleteTransaction(transactionId: string, userId: string): Promise<{ success: boolean }> {
     return TransactionManager.executeInTransaction(async (session) => {
       // Obter a transação
@@ -401,6 +432,12 @@ export class TransactionService implements ITransactionService {
     });
   }
   
+  /**
+   * Get transaction stats
+   * @param userId - The ID of the user to get the stats for
+   * @param period - The period to get the stats for
+   * @returns A promise that resolves to the transaction stats
+   */
   async getTransactionStats(userId: string, period: 'day' | 'week' | 'month' | 'year' = 'month'): Promise<ITransactionStats> {
     // Calcular intervalo de datas com base no período
     const now = new Date();
@@ -497,11 +534,11 @@ export class TransactionService implements ITransactionService {
         
         if (dateKey && transactionsByDay[dateKey]) {
           if (transaction.type === 'income') {
-            transactionsByDay[dateKey].income += transaction.amount;
+            transactionsByDay[dateKey]!.income += transaction.amount;
           } else if (transaction.type === 'expense') {
-            transactionsByDay[dateKey].expense += transaction.amount;
+            transactionsByDay[dateKey]!.expense += transaction.amount;
           } else if (transaction.type === 'investment') {
-            transactionsByDay[dateKey].investment += transaction.amount;
+            transactionsByDay[dateKey]!.investment += transaction.amount;
           }
         }
       } catch (error) {
@@ -566,6 +603,13 @@ export class TransactionService implements ITransactionService {
     };
   }
 
+  /**
+   * Remove an attachment from a transaction
+   * @param transactionId - The ID of the transaction to remove the attachment from
+   * @param userId - The ID of the user to remove the attachment for
+   * @param attachmentId - The ID of the attachment to remove
+   * @returns A promise that resolves to the updated transaction
+   */
   async removeAttachment(transactionId: string, userId: string, attachmentId: string): Promise<ITransactionPopulated> {
     return TransactionManager.executeInTransaction(async (session) => {
       // Buscar a transação
@@ -608,6 +652,12 @@ export class TransactionService implements ITransactionService {
     });
   }
   
+  /**
+   * Get transactions by investment
+   * @param userId - The ID of the user to get the transactions for
+   * @param investmentId - The ID of the investment to get the transactions for
+   * @returns A promise that resolves to the transactions
+   */
   async getTransactionsByInvestment(userId: string, investmentId: string): Promise<ITransactionPopulated[]> {
     const transactions = await this.transactionRepository.findByInvestment(userId, investmentId);
     return transactions;

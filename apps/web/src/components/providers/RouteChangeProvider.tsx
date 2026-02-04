@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { LoadingScreen } from '@/components/ui/loading-screen';
+import React, { useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { LoadingScreen } from "@/components/ui/loading-screen";
 
 interface RouteChangeProviderProps {
   children: React.ReactNode;
@@ -28,10 +28,10 @@ export function RouteChangeProvider({ children }: RouteChangeProviderProps) {
     setIsChangingRoute(false);
 
     // Adicionar eventos para o roteador do Next.js
-    window.addEventListener('beforeunload', handleRouteChangeStart);
-    
+    window.addEventListener("beforeunload", handleRouteChangeStart);
+
     return () => {
-      window.removeEventListener('beforeunload', handleRouteChangeStart);
+      window.removeEventListener("beforeunload", handleRouteChangeStart);
     };
   }, [pathname]);
 

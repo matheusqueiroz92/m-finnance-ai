@@ -1,12 +1,18 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import React from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -14,19 +20,19 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { accountCreateSchema } from '@/lib/validators/accountValidator';
-import { createAccount } from '@/services/accountService';
-import { QUERY_KEYS } from '@/lib/constants/query-keys';
-import CurrencyInput from '@/components/shared/CurrencyInput';
+} from "@/components/ui/select";
+import { accountCreateSchema } from "@/lib/validators/accountValidator";
+import { createAccount } from "@/services/accountService";
+import { QUERY_KEYS } from "@/lib/constants/query-keys";
+import CurrencyInput from "@/components/shared/CurrencyInput";
 
 type FormValues = z.infer<typeof accountCreateSchema>;
 
@@ -35,21 +41,24 @@ interface CreateAccountModalProps {
   onClose: () => void;
 }
 
-export function CreateAccountModal({ isOpen, onClose }: CreateAccountModalProps) {
+export function CreateAccountModal({
+  isOpen,
+  onClose,
+}: CreateAccountModalProps) {
   const queryClient = useQueryClient();
-  
+
   const form = useForm<FormValues>({
     resolver: zodResolver(accountCreateSchema),
     defaultValues: {
-      name: '',
-      type: 'checking',
+      name: "",
+      type: "checking",
       balance: 0,
-      institution: '',
-      accountNumber: '',
+      institution: "",
+      accountNumber: "",
       isActive: true,
     },
   });
-  
+
   const createAccountMutation = useMutation({
     mutationFn: createAccount,
     onSuccess: () => {
@@ -59,20 +68,23 @@ export function CreateAccountModal({ isOpen, onClose }: CreateAccountModalProps)
       onClose();
     },
   });
-  
+
   const onSubmit = (values: FormValues) => {
     createAccountMutation.mutate(values);
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] rounded-2xl">
         <DialogHeader>
           <DialogTitle className="text-xl">Nova Conta</DialogTitle>
         </DialogHeader>
-        
+
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-4 py-4"
+          >
             <FormField
               control={form.control}
               name="name"
@@ -80,13 +92,17 @@ export function CreateAccountModal({ isOpen, onClose }: CreateAccountModalProps)
                 <FormItem>
                   <FormLabel>Nome da Conta</FormLabel>
                   <FormControl>
-                    <Input placeholder="Ex: Conta Principal, Poupança, etc." {...field} />
+                    <Input
+                      className="rounded-full placeholder:text-gray-400"
+                      placeholder="Ex: Conta Principal, Poupança, etc."
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -94,27 +110,29 @@ export function CreateAccountModal({ isOpen, onClose }: CreateAccountModalProps)
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Tipo de Conta</FormLabel>
-                    <Select 
-                      onValueChange={field.onChange} 
+                    <Select
+                      onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="rounded-full">
                           <SelectValue placeholder="Selecione o tipo de conta" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      <SelectContent className="rounded-2xl bg-[#1a2329]">
                         <SelectItem value="checking">Conta Corrente</SelectItem>
                         <SelectItem value="savings">Poupança</SelectItem>
                         <SelectItem value="investment">Investimento</SelectItem>
-                        <SelectItem value="credit">Cartão de Crédito</SelectItem>
+                        <SelectItem value="credit">
+                          Cartão de Crédito
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="balance"
@@ -132,7 +150,7 @@ export function CreateAccountModal({ isOpen, onClose }: CreateAccountModalProps)
                 )}
               />
             </div>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -141,7 +159,7 @@ export function CreateAccountModal({ isOpen, onClose }: CreateAccountModalProps)
                   <FormItem>
                     <FormLabel>Instituição</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ex: Banco XYZ" {...field} />
+                      <Input className="rounded-full placeholder:text-gray-400" placeholder="Ex: Banco XYZ" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -155,13 +173,13 @@ export function CreateAccountModal({ isOpen, onClose }: CreateAccountModalProps)
                   <FormItem>
                     <FormLabel>Agência</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ex: 0001" {...field} />
+                      <Input className="rounded-full placeholder:text-gray-400" placeholder="Ex: 0001" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="accountNumber"
@@ -169,28 +187,25 @@ export function CreateAccountModal({ isOpen, onClose }: CreateAccountModalProps)
                   <FormItem>
                     <FormLabel>Número da Conta</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ex: 1234" {...field} />
+                      <Input className="rounded-full placeholder:text-gray-400" placeholder="Ex: 1234-5" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
-            
+
             <DialogFooter className="mt-6">
-              <Button 
-                type="button" 
-                variant="outline" 
+              <Button
+                type="button"
+                className="rounded-full bg-[#1a2329] hover:bg-[#1a2329]/80"
                 onClick={onClose}
                 disabled={createAccountMutation.isPending}
               >
                 Cancelar
               </Button>
-              <Button 
-                type="submit"
-                disabled={createAccountMutation.isPending}
-              >
-                {createAccountMutation.isPending ? 'Criando...' : 'Criar Conta'}
+              <Button type="submit" disabled={createAccountMutation.isPending} className="rounded-full">
+                {createAccountMutation.isPending ? "Criando..." : "Criar Conta"}
               </Button>
             </DialogFooter>
           </form>

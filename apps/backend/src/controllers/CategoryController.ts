@@ -13,6 +13,10 @@ export class CategoryController {
   
   /**
    * Create a new category
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the category is created
    */
   createCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -41,6 +45,10 @@ export class CategoryController {
   
   /**
    * Get categories for the authenticated user
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the categories are retrieved
    */
   getCategories = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -61,6 +69,10 @@ export class CategoryController {
   
   /**
    * Get category by ID
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the category is retrieved
    */
   getCategoryById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -86,6 +98,10 @@ export class CategoryController {
   
   /**
    * Update a category
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the category is updated
    */
   updateCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -127,6 +143,10 @@ export class CategoryController {
   
   /**
    * Delete a category
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the category is deleted
    */
   deleteCategory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {

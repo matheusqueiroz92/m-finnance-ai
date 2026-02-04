@@ -1,7 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
-import { getAccounts, getAccountSummary } from '@/services/accountService';
-import { getTransactions } from '@/services/transactionService';
-import { QUERY_KEYS } from '@/lib/constants/query-keys';
+import { useQuery } from "@tanstack/react-query";
+import { getAccounts, getAccountSummary } from "@/services/accountService";
+import { getTransactions } from "@/services/transactionService";
+import { QUERY_KEYS } from "@/lib/constants/query-keys";
 
 export function useAccounts(isAuthenticated: boolean) {
   return useQuery({

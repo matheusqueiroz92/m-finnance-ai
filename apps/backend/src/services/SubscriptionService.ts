@@ -24,6 +24,9 @@ export class SubscriptionService implements ISubscriptionService {
 
   /**
    * Create a new subscription
+   * @param userId - The ID of the user to create the subscription for
+   * @param subscriptionData - The data for the new subscription
+   * @returns A promise that resolves to the created subscription
    */
   async createSubscription(userId: string, subscriptionData: ICreateSubscriptionDTO): Promise<ISubscriptionDTO> {
     return TransactionManager.executeInTransaction(async (session) => {
@@ -69,6 +72,8 @@ export class SubscriptionService implements ISubscriptionService {
   
   /**
    * Get subscription by user ID
+   * @param userId - The ID of the user to get the subscription for
+   * @returns A promise that resolves to the subscription
    */
   async getUserSubscription(userId: string): Promise<ISubscriptionDTO | null> {
     const subscription = await this.subscriptionRepository.findByUserId(userId);
@@ -82,6 +87,9 @@ export class SubscriptionService implements ISubscriptionService {
   
   /**
    * Update a subscription
+   * @param userId - The ID of the user to update the subscription for
+   * @param updateData - The data to update the subscription with
+   * @returns A promise that resolves to the updated subscription
    */
   async updateSubscription(userId: string, updateData: IUpdateSubscriptionDTO): Promise<ISubscriptionDTO> {
     return TransactionManager.executeInTransaction(async (session) => {
@@ -103,6 +111,8 @@ export class SubscriptionService implements ISubscriptionService {
   
   /**
    * Cancel a subscription
+   * @param userId - The ID of the user to cancel the subscription for
+   * @returns A promise that resolves to the cancelled subscription
    */
   async cancelSubscription(userId: string): Promise<ISubscriptionDTO> {
     return TransactionManager.executeInTransaction(async (session) => {
@@ -129,6 +139,8 @@ export class SubscriptionService implements ISubscriptionService {
   
   /**
    * Create a free subscription
+   * @param userId - The ID of the user to create the free subscription for
+   * @returns A promise that resolves to the created free subscription
    */
   async createFreeSubscription(userId: string): Promise<ISubscriptionDTO> {
     const startDate = new Date();
@@ -146,6 +158,8 @@ export class SubscriptionService implements ISubscriptionService {
   
   /**
    * Create a trial subscription
+   * @param userId - The ID of the user to create the trial subscription for
+   * @returns A promise that resolves to the created trial subscription
    */
   async createTrialSubscription(userId: string): Promise<ISubscriptionDTO> {
     const startDate = new Date();
@@ -195,13 +209,16 @@ export class SubscriptionService implements ISubscriptionService {
   
   /**
    * Check if user has an active premium subscription
-   */
+   * @param userId - The ID of the user to check if they have an active premium subscription for
+   * @returns A promise that resolves to true if the user has an active premium subscription, false otherwise
+  */
   async isPremiumUser(userId: string): Promise<boolean> {
     return this.subscriptionRepository.checkActivePremium(userId);
   }
   
   /**
    * Process expired subscriptions
+   * @returns A promise that resolves when the expired subscriptions are processed
    */
   async processExpiredSubscriptions(): Promise<void> {
     await this.subscriptionRepository.processExpiredSubscriptions();
@@ -209,6 +226,8 @@ export class SubscriptionService implements ISubscriptionService {
   
   /**
    * Map Subscription model to DTO
+   * @param subscription - The subscription to map to DTO
+   * @returns The subscription DTO
    */
   private mapToDTO(subscription: ISubscription): ISubscriptionDTO {
     return {

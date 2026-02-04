@@ -1,27 +1,31 @@
-'use client';
+"use client";
 
-import React, { forwardRef, useState, useEffect } from 'react';
-import { Input } from '@/components/ui/input';
+import React, { forwardRef, useState, useEffect } from "react";
+import { Input } from "@/components/ui/input";
 
-interface CurrencyInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
+interface CurrencyInputProps
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange"> {
   value: number;
   onChange: (value: number) => void;
 }
 
 const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
   ({ value, onChange, ...props }, ref) => {
-    const [displayValue, setDisplayValue] = useState('');
+    const [displayValue, setDisplayValue] = useState("");
 
     // Formatar o valor quando ele mudar
     useEffect(() => {
-      if (value === 0 && displayValue === '') return;
-      if (value !== parseFloat(displayValue.replace(/\./g, '').replace(',', '.') || '0')) {
+      if (value === 0 && displayValue === "") return;
+      if (
+        value !==
+        parseFloat(displayValue.replace(/\./g, "").replace(",", ".") || "0")
+      ) {
         setDisplayValue(formatCurrency(value));
       }
     }, [value, displayValue]);
 
     const formatCurrency = (val: number): string => {
-      return val.toLocaleString('pt-BR', {
+      return val.toLocaleString("pt-BR", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       });
@@ -29,21 +33,22 @@ const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       let input = e.target.value;
-      
+
       // Remover tudo que não for dígito ou vírgula
-      input = input.replace(/[^\d,]/g, '');
-      
+      input = input.replace(/[^\d,]/g, "");
+
       // Garantir que haja apenas uma vírgula
       const commaCount = (input.match(/,/g) || []).length;
       if (commaCount > 1) {
-        const parts = input.split(',');
-        input = parts[0] + ',' + parts.slice(1).join('');
+        const parts = input.split(",");
+        input = parts[0] + "," + parts.slice(1).join("");
       }
-      
+
       setDisplayValue(input);
-      
+
       // Converter para número
-      const numericValue = parseFloat(input.replace(/\./g, '').replace(',', '.')) || 0;
+      const numericValue =
+        parseFloat(input.replace(/\./g, "").replace(",", ".")) || 0;
       onChange(numericValue);
     };
 
@@ -57,13 +62,13 @@ const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
           ref={ref}
           value={displayValue}
           onChange={handleChange}
-          className="pl-9"
+          className="pl-9 rounded-full"
         />
       </div>
     );
   }
 );
 
-CurrencyInput.displayName = 'CurrencyInput';
+CurrencyInput.displayName = "CurrencyInput";
 
 export default CurrencyInput;

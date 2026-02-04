@@ -58,6 +58,18 @@ export function middleware(request: NextRequest) {
 }
 
 // Configurar quais rotas o middleware deve ser executado
+// Dispara o middleware para todas as rotas exceto as especificadas:
+// - api
+// - _next/static
+// - _next/image
+// - favicon.ico
+// - sitemap.xml
+// - robots.txt
+// - .png
+// - .jpg
+// - .jpeg
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\.png$).*)"],
+  matcher: [
+    "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|.*\\.png$).*)",
+  ],
 };

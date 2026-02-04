@@ -24,6 +24,9 @@ export class GoalService implements IGoalService {
 
   /**
    * Create a new goal
+   * @param userId - The ID of the user to create the goal for
+   * @param goalData - The data for the new goal
+   * @returns A promise that resolves to the created goal
    */
   async createGoal(userId: string, goalData: IGoalCreateDTO): Promise<IGoalDTO> {
     return TransactionManager.executeInTransaction(async (session) => {
@@ -60,6 +63,9 @@ export class GoalService implements IGoalService {
   
   /**
    * Get goals by user ID
+   * @param userId - The ID of the user to get the goals for
+   * @param isCompleted - Whether to get only completed goals
+   * @returns A promise that resolves to the goals
    */
   async getGoalsByUserId(userId: string, isCompleted?: boolean): Promise<IGoalDTO[]> {
     const goals = await this.goalRepository.findByUser(userId, isCompleted);
@@ -68,6 +74,9 @@ export class GoalService implements IGoalService {
   
   /**
    * Get goal by ID
+   * @param goalId - The ID of the goal to get
+   * @param userId - The ID of the user to get the goal for
+   * @returns A promise that resolves to the goal
    */
   async getGoalById(goalId: string, userId: string): Promise<IGoalDTO> {
     const goal = await this.goalRepository.findById(goalId, userId);
@@ -81,6 +90,10 @@ export class GoalService implements IGoalService {
   
   /**
    * Update a goal
+   * @param goalId - The ID of the goal to update
+   * @param userId - The ID of the user to update the goal for
+   * @param updateData - The data to update the goal with
+   * @returns A promise that resolves to the updated goal
    */
   async updateGoal(goalId: string, userId: string, updateData: IGoalUpdateDTO): Promise<IGoalDTO> {
     return TransactionManager.executeInTransaction(async (session) => {
@@ -129,6 +142,9 @@ export class GoalService implements IGoalService {
   
   /**
    * Delete a goal
+   * @param goalId - The ID of the goal to delete
+   * @param userId - The ID of the user to delete the goal for
+   * @returns A promise that resolves when the goal is deleted
    */
   async deleteGoal(goalId: string, userId: string): Promise<void> {
     const result = await this.goalRepository.delete(goalId, userId);
@@ -140,6 +156,8 @@ export class GoalService implements IGoalService {
   
   /**
    * Get goal progress statistics
+   * @param userId - The ID of the user to get the goal stats for
+   * @returns A promise that resolves to the goal stats
    */
   async getGoalStats(userId: string): Promise<IGoalStats> {
     const goals = await this.goalRepository.findByUser(userId);
@@ -183,6 +201,8 @@ export class GoalService implements IGoalService {
   
   /**
    * Map Goal model to DTO
+   * @param goal - The goal to map to a DTO
+   * @returns The goal as a DTO
    */
   private mapToDTO(goal: IGoal): IGoalDTO {
     // Ensure _id exists and convert to string

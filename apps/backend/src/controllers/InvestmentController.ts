@@ -16,6 +16,10 @@ export class InvestmentController {
   
   /**
    * Create a new investment
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the investment is created
    */
   createInvestment = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -72,6 +76,10 @@ export class InvestmentController {
   
   /**
    * Get all investments for the user
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the investments are retrieved
    */
   getInvestments = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -121,6 +129,10 @@ export class InvestmentController {
   
   /**
    * Get investment by ID
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the investment is retrieved
    */
   getInvestmentById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -146,6 +158,10 @@ export class InvestmentController {
   
   /**
    * Update an investment
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the investment is updated
    */
   updateInvestment = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -215,6 +231,10 @@ export class InvestmentController {
   
   /**
    * Delete an investment
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the investment is deleted
    */
   deleteInvestment = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -240,6 +260,10 @@ export class InvestmentController {
   
   /**
    * Get investment summary
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the investment summary is retrieved
    */
   getInvestmentSummary = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -258,6 +282,10 @@ export class InvestmentController {
   
   /**
    * Get investments by account
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the investments by account are retrieved
    */
   getInvestmentsByAccount = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -283,6 +311,10 @@ export class InvestmentController {
   
   /**
    * Get transactions by investment
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the transactions by investment are retrieved
    */
   getTransactionsByInvestment = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {

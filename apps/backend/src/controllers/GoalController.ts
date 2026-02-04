@@ -13,6 +13,10 @@ export class GoalController {
   
   /**
    * Create a new goal
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the goal is created
    */
   createGoal = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -53,6 +57,10 @@ export class GoalController {
   
   /**
    * Get goals for the authenticated user
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the goals are retrieved
    */
   getGoals = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -75,6 +83,10 @@ export class GoalController {
   
   /**
    * Get goal by ID
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the goal is retrieved
    */
   getGoalById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -100,6 +112,10 @@ export class GoalController {
   
   /**
    * Update a goal
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the goal is updated
    */
   updateGoal = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -153,6 +169,10 @@ export class GoalController {
   
   /**
    * Delete a goal
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the goal is deleted
    */
   deleteGoal = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -178,6 +198,10 @@ export class GoalController {
   
   /**
    * Get goal statistics
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the goal statistics are retrieved
    */
   getGoalStats = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {

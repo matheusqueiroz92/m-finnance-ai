@@ -1,13 +1,18 @@
+"use client";
 
-'use client';
-
-import React, { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import React, { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -15,13 +20,16 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { investmentUpdateSchema } from '@/lib/validators/investmentValidator';
-import { getInvestmentById, updateInvestment } from '@/services/investmentService';
-import { QUERY_KEYS } from '@/lib/constants/query-keys';
-import CurrencyInput from '@/components/shared/CurrencyInput';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { investmentUpdateSchema } from "@/lib/validators/investmentValidator";
+import {
+  getInvestmentById,
+  updateInvestment,
+} from "@/services/investmentService";
+import { QUERY_KEYS } from "@/lib/constants/query-keys";
+import CurrencyInput from "@/components/shared/CurrencyInput";
 
 type FormValues = z.infer<typeof investmentUpdateSchema>;
 
@@ -31,27 +39,31 @@ interface UpdateInvestmentModalProps {
   onClose: () => void;
 }
 
-export function UpdateInvestmentModal({ isOpen, investmentId, onClose }: UpdateInvestmentModalProps) {
+export function UpdateInvestmentModal({
+  isOpen,
+  investmentId,
+  onClose,
+}: UpdateInvestmentModalProps) {
   const queryClient = useQueryClient();
-  
+
   const { data: investment, isLoading } = useQuery({
     queryKey: [QUERY_KEYS.INVESTMENT_DETAIL(investmentId)],
     queryFn: () => getInvestmentById(investmentId),
     enabled: isOpen && !!investmentId,
   });
-  
+
   const form = useForm<FormValues>({
     resolver: zodResolver(investmentUpdateSchema),
     defaultValues: {
-      name: '',
-      ticker: '',
-      institution: '',
+      name: "",
+      ticker: "",
+      institution: "",
       investedValue: 0,
       currentValue: 0,
-      notes: '',
+      notes: "",
     },
   });
-  
+
   // Preencher o formulário quando os dados do investimento forem carregados
   useEffect(() => {
     if (investment) {
@@ -65,17 +77,21 @@ export function UpdateInvestmentModal({ isOpen, investmentId, onClose }: UpdateI
       });
     }
   }, [investment, form]);
-  
+
   const updateInvestmentMutation = useMutation({
     mutationFn: (data: FormValues) => updateInvestment(investmentId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.INVESTMENTS] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.INVESTMENT_SUMMARY] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.INVESTMENT_DETAIL(investmentId)] });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.INVESTMENT_SUMMARY],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.INVESTMENT_DETAIL(investmentId)],
+      });
       onClose();
     },
   });
-  
+
   const onSubmit = (values: FormValues) => {
     updateInvestmentMutation.mutate(values);
   };
@@ -86,12 +102,15 @@ export function UpdateInvestmentModal({ isOpen, investmentId, onClose }: UpdateI
         <DialogHeader>
           <DialogTitle className="text-xl">Atualizar Investimento</DialogTitle>
         </DialogHeader>
-        
+
         {isLoading ? (
           <div className="py-8 text-center">Carregando...</div>
         ) : (
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-4 py-4"
+            >
               <FormField
                 control={form.control}
                 name="name"
@@ -105,7 +124,7 @@ export function UpdateInvestmentModal({ isOpen, investmentId, onClose }: UpdateI
                   </FormItem>
                 )}
               />
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -114,13 +133,13 @@ export function UpdateInvestmentModal({ isOpen, investmentId, onClose }: UpdateI
                     <FormItem>
                       <FormLabel>Ticker/Código</FormLabel>
                       <FormControl>
-                        <Input {...field} value={field.value || ''} />
+                        <Input {...field} value={field.value || ""} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="institution"
@@ -135,7 +154,7 @@ export function UpdateInvestmentModal({ isOpen, investmentId, onClose }: UpdateI
                   )}
                 />
               </div>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -153,7 +172,7 @@ export function UpdateInvestmentModal({ isOpen, investmentId, onClose }: UpdateI
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="currentValue"
@@ -171,7 +190,7 @@ export function UpdateInvestmentModal({ isOpen, investmentId, onClose }: UpdateI
                   )}
                 />
               </div>
-              
+
               <FormField
                 control={form.control}
                 name="notes"
@@ -179,27 +198,29 @@ export function UpdateInvestmentModal({ isOpen, investmentId, onClose }: UpdateI
                   <FormItem>
                     <FormLabel>Observações</FormLabel>
                     <FormControl>
-                      <Textarea {...field} value={field.value || ''} />
+                      <Textarea {...field} value={field.value || ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              
+
               <DialogFooter className="mt-6">
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   onClick={onClose}
                   disabled={updateInvestmentMutation.isPending}
                 >
                   Cancelar
                 </Button>
-                <Button 
+                <Button
                   type="submit"
                   disabled={updateInvestmentMutation.isPending}
                 >
-                  {updateInvestmentMutation.isPending ? 'Atualizando...' : 'Atualizar Investimento'}
+                  {updateInvestmentMutation.isPending
+                    ? "Atualizando..."
+                    : "Atualizar Investimento"}
                 </Button>
               </DialogFooter>
             </form>

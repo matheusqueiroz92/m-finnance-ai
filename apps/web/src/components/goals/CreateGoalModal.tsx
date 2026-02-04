@@ -1,12 +1,18 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import React from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -14,15 +20,18 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { goalCreateSchema } from '@/lib/validators/goalValidator';
-import { createGoal } from '@/services/goalService';
-import { QUERY_KEYS } from '@/lib/constants/query-keys';
-import CurrencyInput from '@/components/shared/CurrencyInput';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { goalCreateSchema } from "@/lib/validators/goalValidator";
+import { createGoal } from "@/services/goalService";
+import { QUERY_KEYS } from "@/lib/constants/query-keys";
+import CurrencyInput from "@/components/shared/CurrencyInput";
 
-type FormValues = z.infer<typeof goalCreateSchema>;
+/** Tipo de entrada do schema (campos com default são opcionais) - alinha com o zodResolver */
+type FormValues = z.input<typeof goalCreateSchema>;
+/** Tipo de saída após validação (valores com default preenchidos) - usado no submit */
+type FormOutput = z.output<typeof goalCreateSchema>;
 
 interface CreateGoalModalProps {
   isOpen: boolean;
@@ -31,18 +40,20 @@ interface CreateGoalModalProps {
 
 export function CreateGoalModal({ isOpen, onClose }: CreateGoalModalProps) {
   const queryClient = useQueryClient();
-  
+
   const form = useForm<FormValues>({
     resolver: zodResolver(goalCreateSchema),
     defaultValues: {
-      name: '',
+      name: "",
       targetAmount: 0,
       currentAmount: 0,
-      targetDate: new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString().split('T')[0],
-      notes: '',
+      targetDate: new Date(new Date().setMonth(new Date().getMonth() + 6))
+        .toISOString()
+        .split("T")[0],
+      notes: "",
     },
   });
-  
+
   const createGoalMutation = useMutation({
     mutationFn: createGoal,
     onSuccess: () => {
@@ -52,20 +63,24 @@ export function CreateGoalModal({ isOpen, onClose }: CreateGoalModalProps) {
       onClose();
     },
   });
-  
+
   const onSubmit = (values: FormValues) => {
-    createGoalMutation.mutate(values);
+    const parsed = goalCreateSchema.parse(values) as FormOutput;
+    createGoalMutation.mutate(parsed);
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] rounded-2xl">
         <DialogHeader>
           <DialogTitle className="text-xl">Novo Objetivo</DialogTitle>
         </DialogHeader>
-        
+
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-4 py-4"
+          >
             <FormField
               control={form.control}
               name="name"
@@ -73,13 +88,17 @@ export function CreateGoalModal({ isOpen, onClose }: CreateGoalModalProps) {
                 <FormItem>
                   <FormLabel>Nome do Objetivo</FormLabel>
                   <FormControl>
-                    <Input placeholder="Ex: Viagem de Férias, Comprar um Carro" {...field} />
+                    <Input
+                      className="rounded-full placeholder:text-gray-400"
+                      placeholder="Ex: Viagem de Férias, Comprar um Carro"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -89,7 +108,7 @@ export function CreateGoalModal({ isOpen, onClose }: CreateGoalModalProps) {
                     <FormLabel>Valor Alvo</FormLabel>
                     <FormControl>
                       <CurrencyInput
-                        value={field.value}
+                        value={field.value ?? 0}
                         onChange={field.onChange}
                       />
                     </FormControl>
@@ -97,7 +116,7 @@ export function CreateGoalModal({ isOpen, onClose }: CreateGoalModalProps) {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="currentAmount"
@@ -106,7 +125,7 @@ export function CreateGoalModal({ isOpen, onClose }: CreateGoalModalProps) {
                     <FormLabel>Valor Atual</FormLabel>
                     <FormControl>
                       <CurrencyInput
-                        value={field.value}
+                        value={field.value ?? 0}
                         onChange={field.onChange}
                       />
                     </FormControl>
@@ -115,7 +134,7 @@ export function CreateGoalModal({ isOpen, onClose }: CreateGoalModalProps) {
                 )}
               />
             </div>
-            
+
             <FormField
               control={form.control}
               name="targetDate"
@@ -123,13 +142,17 @@ export function CreateGoalModal({ isOpen, onClose }: CreateGoalModalProps) {
                 <FormItem>
                   <FormLabel>Data Alvo</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} />
+                    <Input 
+                      className="rounded-full placeholder:text-gray-400"
+                      type="date"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="notes"
@@ -137,30 +160,34 @@ export function CreateGoalModal({ isOpen, onClose }: CreateGoalModalProps) {
                 <FormItem>
                   <FormLabel>Observações</FormLabel>
                   <FormControl>
-                    <Textarea 
-                      placeholder="Adicione informações adicionais sobre seu objetivo" 
-                      {...field} 
+                    <Textarea
+                      className="rounded-2xl placeholder:text-gray-400"
+                      placeholder="Adicione informações adicionais sobre seu objetivo"
+                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            
+
             <DialogFooter className="mt-6">
-              <Button 
-                type="button" 
-                variant="outline" 
+              <Button
+                type="button"
+                className="rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-white"
                 onClick={onClose}
                 disabled={createGoalMutation.isPending}
               >
                 Cancelar
               </Button>
-              <Button 
+
+              <Button
                 type="submit"
                 disabled={createGoalMutation.isPending}
+                className="rounded-full bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white"
+                onClick={() => form.handleSubmit(onSubmit)}
               >
-                {createGoalMutation.isPending ? 'Criando...' : 'Criar Objetivo'}
+                {createGoalMutation.isPending ? "Criando..." : "Criar Objetivo"}
               </Button>
             </DialogFooter>
           </form>

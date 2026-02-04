@@ -24,6 +24,9 @@ export class CreditCardService implements ICreditCardService {
 
   /**
    * Create a new credit card
+   * @param userId - The ID of the user to create the credit card for
+   * @param cardData - The data for the new credit card
+   * @returns A promise that resolves to the created credit card
    */
   async createCreditCard(userId: string, cardData: ICreditCardCreateDTO): Promise<ICreditCardDTO> {
     return TransactionManager.executeInTransaction(async (session) => {
@@ -69,6 +72,9 @@ export class CreditCardService implements ICreditCardService {
   
   /**
    * Get credit cards by user ID
+   * @param userId - The ID of the user to get the credit cards for
+   * @param isActive - Whether to get only active credit cards
+   * @returns A promise that resolves to the credit cards
    */
   async getCreditCardsByUserId(userId: string, isActive?: boolean): Promise<ICreditCardDTO[]> {
     const creditCards = await this.creditCardRepository.findByUser(userId, isActive);
@@ -77,6 +83,9 @@ export class CreditCardService implements ICreditCardService {
   
   /**
    * Get credit card by ID
+   * @param cardId - The ID of the credit card to get
+   * @param userId - The ID of the user to get the credit card for
+   * @returns A promise that resolves to the credit card
    */
   async getCreditCardById(cardId: string, userId: string): Promise<ICreditCardDTO> {
     const creditCard = await this.creditCardRepository.findById(cardId, userId);
@@ -90,6 +99,10 @@ export class CreditCardService implements ICreditCardService {
   
   /**
    * Update a credit card
+   * @param cardId - The ID of the credit card to update
+   * @param userId - The ID of the user to update the credit card for
+   * @param updateData - The data to update the credit card with
+   * @returns A promise that resolves to the updated credit card
    */
   async updateCreditCard(cardId: string, userId: string, updateData: ICreditCardUpdateDTO): Promise<ICreditCardDTO> {
     return TransactionManager.executeInTransaction(async (session) => {
@@ -110,6 +123,9 @@ export class CreditCardService implements ICreditCardService {
   
   /**
    * Delete a credit card
+   * @param cardId - The ID of the credit card to delete
+   * @param userId - The ID of the user to delete the credit card for
+   * @returns A promise that resolves when the credit card is deleted
    */
   async deleteCreditCard(cardId: string, userId: string): Promise<void> {
     // Verificar se há transações associadas ao cartão
@@ -128,6 +144,9 @@ export class CreditCardService implements ICreditCardService {
   
   /**
    * Get credit card balance information
+   * @param cardId - The ID of the credit card to get the balance for
+   * @param userId - The ID of the user to get the credit card balance for
+   * @returns A promise that resolves to the credit card balance
    */
   async getCreditCardBalance(cardId: string, userId: string): Promise<ICreditCardBalance> {
     const creditCard = await this.creditCardRepository.findById(cardId, userId);
@@ -151,6 +170,10 @@ export class CreditCardService implements ICreditCardService {
   
   /**
    * Validate credit card security code
+   * @param cardId - The ID of the credit card to validate the security code for
+   * @param userId - The ID of the user to validate the security code for
+   * @param securityCode - The security code to validate
+   * @returns A promise that resolves to true if the security code is valid
    */
   async validateSecurityCode(cardId: string, userId: string, securityCode: string): Promise<boolean> {
     const creditCard = await this.creditCardRepository.findById(cardId, userId);
@@ -164,6 +187,8 @@ export class CreditCardService implements ICreditCardService {
   
   /**
    * Map CreditCard model to DTO
+   * @param creditCard - The credit card to map to a DTO
+   * @returns The credit card as a DTO
    */
   private mapToDTO(creditCard: ICreditCard): ICreditCardDTO {
     const id = creditCard._id?.toString() || '';
@@ -188,6 +213,8 @@ export class CreditCardService implements ICreditCardService {
   
   /**
    * Validate CPF
+   * @param cpf - The CPF to validate
+   * @returns True if the CPF is valid, false otherwise
    */
   private validateCPF(cpf: string): boolean {
     cpf = cpf.replace(/[^\d]/g, '');
@@ -220,6 +247,8 @@ export class CreditCardService implements ICreditCardService {
   
   /**
    * Validate expiry date
+   * @param expiryDate - The expiry date to validate
+   * @returns True if the expiry date is valid, false otherwise
    */
   private validateExpiryDate(expiryDate: string): boolean {
     if (!expiryDate.match(/^\d{2}\/\d{2}$/)) return false;
@@ -242,6 +271,8 @@ export class CreditCardService implements ICreditCardService {
   
   /**
    * Mask CPF for display
+   * @param cpf - The CPF to mask
+   * @returns The masked CPF
    */
   private maskCPF(cpf: string): string {
     return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.***.***-$2');

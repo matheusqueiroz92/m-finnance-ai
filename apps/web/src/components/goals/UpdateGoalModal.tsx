@@ -1,12 +1,18 @@
-'use client';
+"use client";
 
-import React, { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import React, { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -14,13 +20,13 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { goalUpdateSchema } from '@/lib/validators/goalValidator';
-import { getGoalById, updateGoal } from '@/services/goalService';
-import { QUERY_KEYS } from '@/lib/constants/query-keys';
-import CurrencyInput from '@/components/shared/CurrencyInput';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { goalUpdateSchema } from "@/lib/validators/goalValidator";
+import { getGoalById, updateGoal } from "@/services/goalService";
+import { QUERY_KEYS } from "@/lib/constants/query-keys";
+import CurrencyInput from "@/components/shared/CurrencyInput";
 
 type FormValues = z.infer<typeof goalUpdateSchema>;
 
@@ -30,26 +36,30 @@ interface UpdateGoalModalProps {
   onClose: () => void;
 }
 
-export function UpdateGoalModal({ isOpen, goalId, onClose }: UpdateGoalModalProps) {
+export function UpdateGoalModal({
+  isOpen,
+  goalId,
+  onClose,
+}: UpdateGoalModalProps) {
   const queryClient = useQueryClient();
-  
+
   const { data: goal, isLoading } = useQuery({
     queryKey: [QUERY_KEYS.GOAL_DETAIL(goalId)],
     queryFn: () => getGoalById(goalId),
     enabled: isOpen && !!goalId,
   });
-  
+
   const form = useForm<FormValues>({
     resolver: zodResolver(goalUpdateSchema),
     defaultValues: {
-      name: '',
+      name: "",
       targetAmount: 0,
       currentAmount: 0,
-      targetDate: '',
-      notes: '',
+      targetDate: "",
+      notes: "",
     },
   });
-  
+
   // Preencher o formulário quando os dados do objetivo forem carregados
   useEffect(() => {
     if (goal) {
@@ -57,22 +67,24 @@ export function UpdateGoalModal({ isOpen, goalId, onClose }: UpdateGoalModalProp
         name: goal.name,
         targetAmount: goal.targetAmount,
         currentAmount: goal.currentAmount,
-        targetDate: new Date(goal.targetDate).toISOString().split('T')[0],
-        notes: goal.notes || '',
+        targetDate: new Date(goal.targetDate).toISOString().split("T")[0],
+        notes: goal.notes || "",
       });
     }
   }, [goal, form]);
-  
+
   const updateGoalMutation = useMutation({
     mutationFn: (data: FormValues) => updateGoal(goalId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GOALS] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GOAL_STATS] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GOAL_DETAIL(goalId)] });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GOAL_DETAIL(goalId)],
+      });
       onClose();
     },
   });
-  
+
   const onSubmit = (values: FormValues) => {
     updateGoalMutation.mutate(values);
   };
@@ -83,12 +95,15 @@ export function UpdateGoalModal({ isOpen, goalId, onClose }: UpdateGoalModalProp
         <DialogHeader>
           <DialogTitle className="text-xl">Atualizar Objetivo</DialogTitle>
         </DialogHeader>
-        
+
         {isLoading ? (
           <div className="py-8 text-center">Carregando...</div>
         ) : (
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-4 py-4"
+            >
               <FormField
                 control={form.control}
                 name="name"
@@ -102,7 +117,7 @@ export function UpdateGoalModal({ isOpen, goalId, onClose }: UpdateGoalModalProp
                   </FormItem>
                 )}
               />
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -120,7 +135,7 @@ export function UpdateGoalModal({ isOpen, goalId, onClose }: UpdateGoalModalProp
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="currentAmount"
@@ -138,7 +153,7 @@ export function UpdateGoalModal({ isOpen, goalId, onClose }: UpdateGoalModalProp
                   )}
                 />
               </div>
-              
+
               <FormField
                 control={form.control}
                 name="targetDate"
@@ -152,7 +167,7 @@ export function UpdateGoalModal({ isOpen, goalId, onClose }: UpdateGoalModalProp
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="notes"
@@ -166,21 +181,20 @@ export function UpdateGoalModal({ isOpen, goalId, onClose }: UpdateGoalModalProp
                   </FormItem>
                 )}
               />
-              
+
               <DialogFooter className="mt-6">
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   onClick={onClose}
                   disabled={updateGoalMutation.isPending}
                 >
                   Cancelar
                 </Button>
-                <Button 
-                  type="submit"
-                  disabled={updateGoalMutation.isPending}
-                >
-                  {updateGoalMutation.isPending ? 'Atualizando...' : 'Atualizar Objetivo'}
+                <Button type="submit" disabled={updateGoalMutation.isPending}>
+                  {updateGoalMutation.isPending
+                    ? "Atualizando..."
+                    : "Atualizar Objetivo"}
                 </Button>
               </DialogFooter>
             </form>

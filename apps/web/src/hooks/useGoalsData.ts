@@ -1,6 +1,6 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getGoals, getGoalStats, deleteGoal } from '@/services/goalService';
-import { QUERY_KEYS } from '@/lib/constants/query-keys';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getGoals, getGoalStats, deleteGoal } from "@/services/goalService";
+import { QUERY_KEYS } from "@/lib/constants/query-keys";
 
 export function useGoalsList(isAuthenticated: boolean) {
   return useQuery({
@@ -20,7 +20,7 @@ export function useGoalStats(isAuthenticated: boolean) {
 
 export function useDeleteGoal() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: deleteGoal,
     onSuccess: () => {

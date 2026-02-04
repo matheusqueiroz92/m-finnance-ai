@@ -1,12 +1,18 @@
-'use client';
+"use client";
 
-import React, { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import React, { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -14,12 +20,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
-import { accountUpdateSchema } from '@/lib/validators/accountValidator';
-import { getAccountById, updateAccount } from '@/services/accountService';
-import { QUERY_KEYS } from '@/lib/constants/query-keys';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { accountUpdateSchema } from "@/lib/validators/accountValidator";
+import { getAccountById, updateAccount } from "@/services/accountService";
+import { QUERY_KEYS } from "@/lib/constants/query-keys";
 
 type FormValues = z.infer<typeof accountUpdateSchema>;
 
@@ -29,26 +35,30 @@ interface UpdateAccountModalProps {
   onClose: () => void;
 }
 
-export function UpdateAccountModal({ isOpen, accountId, onClose }: UpdateAccountModalProps) {
+export function UpdateAccountModal({
+  isOpen,
+  accountId,
+  onClose,
+}: UpdateAccountModalProps) {
   const queryClient = useQueryClient();
-  
+
   const { data: account, isLoading } = useQuery({
     queryKey: [QUERY_KEYS.ACCOUNT_DETAIL(accountId)],
     queryFn: () => getAccountById(accountId),
     enabled: isOpen && !!accountId,
   });
-  
+
   const form = useForm<FormValues>({
     resolver: zodResolver(accountUpdateSchema),
     defaultValues: {
-      name: '',
-      institution: '',
-      bankBranch: '',
-      accountNumber: '',
+      name: "",
+      institution: "",
+      bankBranch: "",
+      accountNumber: "",
       isActive: true,
     },
   });
-  
+
   // Preencher o formulário quando os dados da conta forem carregados
   useEffect(() => {
     if (account) {
@@ -61,17 +71,19 @@ export function UpdateAccountModal({ isOpen, accountId, onClose }: UpdateAccount
       });
     }
   }, [account, form]);
-  
+
   const updateAccountMutation = useMutation({
     mutationFn: (data: FormValues) => updateAccount(accountId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ACCOUNTS] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ACCOUNT_SUMMARY] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ACCOUNT_DETAIL(accountId)] });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.ACCOUNT_DETAIL(accountId)],
+      });
       onClose();
     },
   });
-  
+
   const onSubmit = (values: FormValues) => {
     updateAccountMutation.mutate(values);
   };
@@ -82,12 +94,15 @@ export function UpdateAccountModal({ isOpen, accountId, onClose }: UpdateAccount
         <DialogHeader>
           <DialogTitle className="text-xl">Atualizar Conta</DialogTitle>
         </DialogHeader>
-        
+
         {isLoading ? (
           <div className="py-8 text-center">Carregando...</div>
         ) : (
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-4 py-4"
+            >
               <FormField
                 control={form.control}
                 name="name"
@@ -101,7 +116,7 @@ export function UpdateAccountModal({ isOpen, accountId, onClose }: UpdateAccount
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="institution"
@@ -115,7 +130,7 @@ export function UpdateAccountModal({ isOpen, accountId, onClose }: UpdateAccount
                   </FormItem>
                 )}
               />
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -124,13 +139,13 @@ export function UpdateAccountModal({ isOpen, accountId, onClose }: UpdateAccount
                     <FormItem>
                       <FormLabel>Agência</FormLabel>
                       <FormControl>
-                        <Input {...field} value={field.value || ''} />
+                        <Input {...field} value={field.value || ""} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="accountNumber"
@@ -138,14 +153,14 @@ export function UpdateAccountModal({ isOpen, accountId, onClose }: UpdateAccount
                     <FormItem>
                       <FormLabel>Número da Conta</FormLabel>
                       <FormControl>
-                        <Input {...field} value={field.value || ''} />
+                        <Input {...field} value={field.value || ""} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
-              
+
               <FormField
                 control={form.control}
                 name="isActive"
@@ -166,21 +181,23 @@ export function UpdateAccountModal({ isOpen, accountId, onClose }: UpdateAccount
                   </FormItem>
                 )}
               />
-              
+
               <DialogFooter className="mt-6">
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   onClick={onClose}
                   disabled={updateAccountMutation.isPending}
                 >
                   Cancelar
                 </Button>
-                <Button 
+                <Button
                   type="submit"
                   disabled={updateAccountMutation.isPending}
                 >
-                  {updateAccountMutation.isPending ? 'Atualizando...' : 'Atualizar Conta'}
+                  {updateAccountMutation.isPending
+                    ? "Atualizando..."
+                    : "Atualizar Conta"}
                 </Button>
               </DialogFooter>
             </form>

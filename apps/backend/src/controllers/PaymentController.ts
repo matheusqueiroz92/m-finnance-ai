@@ -16,6 +16,10 @@ export class PaymentController {
   
   /**
    * Create checkout session
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the checkout session is created
    */
   createCheckoutSession = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -45,6 +49,10 @@ export class PaymentController {
   
   /**
    * Get payment methods
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the payment methods are retrieved
    */
   getPaymentMethods = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -63,7 +71,11 @@ export class PaymentController {
   
   /**
    * Handle webhook events from payment provider
-   */
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the webhook is handled
+  */
   handleWebhook = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
         ApiResponse.error(res, 'Usuário não autenticado', 401);

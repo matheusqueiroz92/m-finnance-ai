@@ -20,6 +20,10 @@ export class UserController {
 
   /**
    * Register a new user
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the user is registered
    */
   register = async (
     req: Request,
@@ -27,7 +31,6 @@ export class UserController {
     next: NextFunction
   ): Promise<void> => {
     // Registro não requer autenticação - usuário ainda não existe
-
     try {
       // Preparar os dados para validação
       const userData: IUserRegisterDTO = {
@@ -56,18 +59,8 @@ export class UserController {
           delete validatedData.cpf;
         }
 
-        // Registrar usuário
+        // Registrar usuário (as categorias padrão já são criadas no UserService)
         const result = await this.userService.register(validatedData);
-
-        // Criar categorias padrão para o novo usuário
-        try {
-          const categoryService =
-            container.resolve<ICategoryService>("CategoryService");
-          await categoryService.createDefaultCategories(result.user._id);
-        } catch (error) {
-          console.error("Erro ao criar categorias padrão:", error);
-          // Continua mesmo se houver erro na criação das categorias
-        }
 
         ApiResponse.created(res, result, "Usuário registrado com sucesso");
       } catch (validationError) {
@@ -81,6 +74,10 @@ export class UserController {
 
   /**
    * Login user
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the user is logged in
    */
   login = async (
     req: Request,
@@ -99,10 +96,22 @@ export class UserController {
       ApiResponse.success(
         res,
         {
-          id: result.user._id,
-          name: result.user.name,
-          email: result.user.email,
-          isPremium: result.user.isPremium,
+          user: {
+            _id: result.user._id,
+            name: result.user.name,
+            email: result.user.email,
+            dateOfBirth: result.user.dateOfBirth,
+            cpf: result.user.cpf,
+            phone: result.user.phone,
+            avatar: result.user.avatar,
+            language: result.user.language,
+            isPremium: result.user.isPremium,
+            isEmailVerified: result.user.isEmailVerified,
+            twoFactorEnabled: result.user.twoFactorEnabled,
+            newsletterEnabled: result.user.newsletterEnabled,
+            createdAt: result.user.createdAt,
+            updatedAt: result.user.updatedAt,
+          },
           token: result.token,
         },
         "Login realizado com sucesso"
@@ -114,6 +123,10 @@ export class UserController {
 
   /**
    * Get user profile
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the user profile is retrieved
    */
   getProfile = async (
     req: Request,
@@ -128,22 +141,24 @@ export class UserController {
     try {
       const user = await this.userService.getUserById((req.user as any)._id);
 
-      ApiResponse.success(
-        res,
-        {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          dateOfBirth: user.dateOfBirth,
-          cpf: user.cpf,
-          phone: user.phone,
-          language: user.language,
-          isPremium: user.isPremium,
-          twoFactorEnabled: user.twoFactorEnabled,
-          newsletterEnabled: user.newsletterEnabled,
-        },
-        "Perfil recuperado com sucesso"
-      );
+      const responseData = {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        dateOfBirth: user.dateOfBirth,
+        cpf: user.cpf,
+        phone: user.phone,
+        avatar: user.avatar,
+        language: user.language,
+        isPremium: user.isPremium,
+        isEmailVerified: user.isEmailVerified,
+        twoFactorEnabled: user.twoFactorEnabled,
+        newsletterEnabled: user.newsletterEnabled,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      };
+
+      ApiResponse.success(res, responseData, "Perfil recuperado com sucesso");
     } catch (error) {
       next(error);
     }
@@ -151,6 +166,10 @@ export class UserController {
 
   /**
    * Update user profile
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the user profile is updated
    */
   updateProfile = async (
     req: Request,
@@ -241,6 +260,10 @@ export class UserController {
 
   /**
    * Change user password
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the user password is changed
    */
   changePassword = async (
     req: Request,
@@ -275,6 +298,10 @@ export class UserController {
 
   /**
    * Verify email
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the email is verified
    */
   verifyEmail = async (
     req: Request,
@@ -302,7 +329,38 @@ export class UserController {
   };
 
   /**
+   * Verify email (public route - no authentication required)
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the email is verified
+   */
+  verifyEmailPublic = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const { token } = req.body;
+
+      if (!token) {
+        throw new ApiError("Token de verificação é obrigatório", 400);
+      }
+
+      await this.userService.verifyEmail(token);
+
+      ApiResponse.success(res, null, "E-mail verificado com sucesso");
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
    * Resend verification email
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the verification email is resent
    */
   resendVerificationEmail = async (
     req: Request,

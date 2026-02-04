@@ -1,9 +1,9 @@
-import { Document, Types } from 'mongoose';
+import { Document, Types } from "mongoose";
 
 export interface ICategory extends Document {
   user: Types.ObjectId;
   name: string;
-  type: 'income' | 'expense' | 'investment';
+  type: "income" | "expense" | "investment";
   icon?: string;
   color?: string;
   isDefault: boolean;
@@ -14,7 +14,7 @@ export interface ICategory extends Document {
 export interface ICategoryDTO {
   _id: string;
   name: string;
-  type: 'income' | 'expense' | 'investment';
+  type: "income" | "expense" | "investment";
   icon?: string;
   color?: string;
   isDefault: boolean;
@@ -24,7 +24,7 @@ export interface ICategoryDTO {
 
 export interface ICategoryCreateDTO {
   name: string;
-  type: 'income' | 'expense' | 'investment';
+  type: "income" | "expense" | "investment";
   icon?: string;
   color?: string;
   isDefault?: boolean;

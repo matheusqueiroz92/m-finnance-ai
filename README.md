@@ -1,18 +1,6 @@
-# M. Finnance AI 🚀
-
-<!--
-Para adicionar a logo da sua aplicação no README, você pode usar a sintaxe abaixo.
-Basta substituir o link da imagem (URL) pelo endereço da sua logo hospedada (por exemplo, no seu repositório ou em algum serviço de hospedagem de imagens).
-
-Exemplo:
--->
+# M. Finnance AI
 
 ![Logo da M. Finnance AI](apps/web/public/images/logo-dark-mode-m-finnance-ai.png)
-
-<!--
-Se a logo estiver na pasta do projeto (por exemplo, em `public/logo.png`), use:
-![Logo da M. Finnance AI](public/logo.png)
--->
 
 M. Finnance AI é uma plataforma completa de gestão financeira pessoal com recursos avançados de inteligência artificial para análise de gastos, orçamentos, investimentos e planejamento financeiro.
 
@@ -26,11 +14,13 @@ M. Finnance AI é uma plataforma completa de gestão financeira pessoal com recu
 [![Jest](https://img.shields.io/badge/Jest-C21325?style=for-the-badge&logo=jest&logoColor=white)](https://jestjs.io/)
 [![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 [![Turborepo](https://img.shields.io/badge/Turborepo-FF1E56?style=for-the-badge&logo=turborepo&logoColor=white)](https://turborepo.com/)
+[![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=white)](https://swagger.io/)
 [![Stripe](https://img.shields.io/badge/Stripe-EE82EE?style=for-the-badge&logo=stripe&logoColor=white)](https://stripe.com/)
 
 ## 📑 Índice
 
 - [Visão Geral](#-visão-geral)
+- [Segurança](#-segurança)
 - [Recursos](#-recursos)
 - [Tecnologias](#-tecnologias)
 - [Arquitetura](#-arquitetura)
@@ -41,10 +31,16 @@ M. Finnance AI é uma plataforma completa de gestão financeira pessoal com recu
 - [Roadmap](#-roadmap)
 - [Contribuição](#-contribuição)
 - [Licença](#-licença)
+- [Documentação por aplicação](#-documentação-por-aplicação)
+
+### 📚 Documentação por aplicação
+
+- **[Backend](apps/backend/README.md)** — API REST, rotas, serviços e testes
+- **[Web (Frontend)](apps/web/README.md)** — Next.js, páginas e componentes
 
 ## 🧭 Visão Geral
 
-M. Finnance AI é uma solução completa para gestão de finanças pessoais com análise inteligente de dados financeiros. A plataforma permite aos usuários rastrear receitas, despesas, definir metas financeiras, gerenciar contas e receber insights personalizados baseados em padrões de gastos. Com inteligência artificial integrada, fornecemos recomendações personalizadas para ajudar os usuários a melhorar sua saúde financeira.
+M. Finnance AI é uma plataforma inovadora e completa para gestão de finanças pessoais, que integrada com inteligência artificial para análise e otimização dos dados financeiros dos usuários. Com ela, é possível monitorar receitas, despesas, definir e acompanhar metas financeiras, gerenciar múltiplas contas e receber insights personalizados baseados em padrões reais de comportamento financeiro. A IA embarcada oferece recomendações inteligentes e automáticas, auxiliando o usuário a tomar decisões mais assertivas e a alcançar seus objetivos financeiros de forma eficiente e segura.
 
 ### Diferenciais
 
@@ -59,14 +55,23 @@ M. Finnance AI é uma solução completa para gestão de finanças pessoais com 
 
 - **Passport.js**: Estratégias seguras de autenticação social
 - **Cookies HttpOnly**: Tokens armazenados em cookies seguros, inacessíveis via JavaScript
-- **Refresh Tokens**: Sistema de renovação automática de tokens com rotação
+- **Refresh Tokens**: Sistema de renovação automática de tokens
 - **State Parameter**: Proteção CSRF em fluxos OAuth
 - **Sessões Seguras**: Gerenciamento de sessões com express-session
 - **Validação de Tipos**: TypeScript com verificações rigorosas de tipos
 - **Verificação de Autenticação**: Middleware robusto para validação de usuários
 - **Logout Seguro**: Limpeza completa de cookies e sessões
 
-### Fluxo de Autenticação Seguro
+### Fluxo de Autenticação com Login Convencional
+
+1. **Inicialização**: Usuário preeche os campos de usuário e senha e clica em "Login"
+2. **Validação de Credenciais**: Backend recebe usuário e senha, valida as credenciais no banco de dados
+3. **Verificação de Autenticação**: Se as credenciais estiverem corretas, o backend prossegue; caso contrário, retorna erro de autenticação
+4. **Geração de Tokens**: Backend gera access token e refresh token para o usuário autenticado
+5. **Definição de Cookies Seguros**: Tokens são enviados ao frontend e armazenados em cookies HttpOnly e Secure
+6. **Redirecionamento**: Usuário autenticado é redirecionado para o dashboard da aplicação
+
+### Fluxo de Autenticação com Login Social
 
 1. **Inicialização**: Usuário clica em "Login com Google/GitHub"
 2. **Redirecionamento**: Usuário é redirecionado para provedor OAuth
@@ -84,10 +89,13 @@ M. Finnance AI é uma solução completa para gestão de finanças pessoais com 
 
 - Rastreamento de transações (receitas, despesas, investimentos)
 - Categorização inteligente de transações
-- Gestão de contas bancárias e saldos
+- Gestão de contas bancárias e saldos (carteira)
+- **Cartões de crédito**: cadastro, faturas, transações e validação de código de segurança
+- **Investimentos**: portfólio, desempenho e resumo
 - Planejamento e acompanhamento de metas financeiras
-- Relatórios financeiros personalizados
-- Upload de anexos e recibos de transações
+- Relatórios financeiros personalizados (PDF e Excel)
+- Upload de anexos, comprovantes e recibos de transações
+- Upload de avatar do usuário
 
 ### Recursos de IA
 
@@ -142,6 +150,28 @@ M. Finnance AI é uma solução completa para gestão de finanças pessoais com 
 - **TSyringe**: Injeção de dependência
 - **Multer**: Upload de arquivos
 - **Crypto**: Geração segura de tokens e hashes
+- **Nodemailer**: Envio de e-mails (verificação, recuperação de senha)
+- **Twilio**: Notificações (SMS/push)
+- **UUID**: Identificadores únicos
+- **PKCE**: Suporte a fluxo OAuth seguro
+
+### Frontend (Web)
+
+- **Next.js 15**: Framework React com App Router e Turbopack
+- **React 19**: Biblioteca de interface
+- **TypeScript**: Tipagem estática
+- **TanStack React Query**: Cache, sincronização e estado de dados
+- **React Hook Form + Zod**: Formulários e validação
+- **Radix UI / shadcn-ui**: Componentes acessíveis
+- **Tailwind CSS 4**: Estilização
+- **Recharts**: Gráficos (dashboard, investimentos)
+- **next-themes**: Tema claro/escuro
+- **Sonner**: Notificações toast
+- **Lucide React**: Ícones
+- **date-fns / react-day-picker**: Datas
+- **Axios**: Cliente HTTP
+- **js-cookie / jwt-decode**: Autenticação no cliente
+- **ExcelJS / jsPDF**: Exportação no cliente (relatórios)
 
 ### DevOps
 
@@ -152,22 +182,21 @@ M. Finnance AI é uma solução completa para gestão de finanças pessoais com 
 
 ## 📐 Arquitetura
 
-M. Finnance AI segue uma arquitetura moderna baseada em princípios sólidos de engenharia de software:
+M. Finnance AI segue uma arquitetura moderna baseada nos princípios do SOLID, Clean Architecture e Engenharia de Software.
 
 ### Estrutura de Monorepo
 
-O projeto utiliza Turborepo para gerenciar um monorepo com múltiplos pacotes:
+O projeto utiliza **Turborepo** para gerenciar um monorepo com múltiplos pacotes:
 
 ```
 m-finnance-ai/
 ├── apps/
-│   ├── backend/    # API REST em Node.js/Express
-│   ├── web/        # Frontend web (planejado)
-│   └── mobile/     # App mobile (planejado)
+│   ├── backend/    # API REST em Node.js/Express (TypeScript)
+│   └── web/        # Frontend web em Next.js 15 (App Router, React 19)
 └── packages/
-    ├── eslint-config/  # Configurações compartilhadas de ESLint
-    ├── typescript-config/  # Configurações compartilhadas de TypeScript
-    └── ui/         # Componentes de UI compartilhados (planejado)
+    ├── eslint-config/      # Configurações compartilhadas de ESLint
+    ├── typescript-config/  # Configurações compartilhadas de TypeScript (base, nextjs, react-library)
+    └── ui/                  # Componentes de UI compartilhados (Button, Card, Code)
 ```
 
 ### Arquitetura Backend
@@ -307,12 +336,46 @@ A API é documentada usando o Swagger e está disponível em `/api-docs` quando 
 | PUT    | `/api/goals/:id`   | Atualizar meta        |
 | DELETE | `/api/goals/:id`   | Excluir meta          |
 
-#### Relatórios
+#### Cartões de Crédito
 
-| Método | Endpoint                | Descrição                  |
-| ------ | ----------------------- | -------------------------- |
-| GET    | `/api/reports/generate` | Gerar relatório financeiro |
-| GET    | `/api/reports/insights` | Obter insights de IA       |
+| Método | Endpoint                         | Descrição                        |
+| ------ | -------------------------------- | -------------------------------- |
+| POST   | `/api/credit-cards`              | Criar cartão de crédito          |
+| GET    | `/api/credit-cards`              | Listar cartões                   |
+| GET    | `/api/credit-cards/summary`      | Resumo dos cartões               |
+| GET    | `/api/credit-cards/:id`          | Obter cartão por ID              |
+| PUT    | `/api/credit-cards/:id`          | Atualizar cartão                 |
+| DELETE | `/api/credit-cards/:id`          | Excluir cartão                   |
+
+#### Investimentos
+
+| Método | Endpoint                    | Descrição               |
+| ------ | --------------------------- | ----------------------- |
+| POST   | `/api/investments`          | Criar investimento      |
+| GET    | `/api/investments`          | Listar investimentos    |
+| GET    | `/api/investments/summary`  | Resumo de investimentos |
+| GET    | `/api/investments/:id`      | Obter investimento por ID |
+| PUT    | `/api/investments/:id`      | Atualizar investimento  |
+| DELETE | `/api/investments/:id`      | Excluir investimento    |
+
+#### Relatórios e Insights
+
+| Método | Endpoint                           | Descrição                    |
+| ------ | ---------------------------------- | ---------------------------- |
+| GET    | `/api/reports/generate`            | Gerar relatório financeiro   |
+| GET    | `/api/reports/insights`            | Obter insights de IA         |
+| GET    | `/api/reports/insights/score`      | Score financeiro pessoal     |
+| GET    | `/api/reports/insights/recommendations` | Recomendações de IA   |
+| GET    | `/api/reports/insights/trends`     | Tendências financeiras       |
+
+#### Arquivos
+
+| Método | Endpoint                                      | Descrição                    |
+| ------ | ---------------------------------------------- | ---------------------------- |
+| GET    | `/api/files/avatar/:filename`                  | Obter avatar (público)       |
+| GET    | `/api/files/attachment/:transactionId/:attachmentId` | Obter anexo de transação |
+| GET    | `/api/files/attachments/:transactionId`        | Listar anexos da transação   |
+| GET    | `/api/files/download/attachment/:transactionId/:attachmentId` | Download de anexo |
 
 #### Assinaturas
 
@@ -431,22 +494,34 @@ GITHUB_CALLBACK_URL=http://localhost:3001/api/auth/github/callback
 
 ```bash
 # Clone o repositório
-git clone https://github.com/seu-usuario/organfinancialai.git
-cd organfinancialai
+git clone https://github.com/seu-usuario/m-finnance-ai.git
+cd m-finnance-ai
 
-# Instale as dependências
+# Instale as dependências (raiz do monorepo)
 npm install
 
-# Inicie o servidor de desenvolvimento
+# Inicie todos os apps em modo desenvolvimento (backend + web via Turborepo)
 npm run dev
+```
+
+Para rodar apenas um app:
+
+```bash
+# Apenas backend
+cd apps/backend && npm run dev
+
+# Apenas frontend
+cd apps/web && npm run dev
 ```
 
 ### Usando Docker
 
+O `docker-compose.yml` sobe três serviços: **MongoDB**, **backend** (porta 3001) e **web** (porta 3000).
+
 ```bash
 # Clone o repositório
-git clone https://github.com/seu-usuario/organfinancialai.git
-cd organfinancialai
+git clone https://github.com/seu-usuario/m-finnance-ai.git
+cd m-finnance-ai
 
 # Inicie os contêineres
 docker-compose up -d
@@ -470,35 +545,52 @@ npm run test:coverage
 npm run test:watch
 ```
 
-Estrutura de testes:
+Estrutura de testes do backend:
 
 ```
-apps/backend/
-└── tests/
-    ├── integration/  # Testes de integração
-    └── services/     # Testes unitários de serviços
-        ├── AccountService.test.ts
-        ├── TransactionService.test.ts
-        ├── UserService.test.ts
-        └── ...
+apps/backend/src/tests/
+├── config/           # Configuração de banco para testes (database.test.ts)
+├── controllers/      # Testes de controllers (Account, Category, CreditCard, Goal, Report, Transaction, User)
+├── integration/      # Testes de integração (authRoutes, insightsRoutes)
+├── middlewares/      # Testes de middlewares (auth, error, validation)
+├── repositories/     # Testes de repositórios (Account, Category, CreditCard, Goal, Investment, Subscription, Transaction, User)
+├── services/         # Testes de serviços (Account, AIAnalysis, Billing, Category, CreditCard, Goal, Investment, Notification, Report, StripePayment, Subscription, Token, Transaction, User)
+├── utils/            # Testes de utilitários (ApiError, ApiResponse, pkce, ProcessCallback, TokenUtils, TransactionManager)
+├── validators/       # Testes de validadores (account, category, creditCard, goal, investment, transaction, user)
+└── setup.ts          # Configuração global do Jest
 ```
 
 ## 🛣️ Roadmap
 
 ### Funcionalidades Implementadas
 
+**Backend**
 - ✅ Autenticação segura com JWT e refresh tokens
 - ✅ Login via redes sociais com Passport.js (Google, GitHub)
-- ✅ Cookies HttpOnly para máxima segurança
-- ✅ Proteção CSRF com state parameter
-- ✅ CRUD de contas, categorias, transações e metas
+- ✅ Cookies HttpOnly e sessões com express-session
+- ✅ Proteção CSRF com state parameter e PKCE
+- ✅ CRUD de contas, categorias, transações, metas, cartões de crédito e investimentos
 - ✅ Relatórios financeiros (PDF e Excel)
-- ✅ Insights baseados em IA
-- ✅ Sistema de assinaturas (Free e Premium)
-- ✅ Integração com Stripe para pagamentos
-- ✅ Upload de anexos para transações
-- ✅ Sessões seguras com express-session
-- ✅ Validação rigorosa de tipos TypeScript
+- ✅ Insights de IA: score financeiro, recomendações e tendências
+- ✅ Sistema de assinaturas (Free e Premium) e Stripe
+- ✅ Upload de avatar e anexos em transações (Multer)
+- ✅ Rotas de arquivos: avatar, anexos e download
+- ✅ Injeção de dependência (TSyringe), interfaces e validação (Zod)
+- ✅ Middleware premium para recursos exclusivos
+- ✅ Notificações (MockNotificationService, Nodemailer, Twilio)
+- ✅ Documentação Swagger em `/api-docs`
+
+**Frontend (Next.js 15 / React 19)**
+- ✅ App Router com rotas privadas e públicas
+- ✅ Dashboard com gráficos (fluxo de caixa, despesas, transações recentes)
+- ✅ Páginas: Carteira, Contas, Cartões de Crédito, Transações, Metas, Investimentos, Insights, Relatórios, Perfil, Configurações
+- ✅ Autenticação: login, registro, verificação de e-mail, recuperação e redefinição de senha
+- ✅ Login social (Google, GitHub) e callback
+- ✅ Tema claro/escuro (next-themes)
+- ✅ TanStack React Query para dados e cache
+- ✅ Formulários com React Hook Form + Zod
+- ✅ UI com Radix UI, shadcn-ui, Recharts, Sonner (toast)
+- ✅ Middleware de proteção de rotas e redirecionamento
 
 ### Correções Recentes (v1.2.0)
 
@@ -514,12 +606,11 @@ apps/backend/
 
 #### Curto Prazo (1-3 meses)
 
-- 🔲 Frontend web em React
-- 🔲 Melhorias na análise de IA
-- 🔲 Dashboard interativo
+- 🔲 Melhorias na análise de IA (integração com APIs de IA reais)
 - 🔲 Importação de extratos bancários
-- 🔲 Melhorias nos testes automatizados
+- 🔲 Melhorias nos testes automatizados (frontend com Jest/Testing Library)
 - 🔲 CI/CD com GitHub Actions
+- 🔲 Rota de contato/suporte no backend
 
 #### Médio Prazo (3-6 meses)
 

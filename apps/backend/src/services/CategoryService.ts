@@ -23,6 +23,9 @@ export class CategoryService implements ICategoryService {
 
   /**
    * Create a new category
+   * @param userId - The ID of the user to create the category for
+   * @param categoryData - The data for the new category
+   * @returns A promise that resolves to the created category
    */
   async createCategory(userId: string, categoryData: ICategoryCreateDTO): Promise<ICategoryDTO> {
     return TransactionManager.executeInTransaction(async (session) => {
@@ -41,6 +44,9 @@ export class CategoryService implements ICategoryService {
   
   /**
    * Get categories by user ID with optional type filter
+   * @param userId - The ID of the user to get the categories for
+   * @param type - The type of categories to get
+   * @returns A promise that resolves to the categories
    */
   async getCategoriesByUserId(userId: string, type?: string): Promise<ICategoryDTO[]> {
     const categories = await this.categoryRepository.findByUser(userId, type);
@@ -49,6 +55,9 @@ export class CategoryService implements ICategoryService {
   
   /**
    * Get category by ID
+   * @param categoryId - The ID of the category to get
+   * @param userId - The ID of the user to get the category for
+   * @returns A promise that resolves to the category
    */
   async getCategoryById(categoryId: string, userId: string): Promise<ICategoryDTO> {
     const category = await this.categoryRepository.findById(categoryId, userId);
@@ -62,6 +71,10 @@ export class CategoryService implements ICategoryService {
   
   /**
    * Update a category
+   * @param categoryId - The ID of the category to update
+   * @param userId - The ID of the user to update the category for
+   * @param updateData - The data to update the category with
+   * @returns A promise that resolves to the updated category
    */
   async updateCategory(categoryId: string, userId: string, updateData: ICategoryUpdateDTO): Promise<ICategoryDTO> {
     return TransactionManager.executeInTransaction(async (session) => {
@@ -77,6 +90,9 @@ export class CategoryService implements ICategoryService {
   
   /**
    * Delete a category
+   * @param categoryId - The ID of the category to delete
+   * @param userId - The ID of the user to delete the category for
+   * @returns A promise that resolves when the category is deleted
    */
   async deleteCategory(categoryId: string, userId: string): Promise<void> {
     // Check if category is in use by transactions
@@ -95,6 +111,8 @@ export class CategoryService implements ICategoryService {
   
   /**
    * Create default categories for a new user
+   * @param userId - The ID of the user to create the default categories for
+   * @returns A promise that resolves when the default categories are created
    */
   async createDefaultCategories(userId: string): Promise<void> {
     await this.categoryRepository.createDefaultCategories(userId);
@@ -102,6 +120,8 @@ export class CategoryService implements ICategoryService {
   
   /**
    * Map Category model to DTO
+   * @param category - The category to map to a DTO
+   * @returns The category as a DTO
    */
   private mapToDTO(category: ICategory): ICategoryDTO {
     // Garantir que _id existe e convertê-lo para string

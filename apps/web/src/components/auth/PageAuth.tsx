@@ -38,9 +38,9 @@ export default function PageAuth({
             className="max-w-md mx-auto"
           />
           <p className="pl-8 text-[16px]">
-            <span className="text-[#25343b] font-extrabold">Transforme</span>{" "}
+            <span className="text-emerald-300 font-extrabold">Transforme</span>{" "}
             sua gestão financeira com IA.
-            <span className="text-[#25343b] font-extrabold">
+            <span className="text-emerald-300 font-extrabold">
               {" "}
               Controle suas finanças
             </span>
@@ -71,7 +71,7 @@ export default function PageAuth({
                 />
               </svg>
             </div>
-            <h1 className="text-2xl font-bold text-emerald-600">OFinanceAI</h1>
+            <h1 className="text-2xl font-bold text-emerald-600">M. Finance AI</h1>
           </div>
 
           {/* Título e subtítulo */}
@@ -91,7 +91,7 @@ export default function PageAuth({
                   {/* Botão do Google */}
                   <Button
                     variant="outline"
-                    className="hover:bg-emerald-300 hover:border-emerald-300"
+                    className="hover:bg-emerald-300 hover:border-emerald-300 rounded-full"
                     size="icon"
                     asChild
                   >
@@ -120,7 +120,7 @@ export default function PageAuth({
                   {/* Botão do GitHub */}
                   <Button
                     variant="outline"
-                    className="hover:bg-emerald-300 hover:border-emerald-300"
+                    className="hover:bg-emerald-300 hover:border-emerald-300 rounded-full"
                     size="icon"
                     asChild
                   >

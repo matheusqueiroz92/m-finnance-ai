@@ -13,6 +13,10 @@ export class AccountController {
   
   /**
    * Create a new account
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the account is created
    */
   createAccount = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -47,6 +51,10 @@ export class AccountController {
   
   /**
    * Get accounts for the authenticated user
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the accounts are retrieved
    */
   getAccounts = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -70,6 +78,10 @@ export class AccountController {
   
   /**
    * Get account by ID
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the account is retrieved
    */
   getAccountById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -95,6 +107,10 @@ export class AccountController {
   
   /**
    * Update an account
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the account is updated
    */
   updateAccount = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -137,6 +153,10 @@ export class AccountController {
   
   /**
    * Delete an account
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the account is deleted
    */
   deleteAccount = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -162,6 +182,10 @@ export class AccountController {
   
   /**
    * Get account summary with transaction stats
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the account summary is retrieved
    */
   getAccountSummary = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {

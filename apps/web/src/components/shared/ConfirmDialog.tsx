@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,20 +11,40 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 
 interface ConfirmDialogProps {
   title: string;
   description: string;
+  /** Quando não informado, o diálogo é controlado por triggerButton */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   triggerButton: React.ReactNode;
   confirmButton: {
     label: string;
-    variant?: "link" | "default" | "destructive" | "outline" | "secondary" | "ghost" | null | undefined;
+    variant?:
+      | "link"
+      | "default"
+      | "destructive"
+      | "outline"
+      | "secondary"
+      | "ghost"
+      | null
+      | undefined;
+    disabled?: boolean;
   };
   cancelButton?: {
     label: string;
-    variant?: "link" | "default" | "destructive" | "outline" | "secondary" | "ghost" | null | undefined;
+    variant?:
+      | "link"
+      | "default"
+      | "destructive"
+      | "outline"
+      | "secondary"
+      | "ghost"
+      | null
+      | undefined;
   };
   onConfirm: () => void;
 }
@@ -32,17 +52,23 @@ interface ConfirmDialogProps {
 export function ConfirmDialog({
   title,
   description,
+  open,
+  onOpenChange,
   triggerButton,
   confirmButton,
   cancelButton = {
-    label: 'Cancelar',
-    variant: 'outline',
+    label: "Cancelar",
+    variant: "outline",
   },
   onConfirm,
 }: ConfirmDialogProps) {
+  const isControlled = open !== undefined && onOpenChange !== undefined;
+
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>{triggerButton}</AlertDialogTrigger>
+    <AlertDialog
+      {...(isControlled ? { open, onOpenChange } : {})}
+    >
+      {!isControlled && <AlertDialogTrigger asChild>{triggerButton}</AlertDialogTrigger>}
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
@@ -53,7 +79,11 @@ export function ConfirmDialog({
             <Button variant={cancelButton.variant}>{cancelButton.label}</Button>
           </AlertDialogCancel>
           <AlertDialogAction asChild>
-            <Button variant={confirmButton.variant} onClick={onConfirm}>
+            <Button
+              variant={confirmButton.variant}
+              disabled={confirmButton.disabled}
+              onClick={onConfirm}
+            >
               {confirmButton.label}
             </Button>
           </AlertDialogAction>

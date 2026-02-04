@@ -26,6 +26,9 @@ export class InvestmentService implements IInvestmentService {
 
   /**
    * Create a new investment
+   * @param userId - The ID of the user to create the investment for
+   * @param investmentData - The data for the new investment
+   * @returns A promise that resolves to the created investment
    */
   async createInvestment(userId: string, investmentData: IInvestmentCreateDTO): Promise<IInvestmentDTO> {
     return TransactionManager.executeInTransaction(async (session) => {
@@ -87,6 +90,9 @@ export class InvestmentService implements IInvestmentService {
   
   /**
    * Get investments by user ID with pagination and filters
+   * @param userId - The ID of the user to get the investments for
+   * @param filters - The filters to apply to the investments
+   * @returns A promise that resolves to the investments
    */
   async getInvestmentsByUserId(userId: string, filters: IInvestmentFilters): Promise<IInvestmentListResult> {
     const { type, isActive, account, page = 1, limit = 10 } = filters;
@@ -116,6 +122,9 @@ export class InvestmentService implements IInvestmentService {
   
   /**
    * Get investment by ID
+   * @param investmentId - The ID of the investment to get
+   * @param userId - The ID of the user to get the investment for
+   * @returns A promise that resolves to the investment
    */
   async getInvestmentById(investmentId: string, userId: string): Promise<IInvestmentDTO> {
     const investment = await this.investmentRepository.findById(investmentId, userId);
@@ -129,6 +138,10 @@ export class InvestmentService implements IInvestmentService {
   
   /**
    * Update an investment
+   * @param investmentId - The ID of the investment to update
+   * @param userId - The ID of the user to update the investment for
+   * @param updateData - The data to update the investment with
+   * @returns A promise that resolves to the updated investment
    */
   async updateInvestment(investmentId: string, userId: string, updateData: IInvestmentUpdateDTO): Promise<IInvestmentDTO> {
     return TransactionManager.executeInTransaction(async (session) => {
@@ -157,6 +170,9 @@ export class InvestmentService implements IInvestmentService {
   
   /**
    * Delete an investment
+   * @param investmentId - The ID of the investment to delete
+   * @param userId - The ID of the user to delete the investment for
+   * @returns A promise that resolves when the investment is deleted
    */
   async deleteInvestment(investmentId: string, userId: string): Promise<void> {
     const result = await this.investmentRepository.delete(investmentId, userId);
@@ -168,6 +184,8 @@ export class InvestmentService implements IInvestmentService {
   
   /**
    * Get investment summary with statistics
+   * @param userId - The ID of the user to get the investment summary for
+   * @returns A promise that resolves to the investment summary
    */
   async getInvestmentSummary(userId: string): Promise<IInvestmentSummaryDTO> {
     const investments = await this.investmentRepository.findByUser(userId, { isActive: true });
@@ -227,6 +245,9 @@ export class InvestmentService implements IInvestmentService {
   
   /**
    * Get investments by account ID
+   * @param userId - The ID of the user to get the investments for
+   * @param accountId - The ID of the account to get the investments for
+   * @returns A promise that resolves to the investments
    */
   async getInvestmentsByAccount(userId: string, accountId: string): Promise<IInvestmentDTO[]> {
     const investments = await this.investmentRepository.getInvestmentsByAccount(userId, accountId);
@@ -235,6 +256,8 @@ export class InvestmentService implements IInvestmentService {
   
   /**
    * Map Investment model to DTO
+   * @param investment - The investment to map to a DTO
+   * @returns The investment as a DTO
    */
   private mapToDTO(investment: IInvestment): IInvestmentDTO {
     const id = investment._id?.toString() || '';

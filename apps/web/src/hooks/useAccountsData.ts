@@ -1,7 +1,12 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getAccounts, getAccountSummary, deleteAccount, getAccountById } from '@/services/accountService';
-import { getTransactions } from '@/services/transactionService';
-import { QUERY_KEYS } from '@/lib/constants/query-keys';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  getAccounts,
+  getAccountSummary,
+  deleteAccount,
+  getAccountById,
+} from "@/services/accountService";
+import { getTransactions } from "@/services/transactionService";
+import { QUERY_KEYS } from "@/lib/constants/query-keys";
 
 export function useAccountsList(isAuthenticated: boolean) {
   return useQuery({
@@ -27,21 +32,25 @@ export function useAccountDetail(accountId: string, isAuthenticated: boolean) {
   });
 }
 
-export function useRecentAccountTransactions(isAuthenticated: boolean, accountId?: string) {
+export function useRecentAccountTransactions(
+  isAuthenticated: boolean,
+  accountId?: string
+) {
   return useQuery({
     queryKey: [QUERY_KEYS.TRANSACTIONS, { limit: 5, account: accountId }],
-    queryFn: () => getTransactions({ 
-      limit: 5, 
-      page: 1,
-      account: accountId
-    }),
+    queryFn: () =>
+      getTransactions({
+        limit: 5,
+        page: 1,
+        account: accountId,
+      }),
     enabled: isAuthenticated,
   });
 }
 
 export function useDeleteAccount() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: deleteAccount,
     onSuccess: () => {

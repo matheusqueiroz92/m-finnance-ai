@@ -1,12 +1,12 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  getCreditCards, 
-  getCreditCardSummary, 
-  getCreditCardBillings, 
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  getCreditCards,
+  getCreditCardSummary,
+  getCreditCardBillings,
   deleteCreditCard,
-  getCreditCardById
-} from '@/services/creditCardService';
-import { QUERY_KEYS } from '@/lib/constants/query-keys';
+  getCreditCardById,
+} from "@/services/creditCardService";
+import { QUERY_KEYS } from "@/lib/constants/query-keys";
 
 export function useCreditCardsList(isAuthenticated: boolean) {
   return useQuery({
@@ -24,7 +24,10 @@ export function useCreditCardSummary(isAuthenticated: boolean) {
   });
 }
 
-export function useCreditCardDetail(creditCardId: string, isAuthenticated: boolean) {
+export function useCreditCardDetail(
+  creditCardId: string,
+  isAuthenticated: boolean
+) {
   return useQuery({
     queryKey: [QUERY_KEYS.CREDIT_CARD_DETAIL(creditCardId)],
     queryFn: () => getCreditCardById(creditCardId),
@@ -32,7 +35,10 @@ export function useCreditCardDetail(creditCardId: string, isAuthenticated: boole
   });
 }
 
-export function useCreditCardTransactions(isAuthenticated: boolean, creditCardId?: string) {
+export function useCreditCardTransactions(
+  isAuthenticated: boolean,
+  creditCardId?: string
+) {
   return useQuery({
     queryKey: [QUERY_KEYS.CREDIT_CARD_BILLINGS, creditCardId],
     queryFn: () => getCreditCardBillings(creditCardId),
@@ -42,13 +48,17 @@ export function useCreditCardTransactions(isAuthenticated: boolean, creditCardId
 
 export function useDeleteCreditCard() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: deleteCreditCard,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CREDIT_CARDS] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CREDIT_CARD_SUMMARY] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CREDIT_CARD_BILLINGS] });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.CREDIT_CARD_SUMMARY],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.CREDIT_CARD_BILLINGS],
+      });
     },
   });
 }

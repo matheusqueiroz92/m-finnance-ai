@@ -2,9 +2,11 @@ import { z } from 'zod';
 
 export const creditCardCreateSchema = z.object({
   cardNumber: z.string()
-    .min(13, 'Número do cartão deve ter pelo menos 13 dígitos')
-    .max(19, 'Número do cartão deve ter no máximo 19 dígitos')
-    .regex(/^\d+$/, 'Número do cartão deve conter apenas dígitos'),
+    .transform((s) => s.replace(/\D/g, ''))
+    .pipe(z.string()
+      .min(13, 'Número do cartão deve ter pelo menos 13 dígitos')
+      .max(19, 'Número do cartão deve ter no máximo 19 dígitos')
+      .regex(/^\d+$/, 'Número do cartão deve conter apenas dígitos')),
   cardBrand: z.enum(['visa', 'mastercard', 'elo', 'american_express', 'diners', 'hipercard', 'other'], {
     errorMap: () => ({ message: 'Bandeira inválida' })
   }),
@@ -12,7 +14,8 @@ export const creditCardCreateSchema = z.object({
     .min(3, 'Nome do titular deve ter pelo menos 3 caracteres')
     .max(100, 'Nome do titular deve ter no máximo 100 caracteres'),
   cardholderCpf: z.string()
-    .regex(/^\d{11}$/, 'CPF deve ter 11 dígitos'),
+    .transform((s) => s.replace(/\D/g, ''))
+    .pipe(z.string().regex(/^\d{11}$/, 'CPF deve ter 11 dígitos')),
   expiryDate: z.string()
     .regex(/^\d{2}\/\d{2}$/, 'Data de validade deve estar no formato MM/YY'),
   securityCode: z.string()

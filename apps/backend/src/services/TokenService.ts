@@ -24,6 +24,8 @@ export class TokenService {
 
   /**
    * Gera um par de tokens (access + refresh)
+   * @param user - The user to generate the token pair for
+   * @returns The token pair
    */
   generateTokenPair(user: IUser | IUserDTO): TokenPair {
     const accessToken = this.generateAccessToken(user);
@@ -33,7 +35,9 @@ export class TokenService {
   }
 
   /**
-   * Gera access token (curta duração)
+   * Gera access token (curta duração)  
+   * @param user - The user to generate the access token for
+   * @returns The access token
    */
   generateAccessToken(user: IUser | IUserDTO): string {
     const payload: TokenPayload = {
@@ -51,6 +55,8 @@ export class TokenService {
 
   /**
    * Gera refresh token (longa duração)
+   * @param user - The user to generate the refresh token for
+   * @returns The refresh token
    */
   generateRefreshToken(user: IUser | IUserDTO): string {
     const payload: TokenPayload = {
@@ -68,6 +74,8 @@ export class TokenService {
 
   /**
    * Verifica e decodifica access token
+   * @param token - The token to verify and decode
+   * @returns The token payload or null if the token is invalid
    */
   verifyAccessToken(token: string): TokenPayload | null {
     try {
@@ -89,6 +97,8 @@ export class TokenService {
 
   /**
    * Verifica e decodifica refresh token
+   * @param token - The token to verify and decode
+   * @returns The token payload or null if the token is invalid
    */
   verifyRefreshToken(token: string): TokenPayload | null {
     try {
@@ -110,6 +120,9 @@ export class TokenService {
 
   /**
    * Renova access token usando refresh token
+   * @param refreshToken - The refresh token to use to refresh the access token
+   * @param userService - The user service to use to get the user
+   * @returns The access token and user or null if the refresh token is invalid
    */
   async refreshAccessToken(
     refreshToken: string,
@@ -140,6 +153,8 @@ export class TokenService {
 
   /**
    * Verifica se o token está próximo do vencimento
+   * @param token - The token to check if it is near expiry
+   * @returns True if the token is near expiry, false otherwise
    */
   isTokenNearExpiry(token: string): boolean {
     try {

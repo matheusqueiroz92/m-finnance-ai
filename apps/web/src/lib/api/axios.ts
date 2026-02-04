@@ -1,19 +1,19 @@
-import axios, { AxiosError, AxiosInstance } from 'axios';
-import Cookies from 'js-cookie';
-import { API_BASE_URL } from '@/lib/constants/api-routes';
-import { refreshToken } from '@/services/authService';
+import axios, { AxiosError, AxiosInstance } from "axios";
+import Cookies from "js-cookie";
+import { API_BASE_URL } from "@/lib/constants/api-routes";
+import { refreshToken } from "@/services/authService";
 
 const api: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
 // Interceptor de requisição
 api.interceptors.request.use(
   (config) => {
-    const token = Cookies.get('token');
+    const token = Cookies.get("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -32,9 +32,13 @@ api.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config;
     // Se o token expirou (status 401) e não é uma requisição de refresh
-    if (error.response?.status === 401 && originalRequest && !originalRequest.headers._retry) {
+    if (
+      error.response?.status === 401 &&
+      originalRequest &&
+      !originalRequest.headers._retry
+    ) {
       originalRequest.headers._retry = true;
-      
+
       try {
         // Tenta obter um novo token
         const token = await refreshToken();
@@ -44,12 +48,12 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         // Se falhar, redireciona para login
-        Cookies.remove('token');
-        window.location.href = '/login';
+        Cookies.remove("token");
+        window.location.href = "/login";
         return Promise.reject(refreshError);
       }
     }
-    
+
     return Promise.reject(error);
   }
 );

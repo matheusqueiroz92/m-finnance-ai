@@ -1,6 +1,13 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  Legend,
+} from "recharts";
 
 interface AssetAllocation {
   category: string;
@@ -14,24 +21,43 @@ interface InvestmentPortfolioProps {
   theme?: string;
 }
 
-export function InvestmentPortfolio({ data, isLoading, theme }: InvestmentPortfolioProps) {
-  const isDark = theme === 'dark';
-  
+export function InvestmentPortfolio({
+  data,
+  isLoading,
+  theme,
+}: InvestmentPortfolioProps) {
+  const isDark = theme === "dark";
+
   // Cores para o gráfico - funcionam bem em ambos os temas
-  const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
-  
-  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }: any) => {
+  const COLORS = [
+    "#10b981",
+    "#3b82f6",
+    "#f59e0b",
+    "#ef4444",
+    "#8b5cf6",
+    "#ec4899",
+  ];
+
+  const renderCustomizedLabel = ({
+    cx,
+    cy,
+    midAngle,
+    innerRadius,
+    outerRadius,
+    percent,
+    index,
+  }: any) => {
     const RADIAN = Math.PI / 180;
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
-    
+
     return (
-      <text 
-        x={x} 
-        y={y} 
+      <text
+        x={x}
+        y={y}
         fill={isDark ? "white" : "black"}
-        textAnchor={x > cx ? 'start' : 'end'} 
+        textAnchor={x > cx ? "start" : "end"}
         dominantBaseline="central"
         fontSize="12"
       >
@@ -41,9 +67,11 @@ export function InvestmentPortfolio({ data, isLoading, theme }: InvestmentPortfo
   };
 
   return (
-    <Card className="border shadow transition-colors duration-200 
+    <Card
+      className="border shadow transition-colors duration-200 
                     bg-white dark:bg-white/10 dark:backdrop-blur-sm 
-                    border-gray-200 dark:border-white/20">
+                    border-gray-200 dark:border-white/20"
+    >
       <CardHeader className="pb-2">
         <CardTitle className="text-lg text-gray-900 dark:text-emerald-300 transition-colors duration-200">
           Alocação de Ativos
@@ -72,22 +100,32 @@ export function InvestmentPortfolio({ data, isLoading, theme }: InvestmentPortfo
                 nameKey="category"
               >
                 {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
                 ))}
               </Pie>
-              <Tooltip 
-                formatter={(value) => [`R$ ${Number(value).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, null]}
-                contentStyle={{ 
-                  backgroundColor: isDark ? '#25343b' : '#fff', 
-                  borderColor: isDark ? '#ffffff20' : '#e5e7eb', 
-                  color: isDark ? '#fff' : '#000' 
+              <Tooltip
+                formatter={(value) => [
+                  `R$ ${Number(value).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
+                  null,
+                ]}
+                contentStyle={{
+                  backgroundColor: isDark ? "#25343b" : "#fff",
+                  borderColor: isDark ? "#ffffff20" : "#e5e7eb",
+                  color: isDark ? "#fff" : "#000",
                 }}
               />
-              <Legend 
-                layout="vertical" 
-                verticalAlign="middle" 
-                align="right" 
-                formatter={(value) => <span style={{ color: isDark ? '#fff' : '#000' }}>{value}</span>}
+              <Legend
+                layout="vertical"
+                verticalAlign="middle"
+                align="right"
+                formatter={(value) => (
+                  <span style={{ color: isDark ? "#fff" : "#000" }}>
+                    {value}
+                  </span>
+                )}
               />
             </PieChart>
           </ResponsiveContainer>

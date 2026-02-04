@@ -90,10 +90,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         // Login com credenciais
         response = await authService.login(credentials);
+
+        // Se a resposta não tiver a estrutura correta, ajustar
+        if (!response.user && response.token) {
+          // A API pode estar retornando os dados do usuário diretamente
+          const { token, ...userData } = response as any;
+          response = { user: userData as any, token };
+        }
+
         Cookies.set("token", response.token, { expires: 7 });
       }
 
       setUser(response.user);
+
+      // Aguardar um pouco para garantir que o estado foi atualizado
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
       setIsLoading(false);
 
       // Redirecionar para dashboard

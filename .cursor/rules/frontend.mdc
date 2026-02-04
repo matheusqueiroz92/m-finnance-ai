@@ -1,0 +1,20 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+Regras válidas para o frontend (pasta apps/web):
+
+- Considere sempre os componentes, bibliotecas e frameworks em suas versões mais atuais. Exemplo: React 19, Next.js 15, etc.
+- Sempre use Tailwind para estilização;
+- Use componentes da biblioteca ShadCN/ui, na versão mais atual, o máximo possível ao criar/modificar componentes (veja https://ui.shadcn.com/ para lista de componentes disponíveis);
+- Sempre use ZOD para validação de fomulários;
+- Sempre use React Hook Form para criação e validação de formulários;
+- Quando necessário, crie funções e componentes reutilizáveis para reduzir a duplicidade de código;
+- Considere sempre os arquivos de serviço da pasta src/services;
+- Considere sempre os arquivos de tipagens da pasta src/types;
+- Considere sempre os arquivos utilitários da pasta src/lib;
+- Considere sempre os hooks personalizados da pasta hooks, reutilize-os ou crie novos hooks personalizados caso julgue necessário;
+- Considere sempre os arquivos das pastas contexts e providers;
+- Os componentes da aplicação estão dentro da pasta components e estão dividos em pastas de acordo com seu respectivo módulo;

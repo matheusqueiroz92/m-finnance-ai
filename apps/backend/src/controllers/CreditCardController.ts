@@ -13,6 +13,10 @@ export class CreditCardController {
   
   /**
    * Create a new credit card
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the credit card is created
    */
   createCreditCard = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -53,6 +57,10 @@ export class CreditCardController {
   
   /**
    * Get credit cards for the authenticated user
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the credit cards are retrieved
    */
   getCreditCards = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -75,6 +83,10 @@ export class CreditCardController {
   
   /**
    * Get credit card by ID
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the credit card is retrieved
    */
   getCreditCardById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -100,6 +112,10 @@ export class CreditCardController {
   
   /**
    * Update a credit card
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the credit card is updated
    */
   updateCreditCard = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -151,6 +167,10 @@ export class CreditCardController {
   
   /**
    * Delete a credit card
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the credit card is deleted
    */
   deleteCreditCard = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -176,6 +196,10 @@ export class CreditCardController {
   
   /**
    * Get credit card balance
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the credit card balance is retrieved
    */
   getCreditCardBalance = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -201,6 +225,10 @@ export class CreditCardController {
   
   /**
    * Validate security code
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the security code is validated
    */
   validateSecurityCode = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {

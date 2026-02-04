@@ -21,6 +21,8 @@ export class BillingService implements IBillingService {
 
   /**
    * Create a Stripe customer for a user
+   * @param userId - The ID of the user to create a Stripe customer for
+   * @returns A promise that resolves to the Stripe customer ID
    */
   async createCustomerForUser(userId: string): Promise<string> {
     const user = await this.userRepository.findById(userId);
@@ -51,6 +53,9 @@ export class BillingService implements IBillingService {
   
   /**
    * Create a checkout session for a subscription
+   * @param userId - The ID of the user to create a checkout session for
+   * @param options - The options for the checkout session
+   * @returns A promise that resolves to the checkout session URL
    */
   async createCheckoutSession(userId: string, options: ICreateCheckoutDTO): Promise<string> {
     return TransactionManager.executeInTransaction(async (session) => {
@@ -101,6 +106,9 @@ export class BillingService implements IBillingService {
   
   /**
    * Handle subscription updated webhook event
+   * @param stripeSubscriptionId - The ID of the Stripe subscription
+   * @param status - The status of the subscription
+   * @returns A promise that resolves to the updated subscription
    */
   async handleSubscriptionUpdated(stripeSubscriptionId: string, status: string): Promise<ISubscriptionDTO | null> {
     // Find the subscription with this Stripe subscription ID
@@ -159,6 +167,8 @@ export class BillingService implements IBillingService {
   
   /**
    * Handle subscription deleted webhook event
+   * @param stripeSubscriptionId - The ID of the Stripe subscription
+   * @returns A promise that resolves to the deleted subscription
    */
   async handleSubscriptionDeleted(stripeSubscriptionId: string): Promise<ISubscriptionDTO | null> {
     // Find the subscription with this Stripe subscription ID
@@ -197,6 +207,8 @@ export class BillingService implements IBillingService {
   
   /**
    * Handle payment succeeded webhook event
+   * @param paymentIntentId - The ID of the payment intent
+   * @returns A promise that resolves to true if the payment succeeded
    */
   async handlePaymentSucceeded(paymentIntentId: string): Promise<boolean> {
     // In a real implementation, update payment records
@@ -207,6 +219,8 @@ export class BillingService implements IBillingService {
   
   /**
    * Handle payment failed webhook event
+   * @param paymentIntentId - The ID of the payment intent
+   * @returns A promise that resolves to true if the payment failed
    */
   async handlePaymentFailed(paymentIntentId: string): Promise<boolean> {
     // In a real implementation, update payment records and notify users
@@ -217,6 +231,8 @@ export class BillingService implements IBillingService {
   
   /**
    * Get a customer's payment methods
+   * @param userId - The ID of the user to get the payment methods for
+   * @returns A promise that resolves to the payment methods
    */
   async getCustomerPaymentMethods(userId: string): Promise<any[]> {
     const subscription = await this.subscriptionRepository.findByUserId(userId);

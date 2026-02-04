@@ -1,12 +1,18 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -14,20 +20,20 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { creditCardCreateSchema } from '@/lib/validators/creditCardValidator';
-import { createCreditCard } from '@/services/creditCardService';
-import { QUERY_KEYS } from '@/lib/constants/query-keys';
-import CurrencyInput from '@/components/shared/CurrencyInput';
-import { InputMask } from '@/components/shared/InputMask';
+} from "@/components/ui/select";
+import { creditCardCreateSchema } from "@/lib/validators/creditCardValidator";
+import { createCreditCard } from "@/services/creditCardService";
+import { QUERY_KEYS } from "@/lib/constants/query-keys";
+import CurrencyInput from "@/components/shared/CurrencyInput";
+import { InputMask } from "@/components/shared/InputMask";
 
 type FormValues = z.infer<typeof creditCardCreateSchema>;
 
@@ -37,43 +43,49 @@ interface CreateCreditCardModalProps {
   onSuccess?: () => void;
 }
 
-export function CreateCreditCardModal({ isOpen, onClose, onSuccess }: CreateCreditCardModalProps) {
+export function CreateCreditCardModal({
+  isOpen,
+  onClose,
+  onSuccess,
+}: CreateCreditCardModalProps) {
   const queryClient = useQueryClient();
   const [showCvv, setShowCvv] = useState(false);
-  
+
   const form = useForm<FormValues>({
     resolver: zodResolver(creditCardCreateSchema),
     defaultValues: {
-      cardNumber: '',
-      cardBrand: 'visa',
-      cardholderName: '',
-      cardholderCpf: '',
-      expiryDate: '',
-      securityCode: '',
+      cardNumber: "",
+      cardBrand: "visa",
+      cardholderName: "",
+      cardholderCpf: "",
+      expiryDate: "",
+      securityCode: "",
       creditLimit: 0,
       billingDueDay: 1,
     },
   });
-  
+
   const createCreditCardMutation = useMutation({
     mutationFn: createCreditCard,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CREDIT_CARDS] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CREDIT_CARD_SUMMARY] });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.CREDIT_CARD_SUMMARY],
+      });
       form.reset();
       onSuccess?.();
       onClose();
     },
   });
-  
+
   const onSubmit = (values: FormValues) => {
     // Remover possíveis máscaras antes de enviar
     const formattedValues = {
       ...values,
-      cardNumber: values.cardNumber.replace(/\D/g, ''),
-      cardholderCpf: values.cardholderCpf.replace(/\D/g, ''),
+      cardNumber: values.cardNumber.replace(/\D/g, ""),
+      cardholderCpf: values.cardholderCpf.replace(/\D/g, ""),
     };
-    
+
     createCreditCardMutation.mutate(formattedValues);
   };
 
@@ -83,9 +95,12 @@ export function CreateCreditCardModal({ isOpen, onClose, onSuccess }: CreateCred
         <DialogHeader>
           <DialogTitle className="text-xl">Novo Cartão de Crédito</DialogTitle>
         </DialogHeader>
-        
+
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-4 py-4"
+          >
             <FormField
               control={form.control}
               name="cardholderName"
@@ -93,13 +108,16 @@ export function CreateCreditCardModal({ isOpen, onClose, onSuccess }: CreateCred
                 <FormItem>
                   <FormLabel>Nome do Titular</FormLabel>
                   <FormControl>
-                    <Input placeholder="Exatamente como está no cartão" {...field} />
+                    <Input
+                      placeholder="Exatamente como está no cartão"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -118,15 +136,15 @@ export function CreateCreditCardModal({ isOpen, onClose, onSuccess }: CreateCred
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="cardBrand"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Bandeira</FormLabel>
-                    <Select 
-                      onValueChange={field.onChange} 
+                    <Select
+                      onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
                       <FormControl>
@@ -138,7 +156,9 @@ export function CreateCreditCardModal({ isOpen, onClose, onSuccess }: CreateCred
                         <SelectItem value="visa">Visa</SelectItem>
                         <SelectItem value="mastercard">Mastercard</SelectItem>
                         <SelectItem value="elo">Elo</SelectItem>
-                        <SelectItem value="american_express">American Express</SelectItem>
+                        <SelectItem value="american_express">
+                          American Express
+                        </SelectItem>
                         <SelectItem value="diners">Diners Club</SelectItem>
                         <SelectItem value="hipercard">Hipercard</SelectItem>
                         <SelectItem value="other">Outra</SelectItem>
@@ -149,7 +169,7 @@ export function CreateCreditCardModal({ isOpen, onClose, onSuccess }: CreateCred
                 )}
               />
             </div>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -168,7 +188,7 @@ export function CreateCreditCardModal({ isOpen, onClose, onSuccess }: CreateCred
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="expiryDate"
@@ -176,18 +196,14 @@ export function CreateCreditCardModal({ isOpen, onClose, onSuccess }: CreateCred
                   <FormItem>
                     <FormLabel>Data de Validade</FormLabel>
                     <FormControl>
-                      <InputMask
-                        mask="99/99"
-                        placeholder="MM/AA"
-                        {...field}
-                      />
+                      <InputMask mask="99/99" placeholder="MM/AA" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -197,8 +213,8 @@ export function CreateCreditCardModal({ isOpen, onClose, onSuccess }: CreateCred
                     <FormLabel>Código de Segurança (CVV)</FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Input 
-                          type={showCvv ? "text" : "password"} 
+                        <Input
+                          type={showCvv ? "text" : "password"}
                           placeholder="123"
                           maxLength={4}
                           {...field}
@@ -210,7 +226,7 @@ export function CreateCreditCardModal({ isOpen, onClose, onSuccess }: CreateCred
                           className="absolute right-0 top-0 h-full px-3"
                           onClick={() => setShowCvv(!showCvv)}
                         >
-                          {showCvv ? 'Ocultar' : 'Mostrar'}
+                          {showCvv ? "Ocultar" : "Mostrar"}
                         </Button>
                       </div>
                     </FormControl>
@@ -218,7 +234,7 @@ export function CreateCreditCardModal({ isOpen, onClose, onSuccess }: CreateCred
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="creditLimit"
@@ -236,7 +252,7 @@ export function CreateCreditCardModal({ isOpen, onClose, onSuccess }: CreateCred
                 )}
               />
             </div>
-            
+
             <FormField
               control={form.control}
               name="billingDueDay"
@@ -244,10 +260,10 @@ export function CreateCreditCardModal({ isOpen, onClose, onSuccess }: CreateCred
                 <FormItem>
                   <FormLabel>Dia de Vencimento da Fatura</FormLabel>
                   <FormControl>
-                    <Input 
-                      type="number" 
-                      min={1} 
-                      max={31} 
+                    <Input
+                      type="number"
+                      min={1}
+                      max={31}
                       placeholder="Dia do mês (1-31)"
                       {...field}
                       onChange={(e) => {
@@ -262,21 +278,23 @@ export function CreateCreditCardModal({ isOpen, onClose, onSuccess }: CreateCred
                 </FormItem>
               )}
             />
-            
+
             <DialogFooter className="mt-6">
-              <Button 
-                type="button" 
-                variant="outline" 
+              <Button
+                type="button"
+                variant="outline"
                 onClick={onClose}
                 disabled={createCreditCardMutation.isPending}
               >
                 Cancelar
               </Button>
-              <Button 
+              <Button
                 type="submit"
                 disabled={createCreditCardMutation.isPending}
               >
-                {createCreditCardMutation.isPending ? 'Criando...' : 'Criar Cartão'}
+                {createCreditCardMutation.isPending
+                  ? "Criando..."
+                  : "Criar Cartão"}
               </Button>
             </DialogFooter>
           </form>

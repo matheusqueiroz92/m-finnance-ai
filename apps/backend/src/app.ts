@@ -11,7 +11,7 @@ import "./types/session";
 import { setupPassport } from "./config/passport";
 
 // Import routes
-import userRoutes from "./routes/userRoutes";
+import authRoutes from "./routes/authRoutes";
 import transactionRoutes from "./routes/transactionRoutes";
 import accountRoutes from "./routes/accountRoutes";
 import categoryRoutes from "./routes/categoryRoutes";
@@ -20,7 +20,6 @@ import reportRoutes from "./routes/reportRoutes";
 import fileRoutes from "./routes/fileRoutes";
 import subscriptionRoutes from "./routes/subscriptionRoutes";
 import paymentRoutes from "./routes/paymentRoutes";
-import authRoutes from "./routes/authRoutes";
 import creditCardRoutes from "./routes/creditCardRoutes";
 import investmentRoutes from "./routes/investmentRoutes";
 
@@ -30,7 +29,7 @@ const app = express();
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || "http://localhost:3000",
-    credentials: true, // Permitir cookies
+    credentials: true,
   })
 );
 
@@ -68,7 +67,8 @@ app.use("/uploads", express.static(path.join(__dirname, "../../uploads")));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Routes
-app.use("/api/users", userRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/users", authRoutes);
 app.use("/api/transactions", transactionRoutes);
 app.use("/api/accounts", accountRoutes);
 app.use("/api/categories", categoryRoutes);
@@ -77,14 +77,13 @@ app.use("/api/reports", reportRoutes);
 app.use("/api/files", fileRoutes);
 app.use("/api/subscriptions", subscriptionRoutes);
 app.use("/api/payments", paymentRoutes);
-app.use("/api/auth", authRoutes);
-app.use("/api/credit-card", creditCardRoutes);
+app.use("/api/credit-cards", creditCardRoutes);
 app.use("/api/investments", investmentRoutes);
 
 // Home route
 app.get("/", (_req, res) => {
   res.json({
-    message: "FinanceAI API",
+    message: "M. Finnance AI API",
     version: "1.0.0",
     documentation: "/api-docs",
   });

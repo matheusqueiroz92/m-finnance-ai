@@ -14,6 +14,10 @@ export class SubscriptionController {
   
   /**
    * Get the current user's subscription
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the subscription is retrieved
    */
   getCurrentSubscription = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -37,6 +41,10 @@ export class SubscriptionController {
   
   /**
    * Create a trial subscription for the user
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the trial subscription is created
    */
   startTrial = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -55,6 +63,10 @@ export class SubscriptionController {
   
   /**
    * Cancel the current subscription
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the subscription is cancelled
    */
   cancelSubscription = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -73,6 +85,10 @@ export class SubscriptionController {
   
   /**
    * Update subscription to a new plan type
+   * @param req - The request object
+   * @param res - The response object
+   * @param next - The next function
+   * @returns A promise that resolves when the subscription is updated
    */
   updateSubscriptionPlan = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {

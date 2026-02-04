@@ -21,6 +21,10 @@ export class ReportService implements IReportService {
   
   /**
    * Generate a comprehensive financial report
+   * @param userId - The ID of the user to generate the report for
+   * @param period - The period to generate the report for
+   * @param format - The format to generate the report in
+   * @returns A promise that resolves to the report file result
    */
   async generateFinancialReport(
     userId: string,
@@ -68,6 +72,11 @@ export class ReportService implements IReportService {
   
   /**
    * Generate PDF report
+   * @param userId - The ID of the user to generate the report for
+   * @param transactions - The transactions to generate the report for
+   * @param insights - The insights to generate the report for
+   * @param period - The period to generate the report for
+   * @returns A promise that resolves to the report file result
    */
   private async generatePDFReport(
     userId: string,
@@ -289,7 +298,12 @@ export class ReportService implements IReportService {
   }
   
   /**
-   * Generate Excel report
+   * Generate Excel report 
+   * @param userId - The ID of the user to generate the report for
+   * @param transactions - The transactions to generate the report for
+   * @param insights - The insights to generate the report for
+   * @param period - The period to generate the report for
+   * @returns A promise that resolves to the report file result
    */
   private async generateExcelReport(
     userId: string,

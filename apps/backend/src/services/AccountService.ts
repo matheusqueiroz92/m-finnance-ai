@@ -24,6 +24,9 @@ export class AccountService implements IAccountService {
 
   /**
    * Create a new account
+   * @param userId - The ID of the user creating the account
+   * @param accountData - The data for the new account
+   * @returns A promise that resolves to the created account
    */
   async createAccount(userId: string, accountData: IAccountCreateDTO): Promise<IAccountDTO> {
     return TransactionManager.executeInTransaction(async (session) => {
@@ -48,6 +51,8 @@ export class AccountService implements IAccountService {
   
   /**
    * Get accounts by user ID
+   * @param userId - The ID of the user to get accounts for
+   * @returns A promise that resolves to the accounts
    */
   async getAccountsByUserId(userId: string): Promise<IAccountDTO[]> {
     const accounts = await this.accountRepository.findByUser(userId);
@@ -56,6 +61,9 @@ export class AccountService implements IAccountService {
   
   /**
    * Get account by ID
+   * @param accountId - The ID of the account to get
+   * @param userId - The ID of the user to get the account for
+   * @returns A promise that resolves to the account
    */
   async getAccountById(accountId: string, userId: string): Promise<IAccountDTO> {
     const account = await this.accountRepository.findById(accountId, userId);
@@ -69,6 +77,10 @@ export class AccountService implements IAccountService {
   
   /**
    * Update an account
+   * @param accountId - The ID of the account to update
+   * @param userId - The ID of the user to update the account for
+   * @param updateData - The data to update the account with
+   * @returns A promise that resolves to the updated account
    */
   async updateAccount(accountId: string, userId: string, updateData: IAccountUpdateDTO): Promise<IAccountDTO> {
     return TransactionManager.executeInTransaction(async (session) => {
@@ -89,6 +101,9 @@ export class AccountService implements IAccountService {
   
   /**
    * Delete an account
+   * @param accountId - The ID of the account to delete
+   * @param userId - The ID of the user to delete the account for
+   * @returns A promise that resolves when the account is deleted
    */
   async deleteAccount(accountId: string, userId: string): Promise<void> {
     // Check if account is in use by transactions
@@ -107,6 +122,8 @@ export class AccountService implements IAccountService {
   
   /**
    * Get account summary with transaction stats
+   * @param userId - The ID of the user to get the account summary for
+   * @returns A promise that resolves to the account summary
    */
   async getAccountSummary(userId: string): Promise<IAccountSummary> {
     const accounts = await this.accountRepository.findByUser(userId);
@@ -149,6 +166,8 @@ export class AccountService implements IAccountService {
   
   /**
    * Map Account model to DTO
+   * @param account - The account to map to a DTO
+   * @returns The account as a DTO
    */
   private mapToDTO(account: IAccount): IAccountDTO {
     // Garantir que _id existe e convertê-lo para string
