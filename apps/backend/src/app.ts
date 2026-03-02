@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import path from "path";
+import cookieParser from "cookie-parser";
 import session from "express-session";
 import swaggerUi from "swagger-ui-express";
 import swaggerDocument from "./swagger.json";
@@ -59,6 +60,7 @@ app.use("/api/payments/webhook", express.raw({ type: "application/json" }));
 // Configuração padrão para rotas que usam JSON
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // Serve uploaded files
 app.use("/uploads", express.static(path.join(__dirname, "../../uploads")));
@@ -86,6 +88,14 @@ app.get("/", (_req, res) => {
     message: "M. Finnance AI API",
     version: "1.0.0",
     documentation: "/api-docs",
+  });
+});
+
+// 404 - rotas não encontradas (evita tela em branco se acessar backend na porta errada)
+app.use((_req, res) => {
+  res.status(404).json({
+    success: false,
+    error: { message: "Rota não encontrada. A API está em /api. Frontend: use a aplicação web na porta 3000." },
   });
 });
 

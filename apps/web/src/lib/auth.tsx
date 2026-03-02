@@ -1,10 +1,11 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 import { LoginCredentials, RegisterData, User } from "@/types/user";
 import * as authService from "@/services/authService";
+import { clearForceLoginCookie } from "@/services/authService";
 import { handleError } from "@/lib/errors";
 
 // Interface para o contexto
@@ -49,67 +50,50 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  // Valores computados
   const isAuthenticated = !!user;
   const isPremium = user?.isPremium || false;
 
-  // Efeito para verificar autenticação inicial
+  // Verifica sessão apenas se existir token (evita 401 na página de login)
   useEffect(() => {
+    const token = typeof window !== "undefined" ? Cookies.get("token") : undefined;
+    if (!token) {
+      setIsLoading(false);
+      return;
+    }
     const checkAuth = async () => {
-      const token = Cookies.get("token");
-
-      if (!token) {
-        setIsLoading(false);
-        return;
-      }
-
       try {
-        const userData = await authService.getProfile();
+        const timeoutMs = 15000;
+        const userData = await Promise.race([
+          authService.getProfile(),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error("timeout")), timeoutMs)
+          ),
+        ]);
         setUser(userData);
-      } catch (error) {
-        handleError(error);
-        Cookies.remove("token");
+      } catch {
+        // Token inválido: interceptor ou layout farão logout e redirect
       } finally {
         setIsLoading(false);
       }
     };
-
     checkAuth();
   }, []);
 
   const login = async (credentials: LoginCredentials | string) => {
     setIsLoading(true);
     try {
-      let response;
-
       if (typeof credentials === "string") {
-        // Login com token (social login)
-        Cookies.set("token", credentials, { expires: 7 });
+        authService.setAuthToken(credentials);
         const userData = await authService.getProfile();
-        response = { user: userData, token: credentials };
+        setUser(userData);
       } else {
-        // Login com credenciais
-        response = await authService.login(credentials);
-
-        // Se a resposta não tiver a estrutura correta, ajustar
-        if (!response.user && response.token) {
-          // A API pode estar retornando os dados do usuário diretamente
-          const { token, ...userData } = response as any;
-          response = { user: userData as any, token };
-        }
-
-        Cookies.set("token", response.token, { expires: 7 });
+        const response = await authService.login(credentials);
+        if (response.token) authService.setAuthToken(response.token);
+        setUser(response.user);
       }
-
-      setUser(response.user);
-
-      // Aguardar um pouco para garantir que o estado foi atualizado
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
+      clearForceLoginCookie();
       setIsLoading(false);
-
-      // Redirecionar para dashboard
-      window.location.href = "/dashboard";
+      router.replace("/dashboard");
     } catch (error) {
       handleError(error);
       setIsLoading(false);
@@ -120,11 +104,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     try {
       const response = await authService.register(data);
+      if (response.token) authService.setAuthToken(response.token);
       setUser(response.user);
-      Cookies.set("token", response.token, { expires: 7 });
       setIsLoading(false);
-
-      // Usar router.replace em vez de router.push
       router.replace("/dashboard");
     } catch (error) {
       handleError(error);
@@ -133,9 +115,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
-    authService.logout();
     setUser(null);
-    router.replace("/login");
+    authService.logout(); // chama API para limpar cookie e redireciona para /login
   };
 
   const updateUserData = (data: Partial<User>) => {

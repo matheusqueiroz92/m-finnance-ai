@@ -44,9 +44,10 @@ export default function LoginForm() {
     setIsSubmitting(true);
     try {
       await login(values);
-      // Não precisamos fazer nada aqui - o AuthProvider cuidará do redirecionamento
+      // Sucesso: AuthProvider redireciona para /dashboard
     } catch (error) {
       console.error("Login error:", error);
+    } finally {
       setIsSubmitting(false);
     }
   };

@@ -28,9 +28,10 @@ export function processCallback(req: any, res: any) {
       authResult.user as any
     );
 
-    // 🍪 DEFINIR COOKIES SEGUROS
+    // 🍪 DEFINIR COOKIES SEGUROS (accessToken/refreshToken + token para o middleware do frontend)
     CookieManager.setAccessToken(res, accessToken);
     CookieManager.setRefreshToken(res, refreshToken);
+    CookieManager.setToken(res, accessToken);
 
     res.redirect(
       `${process.env.FRONTEND_URL}/auth/success?token=${accessToken}`

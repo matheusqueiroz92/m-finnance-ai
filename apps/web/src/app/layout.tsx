@@ -15,7 +15,7 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: "OFinanceAI - Controle Financeiro com IA",
+  title: "M Finance AI - Controle Financeiro com IA",
   description: "Gerencie suas finanças de forma inteligente com a ajuda de IA",
   keywords: "termos de serviço, termos de uso, OFinanceAI, gestão financeira",
 };

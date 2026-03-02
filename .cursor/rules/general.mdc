@@ -62,7 +62,6 @@ Arquitetura, organização do projeto e deploy:
 - Arquitetura de código utilizada na API é a MSC (Model, Service, Controller) com utilização do Repository Pattern e Injeção de dependências;
 - Gerenciamento do repositório monorepo com Turborepo;
 - Projeto dividido em: backend (api), web (frontend), mobile (a desenvolver);
-- Deploy feito na vercel;
 
 Princípios para o desenvolvimento:
 

@@ -100,10 +100,7 @@ export function UpdateTransactionModal({
 
   useEffect(() => {
     if (transaction) {
-      const dateStr =
-        typeof transaction.date === "string"
-          ? transaction.date.split("T")[0]
-          : new Date(transaction.date).toISOString().split("T")[0];
+      const dateStr = new Date(transaction.date).toISOString().split("T")[0];
       setActiveTab(transaction.type);
       form.reset({
         account: transaction.account._id,

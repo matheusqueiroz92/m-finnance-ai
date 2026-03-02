@@ -1,20 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import PageAuth from "@/components/auth/PageAuth";
 import LoginForm from "@/components/auth/LoginForm";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle } from "lucide-react";
 
-export default function LoginPage() {
+function LoginPageContent() {
   const searchParams = useSearchParams();
   const [showVerifiedAlert, setShowVerifiedAlert] = useState(false);
 
   useEffect(() => {
     if (searchParams.get("verified") === "true") {
       setShowVerifiedAlert(true);
-      // Esconder o alerta após 5 segundos
       setTimeout(() => setShowVerifiedAlert(false), 5000);
     }
   }, [searchParams]);
@@ -41,5 +40,19 @@ export default function LoginPage() {
         showSocialLogin={true}
       />
     </>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-600" />
+        </div>
+      }
+    >
+      <LoginPageContent />
+    </Suspense>
   );
 }

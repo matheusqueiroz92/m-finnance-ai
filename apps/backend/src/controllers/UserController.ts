@@ -3,6 +3,7 @@ import { injectable, inject, container } from "tsyringe";
 import { IUserService } from "../interfaces/services/IUserService";
 import { ApiResponse } from "../utils/ApiResponse";
 import { ApiError } from "../utils/ApiError";
+import { CookieManager } from "../middlewares/cookieMiddleware";
 import {
   userRegisterSchema,
   userUpdateSchema,
@@ -62,6 +63,9 @@ export class UserController {
         // Registrar usuário (as categorias padrão já são criadas no UserService)
         const result = await this.userService.register(validatedData);
 
+        if (result.token) {
+          CookieManager.setToken(res, result.token);
+        }
         ApiResponse.created(res, result, "Usuário registrado com sucesso");
       } catch (validationError) {
         // O resto do código permanece igual
@@ -93,6 +97,9 @@ export class UserController {
 
       const result = await this.userService.login(req.body);
 
+      if (result.token) {
+        CookieManager.setToken(res, result.token);
+      }
       ApiResponse.success(
         res,
         {

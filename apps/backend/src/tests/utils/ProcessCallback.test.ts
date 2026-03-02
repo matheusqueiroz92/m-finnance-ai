@@ -30,6 +30,7 @@ describe("ProcessCallback", () => {
     });
     mockCookieManager.setAccessToken = jest.fn();
     mockCookieManager.setRefreshToken = jest.fn();
+    mockCookieManager.setToken = jest.fn();
 
     // Setup request and response mocks
     mockRequest = {};
@@ -62,6 +63,10 @@ describe("ProcessCallback", () => {
       expect(mockCookieManager.setRefreshToken).toHaveBeenCalledWith(
         mockResponse,
         "refresh-token"
+      );
+      expect(mockCookieManager.setToken).toHaveBeenCalledWith(
+        mockResponse,
+        "access-token"
       );
       expect(mockResponse.redirect).toHaveBeenCalledWith(
         "http://localhost:3000/auth/success?token=access-token"
@@ -161,6 +166,7 @@ describe("ProcessCallback", () => {
       );
       expect(mockCookieManager.setAccessToken).not.toHaveBeenCalled();
       expect(mockCookieManager.setRefreshToken).not.toHaveBeenCalled();
+      expect(mockCookieManager.setToken).not.toHaveBeenCalled();
     });
 
     it("should handle cookie manager errors", () => {
@@ -298,6 +304,10 @@ describe("ProcessCallback", () => {
         mockResponse,
         "jwt.refresh.token"
       );
+      expect(mockCookieManager.setToken).toHaveBeenCalledWith(
+        mockResponse,
+        "jwt.access.token"
+      );
       expect(mockResponse.redirect).toHaveBeenCalledWith(
         "http://localhost:3000/auth/success?token=jwt.access.token"
       );
@@ -320,6 +330,7 @@ describe("ProcessCallback", () => {
 
       expect(mockCookieManager.setAccessToken).toHaveBeenCalledTimes(1);
       expect(mockCookieManager.setRefreshToken).toHaveBeenCalledTimes(1);
+      expect(mockCookieManager.setToken).toHaveBeenCalledTimes(1);
       expect(mockCookieManager.setAccessToken).toHaveBeenCalledWith(
         mockResponse,
         "access-token"
@@ -327,6 +338,10 @@ describe("ProcessCallback", () => {
       expect(mockCookieManager.setRefreshToken).toHaveBeenCalledWith(
         mockResponse,
         "refresh-token"
+      );
+      expect(mockCookieManager.setToken).toHaveBeenCalledWith(
+        mockResponse,
+        "access-token"
       );
     });
 

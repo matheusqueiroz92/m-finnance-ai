@@ -5,11 +5,11 @@ export const accountCreateSchema = z.object({
   type: z.enum(['checking', 'savings', 'investment', 'credit'], {
     errorMap: () => ({ message: 'Tipo inválido. Deve ser checking, savings, investment ou credit' })
   }),
-  balance: z.number().default(0),
+  balance: z.number().optional(),
   institution: z.string().min(2, 'Nome da instituição é obrigatório'),
   bankBranch: z.string().optional(),
   accountNumber: z.string().optional(),
-  isActive: z.boolean().default(true),
+  isActive: z.boolean().optional(),
 });
 
 export const accountUpdateSchema = z.object({

@@ -1,3 +1,4 @@
+import Cookies from "js-cookie";
 import api from "@/lib/api/axios";
 import { API_ROUTES } from "@/lib/constants/api-routes";
 import { ApiResponse } from "@/types/api-response";
@@ -9,7 +10,43 @@ import {
   UserUpdateData,
   User,
 } from "@/types/user";
-import Cookies from "js-cookie";
+
+const TOKEN_COOKIE = "token";
+const TOKEN_MAX_AGE_DAYS = 7;
+const FORCE_LOGIN_COOKIE = "force_login";
+
+/** Persiste o token no cookie (path=/) e no axios para requisições imediatas (evita race com dashboard). */
+export function setAuthToken(token: string): void {
+  Cookies.set(TOKEN_COOKIE, token, { path: "/", expires: TOKEN_MAX_AGE_DAYS });
+  if (api.defaults.headers?.common) {
+    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  }
+}
+
+/** Remove o cookie de token e o header do axios (usado no logout). */
+export function clearAuthToken(): void {
+  Cookies.remove(TOKEN_COOKIE, { path: "/" });
+  if (typeof document !== "undefined") {
+    document.cookie = `${TOKEN_COOKIE}=; path=/; max-age=0`;
+  }
+  if (api.defaults.headers?.common) {
+    delete api.defaults.headers.common["Authorization"];
+  }
+}
+
+/** Indica ao middleware que deve permitir /login mesmo com token (sessão invalidada). */
+export function setForceLoginCookie(): void {
+  if (typeof document !== "undefined") {
+    document.cookie = `${FORCE_LOGIN_COOKIE}=1; path=/; max-age=60`;
+  }
+}
+
+/** Remove o cookie force_login. */
+export function clearForceLoginCookie(): void {
+  if (typeof document !== "undefined") {
+    document.cookie = `${FORCE_LOGIN_COOKIE}=; path=/; max-age=0`;
+  }
+}
 
 export const login = async (
   credentials: LoginCredentials
@@ -101,11 +138,18 @@ export const resendVerificationEmail = async (): Promise<void> => {
 };
 
 export const refreshToken = async (): Promise<string> => {
-  // Implementar lógica de refresh token se necessário
-  // Na implementação atual, o refreshToken é gerenciado pelo interceptor
   return "";
 };
 
-export const logout = (): void => {
-  Cookies.remove("token");
-};
+/** Logout: limpa token, sinaliza force_login, chama API e redireciona. */
+export async function logout(): Promise<void> {
+  if (typeof window === "undefined") return;
+  clearAuthToken();
+  setForceLoginCookie();
+  try {
+    await api.post(API_ROUTES.AUTH.LOGOUT);
+  } catch {
+    // API pode falhar se sessão já inválida
+  }
+  window.location.href = "/login";
+}

@@ -1,73 +1,81 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const publicRoutes = [
+// Rotas que SEMPRE podem ser acessadas sem token (permite mesmo com path variante, ex. barra final)
+const PUBLIC_PATH_PREFIXES = [
   "/login",
   "/register",
-  "/verify-email",
   "/forgot-password",
   "/reset-password",
+  "/verify-email",
   "/terms-service",
   "/privacy-policies",
-  "/auth/success",
-  "/auth/social-callback",
-  "/social-callback",
+  "/politicas-privacidade",
+  "/contact",
+  "/auth/",
   "/callback",
   "/test",
 ];
 
+// Rotas que EXIGEM token
+const PRIVATE_ROUTE_PREFIXES = [
+  "/dashboard",
+  "/settings",
+  "/accounts",
+  "/transactions",
+  "/wallet",
+  "/goals",
+  "/insights",
+  "/reports",
+  "/credit-cards",
+  "/investments",
+  "/profile",
+];
+
+const FORCE_LOGIN_COOKIE = "force_login";
+
+function isPublicPath(pathname: string): boolean {
+  return PUBLIC_PATH_PREFIXES.some(
+    (p) =>
+      pathname === p ||
+      pathname.startsWith(p + "/") ||
+      (p.endsWith("/") && pathname.startsWith(p))
+  );
+}
+
+function isPrivateRoute(pathname: string): boolean {
+  return PRIVATE_ROUTE_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(prefix + "/")
+  );
+}
+
 export function middleware(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
-  const { pathname } = request.nextUrl;
+  const forceLogin = request.cookies.get(FORCE_LOGIN_COOKIE)?.value;
+  const pathname = request.nextUrl.pathname;
 
-  // Temporariamente desabilitar middleware para páginas de callback
-  if (
-    pathname.includes("callback") ||
-    pathname === "/test" ||
-    pathname.includes("/auth/success")
-  ) {
-    console.log(
-      "Middleware: Permitindo acesso à página de callback/teste/sucesso:",
-      pathname
-    );
+  // Sempre permitir callbacks e test
+  if (pathname.includes("callback") || pathname === "/test" || pathname.includes("/auth/success")) {
     return NextResponse.next();
   }
 
-  // Verificar se está em uma rota pública
-  const isPublicRoute = publicRoutes.some((route) =>
-    pathname.startsWith(route)
-  );
+  // Garantir que rotas públicas nunca sejam bloqueadas
+  if (isPublicPath(pathname)) {
+    if (token && pathname.startsWith("/login") && forceLogin !== "1") {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+    return NextResponse.next();
+  }
 
-  // Se usuário não está autenticado e a rota não é pública, redireciona para o login
-  if (!token && !isPublicRoute) {
+  // Rota privada sem token → login
+  if (isPrivateRoute(pathname) && !token) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // Se usuário está autenticado e tenta acessar uma rota pública, redireciona para o dashboard
-  // EXCETO para páginas de callback que precisam processar tokens
-  if (
-    token &&
-    isPublicRoute &&
-    !pathname.includes("callback") &&
-    !pathname.includes("/auth/success")
-  ) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
-  }
-
+  // Qualquer outra rota (ex.: /) sem token: não redirecionar para login; só privadas já tratadas acima
   return NextResponse.next();
 }
 
-// Configurar quais rotas o middleware deve ser executado
-// Dispara o middleware para todas as rotas exceto as especificadas:
-// - api
-// - _next/static
-// - _next/image
-// - favicon.ico
-// - sitemap.xml
-// - robots.txt
-// - .png
-// - .jpg
-// - .jpeg
 export const config = {
   matcher: [
     "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|.*\\.png$).*)",

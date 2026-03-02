@@ -141,7 +141,7 @@ export function CreateAccountModal({
                     <FormLabel>Saldo Inicial</FormLabel>
                     <FormControl>
                       <CurrencyInput
-                        value={field.value}
+                        value={field.value ?? 0}
                         onChange={field.onChange}
                       />
                     </FormControl>

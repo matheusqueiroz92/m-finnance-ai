@@ -7,7 +7,7 @@ export const categoryCreateSchema = z.object({
   }),
   icon: z.string().optional(),
   color: z.string().optional(),
-  isDefault: z.boolean().default(false),
+  isDefault: z.boolean().optional(),
 });
 
 export const categoryUpdateSchema = z.object({

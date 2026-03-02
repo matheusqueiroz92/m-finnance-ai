@@ -55,7 +55,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <SummaryCard
           title="Saldo Total"
-          value={`R$ ${accountSummary?.summary.totalBalance.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) || "0,00"}`}
+          value={`R$ ${(accountSummary?.summary?.totalBalance ?? 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
           trend={{ value: "12%", isPositive: true, text: "desde o último mês" }}
           icon={Wallet}
           iconColor="text-blue-600 dark:text-blue-400"
@@ -65,7 +65,7 @@ export default function DashboardPage() {
 
         <SummaryCard
           title="Receitas"
-          value={`R$ ${transactionStats?.overview.totalIncome.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) || "0,00"}`}
+          value={`R$ ${(transactionStats?.overview?.totalIncome ?? 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
           trend={{ value: "23%", isPositive: true, text: "desde o último mês" }}
           icon={ArrowUpRight}
           iconColor="text-emerald-600 dark:text-emerald-400"
@@ -75,7 +75,7 @@ export default function DashboardPage() {
 
         <SummaryCard
           title="Despesas"
-          value={`R$ ${transactionStats?.overview.totalExpenses.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) || "0,00"}`}
+          value={`R$ ${(transactionStats?.overview?.totalExpenses ?? 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
           trend={{ value: "8%", isPositive: false, text: "desde o último mês" }}
           icon={ArrowDownRight}
           iconColor="text-red-600 dark:text-red-400"

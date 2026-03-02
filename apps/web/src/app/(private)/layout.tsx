@@ -6,13 +6,12 @@ import { useAuth } from "@/lib/auth";
 import Sidebar from "@/components/layout/SideBar";
 import Header from "@/components/layout/Header";
 import { LoadingSpinner } from "@/components/ui/spinner";
-import { useRouter } from "next/navigation";
 import { EmailVerificationAlert } from "@/components/auth/EmailVerificationAlert";
+import * as authService from "@/services/authService";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading, user } = useAuth();
   const { theme } = useTheme();
-  const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [showEmailAlert, setShowEmailAlert] = useState(true);
 
@@ -35,18 +34,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
+  // Sem autenticação: logout na API (limpa cookie) e redireciona para /login
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push("/login");
-    }
-  }, [isAuthenticated, isLoading, router]);
+    if (isLoading || isAuthenticated) return;
+    authService.logout();
+  }, [isAuthenticated, isLoading]);
 
   if (isLoading) {
     return <LoadingSpinner fullScreen message="Carregando aplicação..." />;
   }
 
   if (!isAuthenticated) {
-    return null;
+    return <LoadingSpinner fullScreen message="Redirecionando para login..." />;
   }
 
   return (

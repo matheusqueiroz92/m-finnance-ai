@@ -9,21 +9,7 @@ export function useProfileUpdate() {
   const { updateUserData } = useAuth();
 
   return useMutation({
-    mutationFn: (data: UserUpdateData) => {
-      const formData = new FormData();
-
-      Object.entries(data).forEach(([key, value]) => {
-        if (value !== undefined) {
-          if (key === "avatar" && value instanceof File) {
-            formData.append("avatar", value);
-          } else {
-            formData.append(key, String(value));
-          }
-        }
-      });
-
-      return updateProfile(formData);
-    },
+    mutationFn: (data: UserUpdateData) => updateProfile(data),
     onSuccess: (data: User) => {
       updateUserData(data);
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USER_PROFILE] });

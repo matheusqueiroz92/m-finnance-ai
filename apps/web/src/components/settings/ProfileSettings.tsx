@@ -67,7 +67,7 @@ export function ProfileSettings() {
     updateProfileMutation.mutate(
       {
         ...values,
-        avatar: avatarFile,
+        ...(avatarFile != null && { avatar: avatarFile }),
       },
       {
         onSuccess: () => {

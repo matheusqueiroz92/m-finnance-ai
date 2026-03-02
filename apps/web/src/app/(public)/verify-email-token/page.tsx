@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { verifyEmail } from "@/services/authService";
 import { LoadingSpinner } from "@/components/ui/spinner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle, XCircle } from "lucide-react";
 
-export default function VerifyEmailTokenPage() {
+function VerifyEmailTokenContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState("");
@@ -109,5 +109,19 @@ export default function VerifyEmailTokenPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function VerifyEmailTokenPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          <LoadingSpinner fullScreen />
+        </div>
+      }
+    >
+      <VerifyEmailTokenContent />
+    </Suspense>
   );
 }

@@ -40,7 +40,7 @@ export interface UserUpdateData {
   email?: string;
   dateOfBirth?: string;
   phone?: string;
-  avatar?: string;
+  avatar?: string | File;
   language?: string;
   twoFactorEnabled?: boolean;
   newsletterEnabled?: boolean;

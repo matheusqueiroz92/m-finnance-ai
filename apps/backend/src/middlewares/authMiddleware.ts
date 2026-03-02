@@ -17,15 +17,17 @@ export const protect = async (
 ): Promise<void> => {
   let token: string | undefined;
 
-  // Get token from header
+  // Token do header (Bearer) ou do cookie HttpOnly
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith("Bearer")
   ) {
     token = req.headers.authorization.split(" ")[1];
   }
+  if (!token && req.cookies?.token) {
+    token = req.cookies.token;
+  }
 
-  // Check if token exists
   if (!token) {
     next(new ApiError("Not authorized, no token", 401));
     return;

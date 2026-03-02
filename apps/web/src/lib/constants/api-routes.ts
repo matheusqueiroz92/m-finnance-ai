@@ -1,3 +1,4 @@
+// URL da API. No browser usamos a URL direta do backend para o cookie (domain=localhost) ser enviado; o proxy /api continua disponível para outras necessidades.
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 
@@ -5,6 +6,7 @@ export const API_ROUTES = {
   AUTH: {
     LOGIN: "/users/login",
     REGISTER: "/users/register",
+    LOGOUT: "/users/logout",
     VERIFY_EMAIL: "/auth/verify-email-public",
     RESEND_VERIFICATION: "/auth/resend-verification",
     PROFILE: "/auth/profile",
@@ -65,6 +67,7 @@ export const API_ROUTES = {
   },
 
   REPORTS: {
+    BASE: "/reports",
     GENERATE: "/reports/generate",
     INSIGHTS: "/reports/insights",
   },

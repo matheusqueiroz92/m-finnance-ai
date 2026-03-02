@@ -59,36 +59,51 @@ export class CookieManager {
   }
 
   /**
-   * Limpa os cookies de autenticação
+   * Define o cookie "token" HttpOnly (usado pelo frontend/middleware para sessão).
+   * Em desenvolvimento com front e API em portas diferentes (ex.: 3000 e 3001), usa domain "localhost" para o cookie ser enviado em ambas.
    */
-  static clearAuthCookies(res: Response): void {
-    res.clearCookie("accessToken", {
+  static setToken(res: Response, token: string): void {
+    const isProduction = process.env.NODE_ENV === "production";
+    this.setSecureCookie(res, "token", token, {
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure: isProduction,
+      sameSite: isProduction ? "strict" : "lax",
       path: "/",
-    });
-
-    res.clearCookie("refreshToken", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      path: "/",
+      ...(!isProduction && { domain: "localhost" }),
     });
   }
 
   /**
-   * Middleware para extrair token dos cookies
+   * Limpa os cookies de autenticação
+   */
+  static clearAuthCookies(res: Response): void {
+    const isProduction = process.env.NODE_ENV === "production";
+    const cookieOptions: { httpOnly: boolean; secure: boolean; sameSite: "strict" | "lax"; path: string; domain?: string } = {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "strict" : "lax",
+      path: "/",
+    };
+    if (!isProduction) cookieOptions.domain = "localhost";
+
+    res.clearCookie("accessToken", cookieOptions);
+    res.clearCookie("refreshToken", cookieOptions);
+    res.clearCookie("token", cookieOptions);
+  }
+
+  /**
+   * Middleware para extrair token dos cookies (accessToken ou token HttpOnly)
    */
   static extractTokenFromCookies(
     req: Request,
     res: Response,
     next: NextFunction
   ): void {
-    const accessToken = req.cookies?.accessToken;
+    const accessToken =
+      req.cookies?.accessToken ?? req.cookies?.token;
     const refreshToken = req.cookies?.refreshToken;
 
-    // Adicionar tokens ao request para uso posterior
     (req as any).accessToken = accessToken;
     (req as any).refreshToken = refreshToken;
 
