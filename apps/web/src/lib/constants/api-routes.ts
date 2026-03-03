@@ -64,6 +64,7 @@ export const API_ROUTES = {
     DETAIL: (id: string) => `/investments/${id}`,
     SUMMARY: "/investments/summary",
     PERFORMANCE: "/investments/performance",
+    RECOMMENDATIONS: "/investments/recommendations",
   },
 
   REPORTS: {

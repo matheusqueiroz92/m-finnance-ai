@@ -17,9 +17,12 @@ import { UpdateInvestmentModal } from "@/components/investments/UpdateInvestment
 import {
   useInvestmentList,
   useInvestmentSummary,
+  useInvestmentRecommendations,
   useDeleteInvestment,
   useInvestmentPerformance,
 } from "@/hooks/useInvestmentsData";
+import { InvestmentRecommendations } from "@/components/investments/InvestmentRecommendations";
+import type { InvestmentProfile } from "@/types/investment";
 
 export default function InvestmentsPage() {
   const { user, isLoading: authLoading } = useAuth();
@@ -35,6 +38,8 @@ export default function InvestmentsPage() {
     null
   );
   const [period, setPeriod] = useState<"month" | "quarter" | "year">("month");
+  const [recommendationProfile, setRecommendationProfile] =
+    useState<InvestmentProfile>("conservador");
 
   // Consulta de dados com hooks personalizados
   const {
@@ -46,10 +51,18 @@ export default function InvestmentsPage() {
     useInvestmentSummary(isAuthenticated);
   const { data: performance, isLoading: performanceLoading } =
     useInvestmentPerformance(period, isAuthenticated);
+  const {
+    data: recommendations,
+    isLoading: recommendationsLoading,
+  } = useInvestmentRecommendations(recommendationProfile, isAuthenticated);
   const deleteInvestmentMutation = useDeleteInvestment();
 
   const isLoading =
-    authLoading || investmentsLoading || summaryLoading || performanceLoading;
+    authLoading ||
+    investmentsLoading ||
+    summaryLoading ||
+    performanceLoading ||
+    recommendationsLoading;
 
   const handleDeleteInvestment = () => {
     if (investmentToDelete) {
@@ -89,7 +102,7 @@ export default function InvestmentsPage() {
       {/* Resumo de Investimentos */}
       <InvestmentSummary summary={summary} isLoading={isLoading} />
 
-      {/* Gráficos */}
+      {/* Gráficos e Recomendações */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <InvestmentPerformanceChart
           data={performance?.performanceData}
@@ -105,6 +118,14 @@ export default function InvestmentsPage() {
           theme={theme}
         />
       </div>
+
+      {/* Sugestões de Investimento com IA */}
+      <InvestmentRecommendations
+        data={recommendations}
+        profile={recommendationProfile}
+        onProfileChange={setRecommendationProfile}
+        isLoading={recommendationsLoading}
+      />
 
       {/* Lista de Investimentos */}
       <div>

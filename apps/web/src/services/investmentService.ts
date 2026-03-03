@@ -7,6 +7,8 @@ import {
   InvestmentUpdateData,
   InvestmentSummary,
   InvestmentPerformance,
+  InvestmentRecommendation,
+  InvestmentProfile,
 } from "@/types/investment";
 
 export const createInvestment = async (
@@ -62,6 +64,16 @@ export const getInvestmentPerformance = async (
 ): Promise<InvestmentPerformance> => {
   const response = await api.get<ApiResponse<InvestmentPerformance>>(
     `${API_ROUTES.INVESTMENTS.PERFORMANCE}?period=${period}`
+  );
+  return response.data.data;
+};
+
+export const getInvestmentRecommendations = async (
+  profile?: InvestmentProfile
+): Promise<InvestmentRecommendation> => {
+  const params = profile ? `?profile=${profile}` : "";
+  const response = await api.get<ApiResponse<InvestmentRecommendation>>(
+    `${API_ROUTES.INVESTMENTS.RECOMMENDATIONS}${params}`
   );
   return response.data.data;
 };

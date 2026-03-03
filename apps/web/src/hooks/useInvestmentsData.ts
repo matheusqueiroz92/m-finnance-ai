@@ -3,9 +3,11 @@ import {
   getInvestments,
   getInvestmentSummary,
   getInvestmentPerformance,
+  getInvestmentRecommendations,
   deleteInvestment,
   getInvestmentById,
 } from "@/services/investmentService";
+import type { InvestmentProfile } from "@/types/investment";
 import { QUERY_KEYS } from "@/lib/constants/query-keys";
 
 export function useInvestmentList(isAuthenticated: boolean) {
@@ -42,6 +44,17 @@ export function useInvestmentPerformance(
   return useQuery({
     queryKey: [QUERY_KEYS.INVESTMENT_PERFORMANCE, period],
     queryFn: () => getInvestmentPerformance(period),
+    enabled: isAuthenticated,
+  });
+}
+
+export function useInvestmentRecommendations(
+  profile: InvestmentProfile,
+  isAuthenticated: boolean
+) {
+  return useQuery({
+    queryKey: [QUERY_KEYS.INVESTMENT_RECOMMENDATIONS, profile],
+    queryFn: () => getInvestmentRecommendations(profile),
     enabled: isAuthenticated,
   });
 }

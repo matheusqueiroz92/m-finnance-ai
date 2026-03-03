@@ -17,6 +17,7 @@ export const QUERY_KEYS = {
     INVESTMENTS: 'investments',
     INVESTMENT_SUMMARY: 'investment-summary',
     INVESTMENT_PERFORMANCE: 'investment-performance',
+    INVESTMENT_RECOMMENDATIONS: 'investment-recommendations',
     INVESTMENT_DETAIL: (id: string) => ['investment', id],
     CREDIT_CARDS: 'credit-cards',
     CREDIT_CARD_SUMMARY: 'credit-card-summary',

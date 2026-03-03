@@ -58,3 +58,20 @@ export interface PerformanceData {
   value: number;
   change: number;
 }
+
+export type InvestmentProfile = "conservador" | "moderado" | "arrojado";
+
+export interface AllocationSuggestion {
+  assetClass: string;
+  percentage: number;
+  description: string;
+  examples?: string[];
+}
+
+export interface InvestmentRecommendation {
+  profile: InvestmentProfile;
+  allocation: AllocationSuggestion[];
+  message: string;
+  opportunityIndicators: string[];
+  suggestedMonthlyAmount?: number;
+}
