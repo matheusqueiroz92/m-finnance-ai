@@ -23,9 +23,10 @@ export class ConsultantController {
     try {
       const userId = (req.user as any)._id.toString();
       const session = await this.consultantSessionRepository.create(userId);
+      const sessionId = String((session as any)._id);
       ApiResponse.success(
         res,
-        { sessionId: session._id.toString(), title: session.title },
+        { sessionId, title: session.title },
         "Sessão criada"
       );
     } catch (error) {
@@ -54,7 +55,11 @@ export class ConsultantController {
     }
     try {
       const userId = (req.user as any)._id.toString();
-      const sessionId = req.params.id;
+      const sessionId = req.params.id as string;
+      if (!sessionId) {
+        ApiResponse.error(res, "ID da sessão é obrigatório", 400);
+        return;
+      }
       const session = await this.consultantSessionRepository.findByIdWithMessages(
         sessionId,
         userId

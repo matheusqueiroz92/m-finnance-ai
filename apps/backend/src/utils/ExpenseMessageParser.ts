@@ -35,7 +35,7 @@ export class ExpenseMessageParser implements IExpenseMessageParser {
     if (!trimmed) return null;
 
     const amountMatch = trimmed.match(this.amountRegex);
-    if (!amountMatch) return null;
+    if (!amountMatch || amountMatch[1] === undefined) return null;
 
     const amount = this.parseAmount(amountMatch[1]);
     if (amount <= 0) return null;

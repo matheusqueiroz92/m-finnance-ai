@@ -47,8 +47,8 @@ export class ConsultantSessionRepository implements IConsultantSessionRepository
       .lean();
 
     return {
-      _id: session._id,
-      user: session.user,
+      _id: session._id as mongoose.Types.ObjectId,
+      user: session.user as mongoose.Types.ObjectId,
       title: session.title,
       createdAt: session.createdAt,
       updatedAt: session.updatedAt,
@@ -57,7 +57,7 @@ export class ConsultantSessionRepository implements IConsultantSessionRepository
         content: m.content,
         createdAt: m.createdAt,
       })),
-    };
+    } as SessionWithMessages;
   }
 
   async addMessage(
