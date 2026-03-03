@@ -73,6 +73,13 @@ export const API_ROUTES = {
     INSIGHTS: "/reports/insights",
   },
 
+  PLANNING: {
+    BASE: "/planning",
+    PLAN: "/planning/plan",
+    SIMULATE: "/planning/simulate",
+    ADHERENCE: "/planning/adherence",
+  },
+
   SUBSCRIPTIONS: {
     BASE: "/subscriptions",
     TRIAL: "/subscriptions/trial",

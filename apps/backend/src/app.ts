@@ -23,6 +23,7 @@ import subscriptionRoutes from "./routes/subscriptionRoutes";
 import paymentRoutes from "./routes/paymentRoutes";
 import creditCardRoutes from "./routes/creditCardRoutes";
 import investmentRoutes from "./routes/investmentRoutes";
+import planningRoutes from "./routes/planningRoutes";
 
 const app = express();
 
@@ -81,6 +82,7 @@ app.use("/api/subscriptions", subscriptionRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/credit-cards", creditCardRoutes);
 app.use("/api/investments", investmentRoutes);
+app.use("/api/planning", planningRoutes);
 
 // Home route
 app.get("/", (_req, res) => {
