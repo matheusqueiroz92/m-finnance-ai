@@ -25,15 +25,12 @@ export class FinancialConsultantService implements IFinancialConsultantService {
   async chat(
     userId: string,
     message: string,
-    history: IConsultantMessage[] = []
+    history: IConsultantMessage[] = [],
+    useUserContext: boolean = true
   ): Promise<{ reply: string }> {
-    const context = await this.buildContext(userId);
-
-    const systemContent = `Você é um consultor financeiro do sistema M. Finnance AI. Responda em português brasileiro, de forma clara e objetiva.
-Use APENAS as informações do contexto do usuário abaixo para personalizar suas respostas. Não invente valores ou dados.
-Se o usuário perguntar sobre score, metas, gastos ou investimentos, baseie-se no contexto.
-Contexto do usuário (últimos 3 meses):
-${context}`;
+    const systemContent = useUserContext
+      ? await this.buildSystemPromptWithContext(userId)
+      : this.getGenericSystemPrompt();
 
     const messages: OpenAI.ChatCompletionMessageParam[] = [
       { role: "system", content: systemContent },
@@ -55,6 +52,22 @@ ${context}`;
       "Desculpe, não consegui processar sua pergunta. Tente reformular.";
 
     return { reply };
+  }
+
+  private getGenericSystemPrompt(): string {
+    return `Você é um consultor financeiro do sistema M. Finnance AI. Responda em português brasileiro, de forma clara e objetiva.
+O usuário está em modo "dúvidas gerais": NÃO há acesso aos dados pessoais dele. Responda com educação financeira, conceitos e dicas genéricas.
+Tópicos adequados: poupança, investimentos básicos, planejamento 50/30/20, reserva de emergência, como reduzir gastos em geral, quando priorizar dívidas vs investimentos.
+Não invente valores ou situações específicas do usuário.`;
+  }
+
+  private async buildSystemPromptWithContext(userId: string): Promise<string> {
+    const context = await this.buildContext(userId);
+    return `Você é um consultor financeiro do sistema M. Finnance AI. Responda em português brasileiro, de forma clara e objetiva.
+Use APENAS as informações do contexto do usuário abaixo para personalizar suas respostas. Não invente valores ou dados.
+Se o usuário perguntar sobre score, metas, gastos ou investimentos, baseie-se no contexto.
+Contexto do usuário (últimos 3 meses):
+${context}`;
   }
 
   private async buildContext(userId: string): Promise<string> {

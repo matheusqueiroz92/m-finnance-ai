@@ -83,11 +83,19 @@ describe("FinancialConsultantService", () => {
       expect(result.reply).toBeDefined();
     });
 
-    it("deve chamar repositórios para construir contexto", async () => {
-      await service.chat("user-1", "Olá");
+    it("deve chamar repositórios para construir contexto quando useUserContext é true", async () => {
+      await service.chat("user-1", "Olá", [], true);
 
       expect(mockFindByDateRange).toHaveBeenCalledWith("user-1", expect.any(Date), expect.any(Date));
       expect(mockFindByUser).toHaveBeenCalledWith("user-1", false);
+    });
+
+    it("não deve chamar repositórios quando useUserContext é false", async () => {
+      const result = await service.chat("user-1", "O que é reserva de emergência?", [], false);
+
+      expect(mockFindByDateRange).not.toHaveBeenCalled();
+      expect(mockFindByUser).not.toHaveBeenCalled();
+      expect(result.reply).toBeDefined();
     });
   });
 });

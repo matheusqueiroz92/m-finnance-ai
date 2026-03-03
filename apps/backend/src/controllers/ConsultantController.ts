@@ -17,7 +17,11 @@ export class ConsultantController {
     }
 
     try {
-      const { message, history } = req.body as { message: string; history?: { role: "user" | "assistant"; content: string }[] };
+      const { message, history, useUserContext } = req.body as {
+        message: string;
+        history?: { role: "user" | "assistant"; content: string }[];
+        useUserContext?: boolean;
+      };
 
       if (!message || typeof message !== "string" || !message.trim()) {
         ApiResponse.error(res, "Mensagem é obrigatória", 400);
@@ -27,7 +31,8 @@ export class ConsultantController {
       const result = await this.financialConsultantService.chat(
         (req.user as any)._id,
         message.trim(),
-        history
+        history,
+        useUserContext !== false
       );
 
       ApiResponse.success(res, result, "Resposta gerada com sucesso");

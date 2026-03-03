@@ -15,15 +15,17 @@ export interface IConsultantReply {
 
 export interface IFinancialConsultantService {
   /**
-   * Envia uma mensagem ao consultor financeiro com contexto do usuário.
+   * Envia uma mensagem ao consultor financeiro.
    * @param userId - ID do usuário
    * @param message - Mensagem do usuário
    * @param history - Histórico opcional da conversa (para multi-turn)
+   * @param useUserContext - Se true, inclui dados financeiros do usuário no contexto; se false, respostas genéricas (educação financeira)
    * @returns Resposta do consultor
    */
   chat(
     userId: string,
     message: string,
-    history?: IConsultantMessage[]
+    history?: IConsultantMessage[],
+    useUserContext?: boolean
   ): Promise<IConsultantReply>;
 }

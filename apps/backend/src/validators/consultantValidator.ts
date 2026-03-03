@@ -11,6 +11,7 @@ export const consultantChatSchema = z.object({
     )
     .optional()
     .default([]),
+  useUserContext: z.boolean().optional().default(true),
 });
 
 export type ConsultantChatInput = z.infer<typeof consultantChatSchema>;

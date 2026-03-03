@@ -7,6 +7,7 @@ import Sidebar from "@/components/layout/SideBar";
 import Header from "@/components/layout/Header";
 import { LoadingSpinner } from "@/components/ui/spinner";
 import { EmailVerificationAlert } from "@/components/auth/EmailVerificationAlert";
+import { FloatingAIChat } from "@/components/consultant/FloatingAIChat";
 import * as authService from "@/services/authService";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -74,6 +75,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           {children}
         </div>
       </main>
+      <FloatingAIChat />
     </div>
   );
 }
