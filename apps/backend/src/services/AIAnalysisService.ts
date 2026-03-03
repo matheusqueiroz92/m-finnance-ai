@@ -1,5 +1,5 @@
 import { injectable, inject } from "tsyringe";
-import { IAIAnalysisService, IAnalysisMetrics, IAnomaly } from "../interfaces/services/IAIAnalysisService";
+import { IAIAnalysisService, IAnalysisMetrics, IAnomaly, ISpendingPattern } from "../interfaces/services/IAIAnalysisService";
 import { ITransactionRepository } from "../interfaces/repositories/ITransactionRepository";
 import { IGoalRepository } from "../interfaces/repositories/IGoalRepository";
 import { IUserRepository } from "../interfaces/repositories/IUserRepository";
@@ -130,6 +130,53 @@ export class AIAnalysisService implements IAIAnalysisService {
       result[month][categoryName] = (result[month][categoryName] || 0) + t.amount;
     }
     return result;
+  }
+
+  private readonly DAY_NAMES = ["domingo", "segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado"];
+
+  /**
+   * Identifica padrões de consumo por dia da semana
+   */
+  async detectSpendingPatterns(userId: string): Promise<ISpendingPattern[]> {
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+
+    const transactions = await this.transactionRepository.findByDateRange(
+      userId,
+      threeMonthsAgo,
+      new Date()
+    );
+
+    const expenses = transactions.filter((t: any) => t.type === "expense");
+    if (expenses.length === 0) return [];
+
+    const byDay: Record<number, { total: number; count: number }> = {};
+    for (let i = 0; i <= 6; i++) byDay[i] = { total: 0, count: 0 };
+
+    for (const t of expenses) {
+      const day = new Date(t.date).getDay();
+      byDay[day].total += t.amount;
+      byDay[day].count += 1;
+    }
+
+    const patterns: ISpendingPattern[] = [];
+
+    for (let day = 0; day <= 6; day++) {
+      const { total, count } = byDay[day];
+      if (count === 0) continue;
+
+      const averageAmount = total / count;
+      patterns.push({
+        pattern: `gastos às ${this.DAY_NAMES[day]}`,
+        dayOfWeek: day,
+        dayName: this.DAY_NAMES[day],
+        averageAmount: Math.round(averageAmount * 100) / 100,
+        transactionCount: count,
+        description: `Média de R$ ${averageAmount.toFixed(2)} em ${count} transação(ões) às ${this.DAY_NAMES[day]}.`,
+      });
+    }
+
+    return patterns.sort((a, b) => b.averageAmount - a.averageAmount);
   }
   
   /**

@@ -8,6 +8,16 @@ export interface IAnomaly {
   message: string;
 }
 
+export interface ISpendingPattern {
+  pattern: string;
+  category?: string;
+  dayOfWeek: number; // 0=domingo, 6=sábado
+  dayName: string;
+  averageAmount: number;
+  transactionCount: number;
+  description: string;
+}
+
 export interface IAIAnalysisService {
   generateInsights(userId: string): Promise<IFinancialInsights>;
 
@@ -17,6 +27,13 @@ export interface IAIAnalysisService {
    * @returns Lista de anomalias detectadas (gastos acima do habitual)
    */
   detectAnomalies(userId: string): Promise<IAnomaly[]>;
+
+  /**
+   * Identifica padrões de consumo (ex.: gastos às sextas-feiras)
+   * @param userId - ID do usuário
+   * @returns Padrões identificados por dia da semana e categoria
+   */
+  detectSpendingPatterns(userId: string): Promise<ISpendingPattern[]>;
 }
 
 export interface IAnalysisMetrics {

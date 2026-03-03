@@ -15,5 +15,6 @@ router.get("/insights/score", reportController.getFinancialScore);
 router.get("/insights/recommendations", reportController.getRecommendations);
 router.get("/insights/trends", reportController.getTrends);
 router.get("/insights/anomalies", reportController.getAnomalies);
+router.get("/insights/patterns", reportController.getSpendingPatterns);
 
 export default router;

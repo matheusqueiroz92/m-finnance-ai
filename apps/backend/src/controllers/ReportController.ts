@@ -206,6 +206,34 @@ export class ReportController {
   };
 
   /**
+   * Identifica padrões de consumo por dia da semana
+   */
+  getSpendingPatterns = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    if (!req.user) {
+      ApiResponse.error(res, "Usuário não autenticado", 401);
+      return;
+    }
+
+    try {
+      const patterns = await this.aiAnalysisService.detectSpendingPatterns(
+        (req.user as any)._id
+      );
+
+      ApiResponse.success(
+        res,
+        { patterns },
+        "Padrões de consumo analisados com sucesso"
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
    * Detecta gastos atípicos (anomalias) em relação ao histórico
    */
   getAnomalies = async (

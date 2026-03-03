@@ -45,6 +45,7 @@ describe("ReportController", () => {
     mockAIAnalysisService = {
       generateInsights: jest.fn(),
       detectAnomalies: jest.fn(),
+      detectSpendingPatterns: jest.fn(),
       getFinancialScore: jest.fn(),
       getRecommendations: jest.fn(),
       getTrendAnalysis: jest.fn(),
