@@ -83,6 +83,8 @@ export const API_ROUTES = {
   CONSULTANT: {
     BASE: "/consultant",
     CHAT: "/consultant/chat",
+    SESSIONS: "/consultant/sessions",
+    SESSION_DETAIL: (id: string) => `/consultant/sessions/${id}`,
   },
 
   SUBSCRIPTIONS: {

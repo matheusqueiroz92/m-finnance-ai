@@ -1,14 +1,73 @@
 import { Request, Response, NextFunction } from "express";
 import { injectable, inject } from "tsyringe";
 import { IFinancialConsultantService } from "../interfaces/services/IFinancialConsultantService";
+import { IConsultantSessionRepository } from "../interfaces/repositories/IConsultantSessionRepository";
 import { ApiResponse } from "../utils/ApiResponse";
+
+const TITLE_MAX_LENGTH = 80;
 
 @injectable()
 export class ConsultantController {
   constructor(
     @inject("FinancialConsultantService")
-    private financialConsultantService: IFinancialConsultantService
+    private financialConsultantService: IFinancialConsultantService,
+    @inject("ConsultantSessionRepository")
+    private consultantSessionRepository: IConsultantSessionRepository
   ) {}
+
+  createSession = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    if (!req.user) {
+      ApiResponse.error(res, "Usuário não autenticado", 401);
+      return;
+    }
+    try {
+      const userId = (req.user as any)._id.toString();
+      const session = await this.consultantSessionRepository.create(userId);
+      ApiResponse.success(
+        res,
+        { sessionId: session._id.toString(), title: session.title },
+        "Sessão criada"
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getSessions = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    if (!req.user) {
+      ApiResponse.error(res, "Usuário não autenticado", 401);
+      return;
+    }
+    try {
+      const userId = (req.user as any)._id.toString();
+      const sessions = await this.consultantSessionRepository.findByUser(userId);
+      ApiResponse.success(res, { sessions }, "Sessões listadas");
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getSessionById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    if (!req.user) {
+      ApiResponse.error(res, "Usuário não autenticado", 401);
+      return;
+    }
+    try {
+      const userId = (req.user as any)._id.toString();
+      const sessionId = req.params.id;
+      const session = await this.consultantSessionRepository.findByIdWithMessages(
+        sessionId,
+        userId
+      );
+      if (!session) {
+        ApiResponse.error(res, "Sessão não encontrada", 404);
+        return;
+      }
+      ApiResponse.success(res, { session }, "Sessão carregada");
+    } catch (error) {
+      next(error);
+    }
+  };
 
   chat = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
@@ -17,10 +76,12 @@ export class ConsultantController {
     }
 
     try {
-      const { message, history, useUserContext } = req.body as {
+      const userId = (req.user as any)._id.toString();
+      const { message, history: bodyHistory, useUserContext, sessionId } = req.body as {
         message: string;
         history?: { role: "user" | "assistant"; content: string }[];
         useUserContext?: boolean;
+        sessionId?: string;
       };
 
       if (!message || typeof message !== "string" || !message.trim()) {
@@ -28,14 +89,54 @@ export class ConsultantController {
         return;
       }
 
+      let history = bodyHistory ?? [];
+
+      if (sessionId) {
+        const session = await this.consultantSessionRepository.findByIdWithMessages(
+          sessionId,
+          userId
+        );
+        if (!session) {
+          ApiResponse.error(res, "Sessão não encontrada", 404);
+          return;
+        }
+        history = session.messages.map((m) => ({ role: m.role, content: m.content }));
+      }
+
       const result = await this.financialConsultantService.chat(
-        (req.user as any)._id,
+        userId,
         message.trim(),
         history,
         useUserContext !== false
       );
 
-      ApiResponse.success(res, result, "Resposta gerada com sucesso");
+      const payload: { reply: string; sessionId?: string } = { reply: result.reply };
+
+      if (sessionId) {
+        await this.consultantSessionRepository.addMessage(
+          sessionId,
+          userId,
+          "user",
+          message.trim()
+        );
+        await this.consultantSessionRepository.addMessage(
+          sessionId,
+          userId,
+          "assistant",
+          result.reply
+        );
+        const session = await this.consultantSessionRepository.findById(sessionId, userId);
+        if (session && session.title === "Nova conversa") {
+          const title =
+            message.trim().length > TITLE_MAX_LENGTH
+              ? message.trim().slice(0, TITLE_MAX_LENGTH) + "..."
+              : message.trim();
+          await this.consultantSessionRepository.updateTitle(sessionId, userId, title);
+        }
+        payload.sessionId = sessionId;
+      }
+
+      ApiResponse.success(res, payload, "Resposta gerada com sucesso");
     } catch (error) {
       next(error);
     }

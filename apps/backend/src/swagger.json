@@ -352,6 +352,196 @@
           }
         }
       }
+    },
+    "/api/planning/plan": {
+      "get": {
+        "summary": "Get financial plan (50/30/20)",
+        "tags": ["Planning"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Plano financeiro com alocação e metas sugeridas" },
+          "401": { "description": "Not authorized" }
+        }
+      }
+    },
+    "/api/planning/simulate": {
+      "get": {
+        "summary": "Simulate savings scenario",
+        "tags": ["Planning"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "in": "query", "name": "savingsPercent", "schema": { "type": "number" }, "description": "Percentual de poupança (0-100)" },
+          { "in": "query", "name": "months", "schema": { "type": "integer" }, "description": "Número de meses" }
+        ],
+        "responses": {
+          "200": { "description": "Projeção de economia" },
+          "401": { "description": "Not authorized" }
+        }
+      }
+    },
+    "/api/planning/adherence": {
+      "get": {
+        "summary": "Get adherence to financial plan",
+        "tags": ["Planning"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Aderência 50/30/20 e sugestões" },
+          "401": { "description": "Not authorized" }
+        }
+      }
+    },
+    "/api/consultant/sessions": {
+      "post": {
+        "summary": "Create a new consultant chat session",
+        "tags": ["Consultant"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Sessão criada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sessionId": { "type": "string" },
+                    "title": { "type": "string", "example": "Nova conversa" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Not authorized" }
+        }
+      },
+      "get": {
+        "summary": "List consultant chat sessions",
+        "tags": ["Consultant"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Lista de sessões do usuário",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sessions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "_id": { "type": "string" },
+                          "title": { "type": "string" },
+                          "createdAt": { "type": "string", "format": "date-time" },
+                          "updatedAt": { "type": "string", "format": "date-time" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Not authorized" }
+        }
+      }
+    },
+    "/api/consultant/sessions/{id}": {
+      "get": {
+        "summary": "Get consultant session with messages",
+        "tags": ["Consultant"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sessão com mensagens",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "session": {
+                      "type": "object",
+                      "properties": {
+                        "_id": { "type": "string" },
+                        "title": { "type": "string" },
+                        "messages": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "role": { "type": "string", "enum": ["user", "assistant"] },
+                              "content": { "type": "string" },
+                              "createdAt": { "type": "string", "format": "date-time" }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Not authorized" },
+          "404": { "description": "Sessão não encontrada" }
+        }
+      }
+    },
+    "/api/consultant/chat": {
+      "post": {
+        "summary": "Send message to financial consultant",
+        "tags": ["Consultant"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["message"],
+                "properties": {
+                  "message": { "type": "string", "maxLength": 4000, "description": "Mensagem do usuário" },
+                  "history": {
+                    "type": "array",
+                    "description": "Histórico opcional (ignorado se sessionId for enviado)",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "role": { "type": "string", "enum": ["user", "assistant"] },
+                        "content": { "type": "string" }
+                      }
+                    }
+                  },
+                  "useUserContext": { "type": "boolean", "default": true, "description": "Incluir dados financeiros do usuário no contexto da IA" },
+                  "sessionId": { "type": "string", "description": "ID da sessão para persistir e usar histórico" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Resposta do consultor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reply": { "type": "string" },
+                    "sessionId": { "type": "string", "description": "Presente quando a mensagem foi persistida na sessão" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Mensagem inválida ou vazia" },
+          "401": { "description": "Not authorized" },
+          "404": { "description": "Sessão não encontrada (quando sessionId enviado)" }
+        }
+      }
     }
   }
 }

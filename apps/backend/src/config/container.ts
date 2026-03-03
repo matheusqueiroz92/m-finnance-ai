@@ -10,6 +10,7 @@ import { IGoalRepository } from "../interfaces/repositories/IGoalRepository";
 import { ISubscriptionRepository } from "../interfaces/repositories/ISubscriptionRepository";
 import { ICreditCardRepository } from "../interfaces/repositories/ICreditCardRepository";
 import { IInvestmentRepository } from "../interfaces/repositories/IInvestmentRepository";
+import { IConsultantSessionRepository } from "../interfaces/repositories/IConsultantSessionRepository";
 
 // Interfaces - Services
 import { IUserService } from "../interfaces/services/IUserService";
@@ -38,6 +39,7 @@ import { GoalRepository } from "../repositories/GoalRepository";
 import { SubscriptionRepository } from "../repositories/SubscriptionRepository";
 import { CreditCardRepository } from "../repositories/CreditCardRepository";
 import { InvestmentRepository } from "../repositories/InvestmentRepository";
+import { ConsultantSessionRepository } from "../repositories/ConsultantSessionRepository";
 
 // Implementations - Services
 import { UserService } from "../services/UserService";
@@ -85,6 +87,10 @@ container.registerSingleton<ICreditCardRepository>(
 container.registerSingleton<IInvestmentRepository>(
   "InvestmentRepository",
   InvestmentRepository
+);
+container.registerSingleton<IConsultantSessionRepository>(
+  "ConsultantSessionRepository",
+  ConsultantSessionRepository
 );
 
 // Register Services
