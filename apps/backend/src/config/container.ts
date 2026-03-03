@@ -25,6 +25,7 @@ import { IPaymentService } from "../interfaces/services/IPaymentService";
 import { IBillingService } from "../interfaces/services/IBillingService";
 import { ICreditCardService } from "../interfaces/services/ICreditCardService";
 import { IInvestmentService } from "../interfaces/services/IInvestmentService";
+import { IInvestmentRecommendationService } from "../interfaces/services/IInvestmentRecommendationService";
 
 // Implementations - Repositories
 import { UserRepository } from "../repositories/UserRepository";
@@ -51,6 +52,7 @@ import { StripePaymentService } from "../services/StripePaymentService";
 import { BillingService } from "../services/BillingService";
 import { CreditCardService } from "../services/CreditCardService";
 import { InvestmentService } from "../services/InvestmentService";
+import { InvestmentRecommendationService } from "../services/InvestmentRecommendationService";
 import { TokenService } from "../services/TokenService";
 
 // Register Repositories
@@ -119,6 +121,10 @@ container.registerSingleton<ICreditCardService>(
 container.registerSingleton<IInvestmentService>(
   "InvestmentService",
   InvestmentService
+);
+container.registerSingleton<IInvestmentRecommendationService>(
+  "InvestmentRecommendationService",
+  InvestmentRecommendationService
 );
 container.registerSingleton<TokenService>("TokenService", TokenService);
 

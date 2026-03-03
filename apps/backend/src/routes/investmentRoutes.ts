@@ -14,6 +14,7 @@ router.use(protect);
 router.post('/', validate(investmentCreateSchema), investmentController.createInvestment);
 router.get('/', validateQueryParams(investmentFilterSchema), investmentController.getInvestments);
 router.get('/summary', investmentController.getInvestmentSummary);
+router.get('/recommendations', investmentController.getRecommendations);
 router.get('/account/:accountId', investmentController.getInvestmentsByAccount);
 router.get('/:id', investmentController.getInvestmentById);
 router.get('/:id/transactions', investmentController.getTransactionsByInvestment); 

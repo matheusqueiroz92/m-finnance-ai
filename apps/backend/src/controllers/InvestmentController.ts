@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { injectable, inject, container } from 'tsyringe';
 import { IInvestmentService } from '../interfaces/services/IInvestmentService';
+import { IInvestmentRecommendationService } from '../interfaces/services/IInvestmentRecommendationService';
+import { InvestmentProfile } from '../interfaces/services/IInvestmentRecommendationService';
 import { ITransactionService } from '../interfaces/services/ITransactionService';
 import { ApiResponse } from '../utils/ApiResponse';
 import { ApiError } from '../utils/ApiError';
@@ -11,7 +13,9 @@ import { investmentCreateSchema, investmentUpdateSchema, investmentFilterSchema 
 export class InvestmentController {
   constructor(
     @inject('InvestmentService')
-    private investmentService: IInvestmentService
+    private investmentService: IInvestmentService,
+    @inject('InvestmentRecommendationService')
+    private investmentRecommendationService: IInvestmentRecommendationService
   ) {}
   
   /**
@@ -122,6 +126,31 @@ export class InvestmentController {
           throw validationError;
         }
       }
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * Get investment recommendations based on user profile
+   */
+  getRecommendations = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    if (!req.user) {
+      ApiResponse.error(res, 'Usuário não autenticado', 401);
+      return;
+    }
+
+    try {
+      const profile = (req.query.profile as InvestmentProfile) || 'conservador';
+      const validProfiles: InvestmentProfile[] = ['conservador', 'moderado', 'arrojado'];
+      const safeProfile = validProfiles.includes(profile) ? profile : 'conservador';
+
+      const recommendations = await this.investmentRecommendationService.getRecommendations(
+        (req.user as any)._id,
+        safeProfile
+      );
+
+      ApiResponse.success(res, recommendations, 'Recomendações obtidas com sucesso');
     } catch (error) {
       next(error);
     }
