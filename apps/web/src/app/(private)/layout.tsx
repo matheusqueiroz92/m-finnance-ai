@@ -35,10 +35,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  // Sem autenticação: logout na API (limpa cookie) e redireciona para /login
+  // Sem autenticação: pequeno delay para evitar race com setUser do login (navegação vs commit do estado)
   useEffect(() => {
     if (isLoading || isAuthenticated) return;
-    authService.logout();
+    const t = setTimeout(() => {
+      authService.logout();
+    }, 150);
+    return () => clearTimeout(t);
   }, [isAuthenticated, isLoading]);
 
   if (isLoading) {

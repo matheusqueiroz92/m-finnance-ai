@@ -1,7 +1,7 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -17,7 +17,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Filter } from "lucide-react";
 import { transactionFilterSchema } from "@/lib/validators/transactionValidator";
 import { useTheme } from "next-themes";
 import { TransactionFilters } from "@/types/transaction";
@@ -96,30 +95,22 @@ export function TransactionsFilter({
                       value={field.value || "all"}
                     >
                       <SelectTrigger
-                        className={`w-full sm:w-32 rounded-2xl ${
-                          isDark
-                            ? "bg-primary border-white/20 text-white rounded-2xl"
-                            : "bg-white border-gray-200 text-gray-900 rounded-2xl"
-                        }`}
+                        className="w-full sm:w-32 dark:bg-background bg-white dark:text-emerald-300 text-gray-700 dark:border-white/20 border-gray-200 rounded-2xl"
                       >
                         <SelectValue placeholder="Todas" />
                       </SelectTrigger>
                       <SelectContent
-                        className={
-                          isDark
-                            ? "bg-[#1a2329] border-white/20 text-white rounded-2xl"
-                            : "bg-white border-gray-200 text-gray-900 rounded-2xl"
-                        }
+                        className="dark:bg-background bg-white dark:border-white/20 border-gray-200 dark:text-emerald-300 text-gray-700 rounded-2xl"
                       >
                         <SelectItem
                           value="all"
-                          className={isDark ? "text-white" : "text-gray-900"}
+                          className="dark:text-white text-gray-700"
                         >
                           Todas
                         </SelectItem>
                         <SelectItem
                           value="income"
-                          className={isDark ? "text-white" : "text-gray-900"}
+                          className={isDark ? "text-white" : "text-gray-700"}
                         >
                           Receita
                         </SelectItem>

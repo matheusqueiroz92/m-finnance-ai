@@ -1,7 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
-import Cookies from "js-cookie";
+import React, { createContext, useContext, useState, useEffect, startTransition } from "react";
 import { useRouter } from "next/navigation";
 import { LoginCredentials, RegisterData, User } from "@/types/user";
 import * as authService from "@/services/authService";
@@ -53,13 +52,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const isAuthenticated = !!user;
   const isPremium = user?.isPremium || false;
 
-  // Verifica sessão apenas se existir token (evita 401 na página de login)
+  // Ao montar: valida sessão via getProfile() (cookie HttpOnly enviado automaticamente)
   useEffect(() => {
-    const token = typeof window !== "undefined" ? Cookies.get("token") : undefined;
-    if (!token) {
-      setIsLoading(false);
-      return;
-    }
     const checkAuth = async () => {
       try {
         const timeoutMs = 15000;
@@ -71,7 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         ]);
         setUser(userData);
       } catch {
-        // Token inválido: interceptor ou layout farão logout e redirect
+        // Sem cookie ou token inválido: layout fará logout e redirect se em rota privada
       } finally {
         setIsLoading(false);
       }
@@ -83,17 +77,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     try {
       if (typeof credentials === "string") {
-        authService.setAuthToken(credentials);
+        // Login social: cookie já foi setado pelo backend no redirect; só buscar usuário
         const userData = await authService.getProfile();
         setUser(userData);
       } else {
         const response = await authService.login(credentials);
-        if (response.token) authService.setAuthToken(response.token);
         setUser(response.user);
       }
       clearForceLoginCookie();
       setIsLoading(false);
-      router.replace("/dashboard");
+      startTransition(() => router.replace("/dashboard"));
     } catch (error) {
       handleError(error);
       setIsLoading(false);
@@ -104,10 +97,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     try {
       const response = await authService.register(data);
-      if (response.token) authService.setAuthToken(response.token);
       setUser(response.user);
       setIsLoading(false);
-      router.replace("/dashboard");
+      startTransition(() => router.replace("/dashboard"));
     } catch (error) {
       handleError(error);
       setIsLoading(false);

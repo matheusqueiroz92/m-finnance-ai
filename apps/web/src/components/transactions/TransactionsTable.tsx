@@ -220,6 +220,7 @@ export function TransactionsTable({
       data={transactions}
       isLoading={isLoading}
       emptyMessage="Nenhuma transação encontrada"
+      theme={theme}
       className={
         isDark
           ? "border-white/20 bg-white/10 shadow backdrop-blur-sm"

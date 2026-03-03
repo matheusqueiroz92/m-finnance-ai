@@ -169,8 +169,8 @@ M. Finnance AI é uma plataforma inovadora e completa para gestão de finanças 
 - **Sonner**: Notificações toast
 - **Lucide React**: Ícones
 - **date-fns / react-day-picker**: Datas
-- **Axios**: Cliente HTTP
-- **js-cookie / jwt-decode**: Autenticação no cliente
+- **Axios**: Cliente HTTP (withCredentials para cookies)
+- **Cookies HttpOnly**: Token definido apenas pelo backend; cliente não acessa token (mitigação XSS)
 - **ExcelJS / jsPDF**: Exportação no cliente (relatórios)
 
 ### DevOps
@@ -289,8 +289,8 @@ A API é documentada usando o Swagger e está disponível em `/api-docs` quando 
 
 | Método | Endpoint                     | Descrição                   |
 | ------ | ---------------------------- | --------------------------- |
-| GET    | `/api/users/profile`         | Obter perfil do usuário     |
-| PUT    | `/api/users/profile`         | Atualizar perfil do usuário |
+| GET    | `/api/auth/profile`          | Obter perfil do usuário     |
+| PUT    | `/api/auth/profile`          | Atualizar perfil do usuário |
 | POST   | `/api/users/change-password` | Alterar senha               |
 
 #### Transações
@@ -514,6 +514,14 @@ cd apps/backend && npm run dev
 cd apps/web && npm run dev
 ```
 
+### Testar sem backend real (API fake)
+
+É possível testar o frontend sem MongoDB ou o backend completo, usando a API fake de autenticação:
+
+1. No terminal, na pasta do backend: `cd apps/backend` e execute `npm run fake-api`. Sobe um servidor na porta 3001 que simula login, perfil e logout com dados do Faker.
+2. Em outro terminal, na pasta do frontend: `cd apps/web` e execute `npm run dev`. O proxy do Next.js já aponta para `http://localhost:3001`.
+3. Qualquer email/senha funciona (ex.: `teste@teste.com` / `123456`).
+
 ### Usando Docker
 
 O `docker-compose.yml` sobe três serviços: **MongoDB**, **backend** (porta 3001) e **web** (porta 3000).
@@ -534,16 +542,22 @@ docker-compose down
 
 O projeto usa Jest para testes automatizados.
 
+**Backend** (em `apps/backend`):
+
 ```bash
-# Executar todos os testes
-npm test
-
-# Executar testes com cobertura
-npm run test:coverage
-
-# Executar testes em modo watch
-npm run test:watch
+cd apps/backend
+npm test           # executa testes com cobertura
+npm run test:watch # modo watch
 ```
+
+**Frontend** (em `apps/web`):
+
+```bash
+cd apps/web
+npm test           # executa testes Jest (ex.: fluxo de login)
+```
+
+Exemplo de teste no frontend: fluxo de login em `apps/web/src/components/auth/__tests__/loginFlow.test.tsx` (formulário → chamada à API → redirecionamento para `/dashboard`; cenário de falha de login). Para testes manuais ou E2E sem backend real, use a API fake (`npm run fake-api` em `apps/backend`).
 
 Estrutura de testes do backend:
 
@@ -601,6 +615,9 @@ apps/backend/src/tests/
 - ✅ **Loading Infinito Corrigido**: Redirecionamento automático para dashboard
 - ✅ **Middleware de Autenticação**: Suporte a userId corrigido
 - ✅ **Logs de Debug Removidos**: Código limpo para produção
+- ✅ **Autenticação com cookie HttpOnly**: Token apenas no backend; cliente não acessa token (mitigação XSS)
+- ✅ **Teste de fluxo de login no frontend**: Jest + React Testing Library em `components/auth/__tests__/loginFlow.test.tsx`
+- ✅ **API fake com Faker**: Script `npm run fake-api` no backend para testes offline (login/perfil/logout sem MongoDB)
 
 ### Próximos Passos
 

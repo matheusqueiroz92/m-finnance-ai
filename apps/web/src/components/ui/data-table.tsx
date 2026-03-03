@@ -22,6 +22,7 @@ interface DataTableProps<TData, TValue> {
   className?: string;
   tableClassName?: string;
   isLoading?: boolean;
+  theme?: string;
   emptyMessage?: string;
   children?: React.ReactNode;
 }
@@ -32,6 +33,7 @@ export function DataTable<TData, TValue>({
   className,
   tableClassName,
   isLoading = false,
+  theme = "dark",
   emptyMessage = "Nenhum resultado encontrado.",
   children,
 }: DataTableProps<TData, TValue>) {
@@ -47,7 +49,11 @@ export function DataTable<TData, TValue>({
         <Table className={tableClassName}>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className={
+                theme === "dark"
+                  ? "border-b border-white/20"
+                  : "border-b border-gray-200"
+              }>
                 {headerGroup.headers.map((header) => (
                   <TableHead key={header.id}>
                     {header.isPlaceholder

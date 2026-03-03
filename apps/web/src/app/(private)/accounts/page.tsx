@@ -104,7 +104,10 @@ export default function AccountsPage() {
           transactions={recentTransactions?.transactions?.map(
             (transaction) => ({
               ...transaction,
-              date: transaction.date.toISOString(),
+              date:
+                typeof transaction.date === "string"
+                  ? transaction.date
+                  : new Date(transaction.date).toISOString(),
             })
           )}
           isLoading={isLoading}

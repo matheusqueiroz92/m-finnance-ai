@@ -9,6 +9,7 @@ Interface web da plataforma M. Finnance AI, construída com **Next.js 15**, **Re
 - [Rotas e Páginas](#-rotas-e-páginas)
 - [Configuração](#-configuração)
 - [Execução](#-execução)
+- [Testes](#-testes)
 - [Docker](#-docker)
 
 ## 🛠 Tecnologias
@@ -27,8 +28,8 @@ Interface web da plataforma M. Finnance AI, construída com **Next.js 15**, **Re
 | **Sonner**                      | Notificações toast                                          |
 | **Lucide React**                | Ícones                                                      |
 | **date-fns / react-day-picker** | Datas                                                       |
-| **Axios**                       | Cliente HTTP para a API                                     |
-| **js-cookie / jwt-decode**      | Autenticação (cookies, token)                               |
+| **Axios**                       | Cliente HTTP para a API (withCredentials para cookies)      |
+| **Cookies HttpOnly**           | Token definido pelo backend; sem leitura de token no cliente |
 | **ExcelJS / jsPDF**             | Exportação de relatórios no cliente                         |
 | **@repo/ui**                    | Componentes compartilhados do monorepo (Button, Card, Code) |
 
@@ -138,7 +139,7 @@ A raiz (`/`) redireciona para `/dashboard` se autenticado, ou para `/login` caso
 
 - Node.js 18+
 - npm ou yarn
-- Backend da API rodando (por padrão em `http://localhost:3001`)
+- Backend da API rodando (por padrão em `http://localhost:3001`). Para testar sem o backend real, use a API fake: em `apps/backend`, execute `npm run fake-api` e depois inicie o frontend com `npm run dev`.
 
 ### Variáveis de ambiente
 
@@ -180,6 +181,18 @@ Lint:
 ```bash
 npm run lint
 ```
+
+## 🧪 Testes
+
+O frontend usa **Jest** com **React Testing Library** e **jest-environment-jsdom**.
+
+**Comando** (em `apps/web`):
+
+```bash
+npm test
+```
+
+Exemplo: teste do fluxo de login em `src/components/auth/__tests__/loginFlow.test.tsx` (formulário → chamada à API → redirecionamento para `/dashboard`; cenário de credenciais inválidas). O `jest.setup.js` inclui polyfill de `ResizeObserver` para componentes Radix no ambiente jsdom.
 
 ## 🐳 Docker
 

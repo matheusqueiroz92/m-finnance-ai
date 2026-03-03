@@ -1,6 +1,5 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
-// FacebookStrategy removido - mantendo apenas Google e GitHub
 import { Strategy as GitHubStrategy } from "passport-github2";
 import { container } from "./container";
 import { IUserService } from "../interfaces/services/IUserService";
@@ -9,7 +8,6 @@ import { ISocialProfile } from "../interfaces/entities/IAuth";
 // Carregar configurações do ambiente
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "";
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || "";
-// Variáveis do Facebook removidas - mantendo apenas Google e GitHub
 const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID || "";
 const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET || "";
 const CALLBACK_URL = process.env.APP_URL || "http://localhost:3001";
@@ -62,8 +60,6 @@ export const setupPassport = () => {
       )
     );
   }
-
-  // Facebook Strategy removida - mantendo apenas Google e GitHub
 
   // Configurar Github Strategy
   if (GITHUB_CLIENT_ID && GITHUB_CLIENT_SECRET) {

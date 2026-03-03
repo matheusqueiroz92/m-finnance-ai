@@ -473,9 +473,8 @@ router.post("/refresh", async (req, res) => {
       return;
     }
 
-    // 🔐 DEFINIR NOVO ACCESS TOKEN E COOKIE "token" (middleware frontend)
+    // 🔐 Novo accessToken no body; frontend persiste no cookie "token" se necessário
     CookieManager.setAccessToken(res, result.accessToken);
-    CookieManager.setToken(res, result.accessToken);
 
     ApiResponse.success(
       res,

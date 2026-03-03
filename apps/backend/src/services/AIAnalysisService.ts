@@ -127,7 +127,7 @@ export class AIAnalysisService implements IAIAnalysisService {
       const month = new Date(t.date).toISOString().substring(0, 7);
 
       if (!result[month]) result[month] = {};
-      result[month][categoryName] = (result[month][categoryName] || 0) + t.amount;
+      result[month]![categoryName] = (result[month]![categoryName] || 0) + t.amount;
     }
     return result;
   }
@@ -155,21 +155,21 @@ export class AIAnalysisService implements IAIAnalysisService {
 
     for (const t of expenses) {
       const day = new Date(t.date).getDay();
-      byDay[day].total += t.amount;
-      byDay[day].count += 1;
+      byDay[day]!.total += t.amount;
+      byDay[day]!.count += 1;
     }
 
     const patterns: ISpendingPattern[] = [];
 
     for (let day = 0; day <= 6; day++) {
-      const { total, count } = byDay[day];
+      const { total, count } = byDay[day]!;
       if (count === 0) continue;
 
       const averageAmount = total / count;
       patterns.push({
         pattern: `gastos às ${this.DAY_NAMES[day]}`,
         dayOfWeek: day,
-        dayName: this.DAY_NAMES[day],
+        dayName: this.DAY_NAMES[day]!,
         averageAmount: Math.round(averageAmount * 100) / 100,
         transactionCount: count,
         description: `Média de R$ ${averageAmount.toFixed(2)} em ${count} transação(ões) às ${this.DAY_NAMES[day]}.`,
@@ -222,7 +222,7 @@ export class AIAnalysisService implements IAIAnalysisService {
         ? values.reduce((a, b) => a + b, 0) / values.length
         : 0;
       byCategory[cat] = Math.round(avg * 100) / 100;
-      predictedTotal += byCategory[cat];
+      predictedTotal += byCategory[cat]!;
     }
 
     const nextMonth = new Date();

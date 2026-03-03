@@ -74,6 +74,7 @@ export class UserService implements IUserService {
       const user = await this.userRepository.create(processedUserData, {
         session,
       });
+      
       if (!user) {
         throw new ApiError("Erro ao criar usuário", 500);
       }
@@ -83,6 +84,7 @@ export class UserService implements IUserService {
 
       // Gerar token de autenticação
       const userId = user._id?.toString();
+      
       if (!userId) {
         throw new ApiError("Erro ao gerar token - ID de usuário inválido", 500);
       }

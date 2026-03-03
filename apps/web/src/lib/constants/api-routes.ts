@@ -1,6 +1,6 @@
-// URL da API. No browser usamos a URL direta do backend para o cookie (domain=localhost) ser enviado; o proxy /api continua disponível para outras necessidades.
+// Sempre usar proxy /api (same-origin) para o cookie HttpOnly ser enviado e recebido corretamente
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
+  typeof window !== "undefined" ? "/api" : process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 
 export const API_ROUTES = {
   AUTH: {

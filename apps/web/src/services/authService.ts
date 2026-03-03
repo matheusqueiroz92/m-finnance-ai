@@ -1,4 +1,3 @@
-import Cookies from "js-cookie";
 import api from "@/lib/api/axios";
 import { API_ROUTES } from "@/lib/constants/api-routes";
 import { ApiResponse } from "@/types/api-response";
@@ -11,28 +10,18 @@ import {
   User,
 } from "@/types/user";
 
-const TOKEN_COOKIE = "token";
-const TOKEN_MAX_AGE_DAYS = 7;
 const FORCE_LOGIN_COOKIE = "force_login";
 
-/** Persiste o token no cookie (path=/) e no axios para requisições imediatas (evita race com dashboard). */
-export function setAuthToken(token: string): void {
-  Cookies.set(TOKEN_COOKIE, token, { path: "/", expires: TOKEN_MAX_AGE_DAYS });
-  if (api.defaults.headers?.common) {
-    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-  }
+/** Token só em cookie HttpOnly (backend); cliente não lê token. Mantido para compatibilidade. */
+export function getStoredToken(): string | null {
+  return null;
 }
 
-/** Remove o cookie de token e o header do axios (usado no logout). */
-export function clearAuthToken(): void {
-  Cookies.remove(TOKEN_COOKIE, { path: "/" });
-  if (typeof document !== "undefined") {
-    document.cookie = `${TOKEN_COOKIE}=; path=/; max-age=0`;
-  }
-  if (api.defaults.headers?.common) {
-    delete api.defaults.headers.common["Authorization"];
-  }
-}
+/** No-op: token é definido apenas pelo backend via Set-Cookie HttpOnly. */
+export function setAuthToken(_token: string): void {}
+
+/** No-op: cookie HttpOnly é limpo apenas pelo backend (rota logout). */
+export function clearAuthToken(): void {}
 
 /** Indica ao middleware que deve permitir /login mesmo com token (sessão invalidada). */
 export function setForceLoginCookie(): void {

@@ -1,5 +1,4 @@
 import axios, { AxiosError, AxiosInstance } from "axios";
-import Cookies from "js-cookie";
 import { API_BASE_URL, API_ROUTES } from "@/lib/constants/api-routes";
 import { clearAuthToken } from "@/services/authService";
 
@@ -11,20 +10,7 @@ const api: AxiosInstance = axios.create({
   withCredentials: true,
 });
 
-// Envia o token no header: usa o já definido na instância (p. ex. após login) ou lê do cookie
-api.interceptors.request.use(
-  (config) => {
-    const fromHeader = config.headers.Authorization;
-    const token =
-      (typeof fromHeader === "string" && fromHeader.replace(/^Bearer\s+/i, "").trim()) ||
-      Cookies.get("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (err) => Promise.reject(err)
-);
+// Token só em cookie HttpOnly; não ler nem enviar token no header (segurança XSS)
 
 const PUBLIC_PATHS = ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email", "/auth/success", "/auth/social-callback"];
 

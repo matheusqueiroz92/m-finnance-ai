@@ -28,14 +28,12 @@ export function processCallback(req: any, res: any) {
       authResult.user as any
     );
 
-    // 🍪 DEFINIR COOKIES SEGUROS (accessToken/refreshToken + token para o middleware do frontend)
+    // Cookie HttpOnly "token" (mesmo nome do login/register) para middleware e protect; sem token na URL
     CookieManager.setAccessToken(res, accessToken);
     CookieManager.setRefreshToken(res, refreshToken);
     CookieManager.setToken(res, accessToken);
 
-    res.redirect(
-      `${process.env.FRONTEND_URL}/auth/success?token=${accessToken}`
-    );
+    res.redirect(`${process.env.FRONTEND_URL}/auth/success`);
   } catch (error) {
     console.error("Erro no callback:", error);
     res.redirect(`${process.env.FRONTEND_URL}/login?error=callback_failed`);

@@ -69,7 +69,7 @@ describe("ProcessCallback", () => {
         "access-token"
       );
       expect(mockResponse.redirect).toHaveBeenCalledWith(
-        "http://localhost:3000/auth/success?token=access-token"
+        "http://localhost:3000/auth/success"
       );
     });
 
@@ -88,7 +88,7 @@ describe("ProcessCallback", () => {
 
       expect(mockTokenService.generateTokenPair).toHaveBeenCalledWith(mockUser);
       expect(mockResponse.redirect).toHaveBeenCalledWith(
-        "http://localhost:3000/auth/success?token=access-token"
+        "http://localhost:3000/auth/success"
       );
     });
   });
@@ -233,7 +233,7 @@ describe("ProcessCallback", () => {
       processCallback(mockRequest, mockResponse);
 
       expect(mockResponse.redirect).toHaveBeenCalledWith(
-        "https://myapp.com/auth/success?token=access-token"
+        "https://myapp.com/auth/success"
       );
     });
 
@@ -253,7 +253,7 @@ describe("ProcessCallback", () => {
       processCallback(mockRequest, mockResponse);
 
       expect(mockResponse.redirect).toHaveBeenCalledWith(
-        "undefined/auth/success?token=access-token"
+        "undefined/auth/success"
       );
     });
   });
@@ -309,7 +309,7 @@ describe("ProcessCallback", () => {
         "jwt.access.token"
       );
       expect(mockResponse.redirect).toHaveBeenCalledWith(
-        "http://localhost:3000/auth/success?token=jwt.access.token"
+        "http://localhost:3000/auth/success"
       );
     });
   });

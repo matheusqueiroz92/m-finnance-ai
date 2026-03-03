@@ -9,6 +9,7 @@ API REST da plataforma M. Finnance AI, construída em **Node.js**, **Express** e
 - [Rotas da API](#-rotas-da-api)
 - [Configuração](#-configuração)
 - [Execução](#-execução)
+- [API fake (testes offline)](#-api-fake-testes-offline)
 - [Testes](#-testes)
 - [Docker](#-docker)
 
@@ -100,6 +101,8 @@ apps/backend/src/
 └── validators/            # Schemas Zod por domínio
 ```
 
+Na raiz do backend: `scripts/fake-auth-api.cjs` — API fake de autenticação para testes offline (Faker).
+
 ## 🔌 Rotas da API
 
 Base URL: `/api`
@@ -189,6 +192,30 @@ O servidor sobe em **http://localhost:3001**. Build para produção:
 npm run build
 npm start
 ```
+
+Para testar o frontend sem banco de dados: use `npm run fake-api` para subir apenas a API fake de autenticação na porta 3001 (veja seção [API fake](#-api-fake-testes-offline)).
+
+## 🔌 API fake (testes offline)
+
+Permite testar o frontend sem MongoDB e sem subir o backend completo.
+
+**Comando** (em `apps/backend`):
+
+```bash
+npm run fake-api
+```
+
+Sobe um servidor Express na porta 3001 (ou `PORT`) que simula:
+
+| Método | Endpoint                | Descrição |
+|--------|-------------------------|-----------|
+| POST   | `/api/users/login`      | Login (qualquer email/senha); retorna usuário fake e define cookie HttpOnly `token` |
+| POST   | `/api/auth/login`       | Alias do login |
+| GET    | `/api/auth/profile`     | Perfil do usuário (requer cookie `token`) |
+| POST   | `/api/users/logout`     | Logout (limpa cookie e sessão em memória) |
+| POST   | `/api/auth/logout`      | Alias do logout |
+
+Os dados do usuário são gerados com **@faker-js/faker** (devDependency). Uso típico: rode `npm run fake-api`, depois em outro terminal `cd apps/web && npm run dev`; o proxy do Next.js já aponta para `http://localhost:3001`.
 
 ## 🧪 Testes
 
