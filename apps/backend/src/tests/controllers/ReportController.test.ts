@@ -44,6 +44,7 @@ describe("ReportController", () => {
 
     mockAIAnalysisService = {
       generateInsights: jest.fn(),
+      detectAnomalies: jest.fn(),
       getFinancialScore: jest.fn(),
       getRecommendations: jest.fn(),
       getTrendAnalysis: jest.fn(),
@@ -338,6 +339,68 @@ describe("ReportController", () => {
       mockAIAnalysisService.generateInsights.mockRejectedValue(error);
 
       await reportController.getTrends(
+        mockRequest as Request,
+        mockResponse as Response,
+        mockNext
+      );
+
+      expect(mockNext).toHaveBeenCalledWith(error);
+    });
+  });
+
+  describe("getAnomalies", () => {
+    it("should get anomalies successfully", async () => {
+      const userId = "test-user-id";
+      const mockAnomalies = [
+        {
+          category: "Alimentação",
+          currentAmount: 500,
+          averageAmount: 200,
+          percentageIncrease: 150,
+          message: "Gasto com Alimentação está 150% acima da média",
+        },
+      ];
+
+      mockRequest.user = { _id: userId };
+      mockAIAnalysisService.detectAnomalies.mockResolvedValue(mockAnomalies);
+
+      await reportController.getAnomalies(
+        mockRequest as Request,
+        mockResponse as Response,
+        mockNext
+      );
+
+      expect(mockAIAnalysisService.detectAnomalies).toHaveBeenCalledWith(userId);
+      expect(mockResponse.status).toHaveBeenCalledWith(200);
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          data: { anomalies: mockAnomalies },
+        })
+      );
+    });
+
+    it("should return 401 when user is not authenticated", async () => {
+      mockRequest.user = undefined;
+
+      await reportController.getAnomalies(
+        mockRequest as Request,
+        mockResponse as Response,
+        mockNext
+      );
+
+      expect(mockAIAnalysisService.detectAnomalies).not.toHaveBeenCalled();
+      expect(mockResponse.status).toHaveBeenCalledWith(401);
+    });
+
+    it("should handle get anomalies errors", async () => {
+      const userId = "test-user-id";
+      const error = new Error("Failed to detect anomalies");
+
+      mockRequest.user = { _id: userId };
+      mockAIAnalysisService.detectAnomalies.mockRejectedValue(error);
+
+      await reportController.getAnomalies(
         mockRequest as Request,
         mockResponse as Response,
         mockNext

@@ -204,4 +204,32 @@ export class ReportController {
       next(error);
     }
   };
+
+  /**
+   * Detecta gastos atípicos (anomalias) em relação ao histórico
+   */
+  getAnomalies = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    if (!req.user) {
+      ApiResponse.error(res, "Usuário não autenticado", 401);
+      return;
+    }
+
+    try {
+      const anomalies = await this.aiAnalysisService.detectAnomalies(
+        (req.user as any)._id
+      );
+
+      ApiResponse.success(
+        res,
+        { anomalies },
+        "Anomalias analisadas com sucesso"
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
 }

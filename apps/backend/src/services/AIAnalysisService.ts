@@ -1,5 +1,5 @@
 import { injectable, inject } from "tsyringe";
-import { IAIAnalysisService, IAnalysisMetrics } from "../interfaces/services/IAIAnalysisService";
+import { IAIAnalysisService, IAnalysisMetrics, IAnomaly } from "../interfaces/services/IAIAnalysisService";
 import { ITransactionRepository } from "../interfaces/repositories/ITransactionRepository";
 import { IGoalRepository } from "../interfaces/repositories/IGoalRepository";
 import { IUserRepository } from "../interfaces/repositories/IUserRepository";
@@ -64,6 +64,72 @@ export class AIAnalysisService implements IAIAnalysisService {
       // Fallback para manter o sistema funcional se a API falhar
       return this.generateMockInsights(userId);
     }
+  }
+
+  /**
+   * Detecta gastos atípicos em relação ao padrão histórico
+   */
+  async detectAnomalies(userId: string): Promise<IAnomaly[]> {
+    const fourMonthsAgo = new Date();
+    fourMonthsAgo.setMonth(fourMonthsAgo.getMonth() - 4);
+
+    const transactions = await this.transactionRepository.findByDateRange(
+      userId,
+      fourMonthsAgo,
+      new Date()
+    );
+
+    const expenses = transactions.filter((t: any) => t.type === "expense");
+    if (expenses.length === 0) return [];
+
+    const monthlyByCategory = this.buildMonthlyCategoryExpenses(expenses);
+    const currentMonth = new Date().toISOString().substring(0, 7);
+    const months = Object.keys(monthlyByCategory).sort();
+    const historicalMonths = months.filter((m) => m !== currentMonth);
+
+    if (historicalMonths.length < 2) return [];
+
+    const anomalies: IAnomaly[] = [];
+    const currentData = monthlyByCategory[currentMonth];
+    if (!currentData) return [];
+
+    for (const [category, currentAmount] of Object.entries(currentData)) {
+      const historicalAmounts = historicalMonths
+        .map((m) => monthlyByCategory[m]?.[category] || 0)
+        .filter((v) => v > 0);
+      if (historicalAmounts.length < 2) continue;
+
+      const average =
+        historicalAmounts.reduce((a, b) => a + b, 0) / historicalAmounts.length;
+      const percentageIncrease =
+        average > 0 ? ((currentAmount - average) / average) * 100 : 0;
+
+      if (percentageIncrease >= 50) {
+        anomalies.push({
+          category,
+          currentAmount,
+          averageAmount: Math.round(average * 100) / 100,
+          percentageIncrease: Math.round(percentageIncrease * 10) / 10,
+          message: `Gasto com ${category} está ${Math.round(percentageIncrease)}% acima da sua média (R$ ${average.toFixed(2)}/mês). Valor atual: R$ ${currentAmount.toFixed(2)}.`,
+        });
+      }
+    }
+
+    return anomalies;
+  }
+
+  private buildMonthlyCategoryExpenses(expenses: any[]): Record<string, Record<string, number>> {
+    const result: Record<string, Record<string, number>> = {};
+
+    for (const t of expenses) {
+      const categoryName =
+        (typeof t.category === "object" && t.category?.name) || String(t.category || "Outros");
+      const month = new Date(t.date).toISOString().substring(0, 7);
+
+      if (!result[month]) result[month] = {};
+      result[month][categoryName] = (result[month][categoryName] || 0) + t.amount;
+    }
+    return result;
   }
   
   /**
