@@ -206,6 +206,34 @@ export class ReportController {
   };
 
   /**
+   * Previsão de gastos do próximo mês
+   */
+  getExpenseForecast = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    if (!req.user) {
+      ApiResponse.error(res, "Usuário não autenticado", 401);
+      return;
+    }
+
+    try {
+      const forecast = await this.aiAnalysisService.forecastNextMonthExpenses(
+        (req.user as any)._id
+      );
+
+      ApiResponse.success(
+        res,
+        { forecast },
+        "Previsão de gastos gerada com sucesso"
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
    * Identifica padrões de consumo por dia da semana
    */
   getSpendingPatterns = async (

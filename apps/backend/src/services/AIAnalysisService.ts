@@ -1,5 +1,5 @@
 import { injectable, inject } from "tsyringe";
-import { IAIAnalysisService, IAnalysisMetrics, IAnomaly, ISpendingPattern } from "../interfaces/services/IAIAnalysisService";
+import { IAIAnalysisService, IAnalysisMetrics, IAnomaly, ISpendingPattern, IExpenseForecast } from "../interfaces/services/IAIAnalysisService";
 import { ITransactionRepository } from "../interfaces/repositories/ITransactionRepository";
 import { IGoalRepository } from "../interfaces/repositories/IGoalRepository";
 import { IUserRepository } from "../interfaces/repositories/IUserRepository";
@@ -177,6 +177,65 @@ export class AIAnalysisService implements IAIAnalysisService {
     }
 
     return patterns.sort((a, b) => b.averageAmount - a.averageAmount);
+  }
+
+  /**
+   * Previsão de gastos do próximo mês (média móvel dos meses anteriores)
+   */
+  async forecastNextMonthExpenses(userId: string): Promise<IExpenseForecast> {
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+    const transactions = await this.transactionRepository.findByDateRange(
+      userId,
+      sixMonthsAgo,
+      new Date()
+    );
+
+    const expenses = transactions.filter((t: any) => t.type === "expense");
+    if (expenses.length === 0) {
+      const nextMonth = new Date();
+      nextMonth.setMonth(nextMonth.getMonth() + 1);
+      return {
+        predictedTotal: 0,
+        byCategory: {},
+        confidence: 0,
+        basedOnMonths: 0,
+        nextMonth: nextMonth.toISOString().substring(0, 7),
+      };
+    }
+
+    const monthlyByCategory = this.buildMonthlyCategoryExpenses(expenses);
+    const months = Object.keys(monthlyByCategory).sort();
+
+    const allCategories = new Set<string>();
+    months.forEach((m) => Object.keys(monthlyByCategory[m] || {}).forEach((c) => allCategories.add(c)));
+
+    const byCategory: Record<string, number> = {};
+    let predictedTotal = 0;
+
+    for (const cat of allCategories) {
+      const values = months
+        .map((m) => monthlyByCategory[m]?.[cat] || 0)
+        .filter((v) => v > 0);
+      const avg = values.length > 0
+        ? values.reduce((a, b) => a + b, 0) / values.length
+        : 0;
+      byCategory[cat] = Math.round(avg * 100) / 100;
+      predictedTotal += byCategory[cat];
+    }
+
+    const nextMonth = new Date();
+    nextMonth.setMonth(nextMonth.getMonth() + 1);
+    const confidence = Math.min(0.95, 0.5 + months.length * 0.15);
+
+    return {
+      predictedTotal: Math.round(predictedTotal * 100) / 100,
+      byCategory,
+      confidence,
+      basedOnMonths: months.length,
+      nextMonth: nextMonth.toISOString().substring(0, 7),
+    };
   }
   
   /**

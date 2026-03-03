@@ -18,6 +18,14 @@ export interface ISpendingPattern {
   description: string;
 }
 
+export interface IExpenseForecast {
+  predictedTotal: number;
+  byCategory: Record<string, number>;
+  confidence: number; // 0-1
+  basedOnMonths: number;
+  nextMonth: string; // YYYY-MM
+}
+
 export interface IAIAnalysisService {
   generateInsights(userId: string): Promise<IFinancialInsights>;
 
@@ -34,6 +42,13 @@ export interface IAIAnalysisService {
    * @returns Padrões identificados por dia da semana e categoria
    */
   detectSpendingPatterns(userId: string): Promise<ISpendingPattern[]>;
+
+  /**
+   * Previsão de gastos do próximo mês baseada em séries temporais
+   * @param userId - ID do usuário
+   * @returns Previsão com valor total e por categoria
+   */
+  forecastNextMonthExpenses(userId: string): Promise<IExpenseForecast>;
 }
 
 export interface IAnalysisMetrics {

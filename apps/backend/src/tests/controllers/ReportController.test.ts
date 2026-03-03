@@ -46,6 +46,7 @@ describe("ReportController", () => {
       generateInsights: jest.fn(),
       detectAnomalies: jest.fn(),
       detectSpendingPatterns: jest.fn(),
+      forecastNextMonthExpenses: jest.fn(),
       getFinancialScore: jest.fn(),
       getRecommendations: jest.fn(),
       getTrendAnalysis: jest.fn(),
