@@ -16,6 +16,7 @@ const pageTitles: Record<string, string> = {
   "/transactions": "Transações",
   "/goals": "Objetivos",
   "/planning": "Planejamento",
+  "/consultant": "Consultor IA",
   "/investments": "Investimentos",
   "/accounts": "Contas Bancárias",
   "/credit-cards": "Cartões de Crédito",

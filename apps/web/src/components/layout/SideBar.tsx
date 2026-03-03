@@ -18,6 +18,7 @@ import {
   Wallet,
   Receipt,
   CalendarCheck,
+  MessageCircle,
 } from "lucide-react";
 import Image from "next/image";
 import LogoSidebarDark from "../../../public/images/logo-dark-mode-m-finnance-ai.png";
@@ -29,6 +30,7 @@ const navItems = [
   { icon: ArrowRightLeft, label: "Transações", href: "/transactions" },
   { icon: Target, label: "Objetivos", href: "/goals" },
   { icon: CalendarCheck, label: "Planejamento", href: "/planning" },
+  { icon: MessageCircle, label: "Consultor IA", href: "/consultant" },
   { icon: TrendingUp, label: "Investimentos", href: "/investments" },
   { icon: Receipt, label: "Contas Bancárias", href: "/accounts" },
   { icon: CreditCard, label: "Cartões de Crédito", href: "/credit-cards" },

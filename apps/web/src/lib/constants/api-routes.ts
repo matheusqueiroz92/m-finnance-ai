@@ -80,6 +80,11 @@ export const API_ROUTES = {
     ADHERENCE: "/planning/adherence",
   },
 
+  CONSULTANT: {
+    BASE: "/consultant",
+    CHAT: "/consultant/chat",
+  },
+
   SUBSCRIPTIONS: {
     BASE: "/subscriptions",
     TRIAL: "/subscriptions/trial",

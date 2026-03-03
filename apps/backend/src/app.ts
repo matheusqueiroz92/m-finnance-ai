@@ -24,6 +24,7 @@ import paymentRoutes from "./routes/paymentRoutes";
 import creditCardRoutes from "./routes/creditCardRoutes";
 import investmentRoutes from "./routes/investmentRoutes";
 import planningRoutes from "./routes/planningRoutes";
+import consultantRoutes from "./routes/consultantRoutes";
 
 const app = express();
 
@@ -83,6 +84,7 @@ app.use("/api/payments", paymentRoutes);
 app.use("/api/credit-cards", creditCardRoutes);
 app.use("/api/investments", investmentRoutes);
 app.use("/api/planning", planningRoutes);
+app.use("/api/consultant", consultantRoutes);
 
 // Home route
 app.get("/", (_req, res) => {
