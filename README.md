@@ -92,10 +92,12 @@ M. Finnance AI é uma plataforma inovadora e completa para gestão de finanças 
 - Gestão de contas bancárias e saldos (carteira)
 - **Cartões de crédito**: cadastro, faturas, transações e validação de código de segurança
 - **Investimentos**: portfólio, desempenho e resumo
+- **Planejamento financeiro**: plano personalizado, simulador e acompanhamento de aderência
 - Planejamento e acompanhamento de metas financeiras
 - Relatórios financeiros personalizados (PDF e Excel)
 - Upload de anexos, comprovantes e recibos de transações
 - Upload de avatar do usuário
+- **WhatsApp**: cadastro de despesas por mensagem (webhook Twilio), vinculação de telefone no perfil
 
 ### Recursos de IA
 
@@ -104,6 +106,9 @@ M. Finnance AI é uma plataforma inovadora e completa para gestão de finanças 
 - Previsões financeiras baseadas em histórico
 - Score financeiro pessoal
 - Sugestões para melhorar saúde financeira
+- **Consultor financeiro por chat** (com contexto do usuário e histórico de sessões)
+- **Planejamento financeiro** (simulador, aderência e plano personalizado)
+- **Parser híbrido** (regex + IA) para mensagens de despesa via WhatsApp
 
 ### Relatórios e Exportação
 
@@ -394,6 +399,29 @@ A API é documentada usando o Swagger e está disponível em `/api-docs` quando 
 | GET    | `/api/payments/methods`  | Listar métodos de pagamento       |
 | POST   | `/api/payments/webhook`  | Webhook para eventos de pagamento |
 
+#### Planejamento
+
+| Método | Endpoint                    | Descrição                          |
+| ------ | --------------------------- | ---------------------------------- |
+| GET    | `/api/planning/plan`        | Plano financeiro do usuário        |
+| GET    | `/api/planning/simulate`    | Simular cenários de economia       |
+| GET    | `/api/planning/adherence`   | Aderência ao plano                 |
+
+#### Consultor IA
+
+| Método | Endpoint                         | Descrição                    |
+| ------ | --------------------------------- | ---------------------------- |
+| POST   | `/api/consultant/sessions`        | Criar sessão de chat         |
+| GET    | `/api/consultant/sessions`        | Listar sessões do usuário    |
+| GET    | `/api/consultant/sessions/:id`    | Obter sessão com mensagens   |
+| POST   | `/api/consultant/chat`            | Enviar mensagem ao consultor |
+
+#### WhatsApp (webhook Twilio)
+
+| Método | Endpoint                    | Descrição                                  |
+| ------ | --------------------------- | ------------------------------------------ |
+| POST   | `/api/whatsapp/webhook`     | Webhook para mensagens recebidas (Twilio)  |
+
 ### Exemplos de Requisições
 
 #### Registro de Usuário
@@ -486,6 +514,14 @@ GOOGLE_CALLBACK_URL=http://localhost:3001/api/auth/google/callback
 GITHUB_CLIENT_ID=seu_client_id
 GITHUB_CLIENT_SECRET=seu_client_secret
 GITHUB_CALLBACK_URL=http://localhost:3001/api/auth/github/callback
+
+# IA (Consultor, parser de despesas WhatsApp)
+OPENAI_API_KEY=sk-...
+# AI_EXPENSE_PARSER_MODEL=gpt-4o-mini  # opcional; padrão: gpt-4o-mini
+
+# WhatsApp (Twilio webhook)
+TWILIO_AUTH_TOKEN=seu_auth_token
+# TWILIO_WHATSAPP_WEBHOOK_URL=https://api.seudominio.com/api/whatsapp/webhook
 ```
 
 ## 🏁 Instalação e Execução
@@ -576,6 +612,12 @@ apps/backend/src/tests/
 
 ## 🛣️ Roadmap
 
+Consulte **docs/ROADMAP-EXECUTIVO.md** para o roadmap completo. Resumo do estado atual:
+
+- **Fase 1 (Fundação IA)** e **Fase 2 (Consultor e Chat)** — concluídas
+- **Fase 3 (WhatsApp)** — concluída (webhook Twilio, parser híbrido regex+IA, vinculação de telefone, testes com cenários reais)
+- **Fase 4 (Extensões)** — próxima (categorização automática com IA, notificações inteligentes, dashboard de tendências, etc.)
+
 ### Funcionalidades Implementadas
 
 **Backend**
@@ -586,6 +628,9 @@ apps/backend/src/tests/
 - ✅ CRUD de contas, categorias, transações, metas, cartões de crédito e investimentos
 - ✅ Relatórios financeiros (PDF e Excel)
 - ✅ Insights de IA: score financeiro, recomendações e tendências
+- ✅ **Planejamento financeiro**: plano, simulador e aderência (FinancialPlanningService)
+- ✅ **Consultor IA**: chat com contexto do usuário, sessões e histórico (FinancialConsultantService)
+- ✅ **WhatsApp**: webhook Twilio com validação X-Twilio-Signature, parser híbrido (regex + IA), criação de transação por mensagem (WhatsAppTransactionService)
 - ✅ Sistema de assinaturas (Free e Premium) e Stripe
 - ✅ Upload de avatar e anexos em transações (Multer)
 - ✅ Rotas de arquivos: avatar, anexos e download
@@ -597,7 +642,9 @@ apps/backend/src/tests/
 **Frontend (Next.js 15 / React 19)**
 - ✅ App Router com rotas privadas e públicas
 - ✅ Dashboard com gráficos (fluxo de caixa, despesas, transações recentes)
-- ✅ Páginas: Carteira, Contas, Cartões de Crédito, Transações, Metas, Investimentos, Insights, Relatórios, Perfil, Configurações
+- ✅ Páginas: Carteira, Contas, Cartões de Crédito, Transações, Metas, Investimentos, Insights, Relatórios, **Planejamento**, **Consultor IA**, Perfil, Configurações
+- ✅ **Chat flutuante** com toggle "Usar meus dados" nas páginas privadas
+- ✅ **Vinculação de WhatsApp** no perfil (Configurações → Perfil → Telefone)
 - ✅ Autenticação: login, registro, verificação de e-mail, recuperação e redefinição de senha
 - ✅ Login social (Google, GitHub) e callback
 - ✅ Tema claro/escuro (next-themes)
@@ -619,31 +666,16 @@ apps/backend/src/tests/
 - ✅ **Teste de fluxo de login no frontend**: Jest + React Testing Library em `components/auth/__tests__/loginFlow.test.tsx`
 - ✅ **API fake com Faker**: Script `npm run fake-api` no backend para testes offline (login/perfil/logout sem MongoDB)
 
-### Próximos Passos
+### Próximos Passos (Fase 4 – Extensões)
 
-#### Curto Prazo (1-3 meses)
+- 🔲 **F4-01** Categorização automática com IA
+- 🔲 **F4-02** Notificações inteligentes e proativas
+- 🔲 **F4-03** Dashboard de tendências e previsões
+- 🔲 **F4-04** Regras e automações básicas
+- 🔲 **F4-05** Análise de comprovantes (OCR/IA)
+- 🔲 **F4-06** Ajustes de UX e performance
 
-- 🔲 Melhorias na análise de IA (integração com APIs de IA reais)
-- 🔲 Importação de extratos bancários
-- 🔲 Melhorias nos testes automatizados (frontend com Jest/Testing Library)
-- 🔲 CI/CD com GitHub Actions
-- 🔲 Rota de contato/suporte no backend
-
-#### Médio Prazo (3-6 meses)
-
-- 🔲 Aplicativo mobile (React Native)
-- 🔲 Integração com Open Banking
-- 🔲 Funcionalidades de planejamento orçamentário
-- 🔲 Notificações por e-mail e push
-- 🔲 Aprimoramentos de UX/UI
-
-#### Longo Prazo (6+ meses)
-
-- 🔲 Marketplace de ferramentas financeiras
-- 🔲 Integração com corretoras de investimentos
-- 🔲 Versão para pequenas empresas
-- 🔲 Funcionalidades sociais (comparação anônima, dicas compartilhadas)
-- 🔲 Expansão internacional e multilíngue
+Outros: importação de extratos, CI/CD (GitHub Actions), aplicativo mobile, Open Banking — ver **docs/ROADMAP-EXECUTIVO.md**.
 
 ## 🤝 Contribuindo
 

@@ -25,6 +25,7 @@ import creditCardRoutes from "./routes/creditCardRoutes";
 import investmentRoutes from "./routes/investmentRoutes";
 import planningRoutes from "./routes/planningRoutes";
 import consultantRoutes from "./routes/consultantRoutes";
+import whatsappRoutes from "./routes/whatsappRoutes";
 
 const app = express();
 
@@ -85,6 +86,7 @@ app.use("/api/credit-cards", creditCardRoutes);
 app.use("/api/investments", investmentRoutes);
 app.use("/api/planning", planningRoutes);
 app.use("/api/consultant", consultantRoutes);
+app.use("/api/whatsapp", whatsappRoutes);
 
 // Home route
 app.get("/", (_req, res) => {

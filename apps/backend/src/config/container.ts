@@ -29,6 +29,7 @@ import { IInvestmentService } from "../interfaces/services/IInvestmentService";
 import { IInvestmentRecommendationService } from "../interfaces/services/IInvestmentRecommendationService";
 import { IFinancialPlanningService } from "../interfaces/services/IFinancialPlanningService";
 import { IFinancialConsultantService } from "../interfaces/services/IFinancialConsultantService";
+import { IWhatsAppTransactionService } from "../interfaces/services/IWhatsAppTransactionService";
 
 // Implementations - Repositories
 import { UserRepository } from "../repositories/UserRepository";
@@ -59,7 +60,10 @@ import { InvestmentService } from "../services/InvestmentService";
 import { InvestmentRecommendationService } from "../services/InvestmentRecommendationService";
 import { FinancialPlanningService } from "../services/FinancialPlanningService";
 import { FinancialConsultantService } from "../services/FinancialConsultantService";
+import { WhatsAppTransactionService } from "../services/WhatsAppTransactionService";
 import { TokenService } from "../services/TokenService";
+import { IExpenseMessageParser } from "../interfaces/utils/IExpenseMessageParser";
+import { HybridExpenseMessageParser } from "../utils/HybridExpenseMessageParser";
 
 // Register Repositories
 container.registerSingleton<IUserRepository>("UserRepository", UserRepository);
@@ -144,6 +148,14 @@ container.registerSingleton<IFinancialConsultantService>(
   "FinancialConsultantService",
   FinancialConsultantService
 );
+container.registerSingleton<IWhatsAppTransactionService>(
+  "WhatsAppTransactionService",
+  WhatsAppTransactionService
+);
 container.registerSingleton<TokenService>("TokenService", TokenService);
+container.registerSingleton<IExpenseMessageParser>(
+  "ExpenseMessageParser",
+  HybridExpenseMessageParser
+);
 
 export { container };

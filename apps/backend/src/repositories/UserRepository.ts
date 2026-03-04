@@ -31,6 +31,17 @@ export class UserRepository implements IUserRepository {
   }
 
   /**
+   * Find a user by phone (WhatsApp format: whatsapp:+5511999999999 or +5511999999999)
+   */
+  async findByPhone(phone: string): Promise<IUser | null> {
+    const cleaned = phone.replace(/^whatsapp:/i, "").trim();
+    if (!cleaned) return null;
+    return await UserModel.findOne({
+      $or: [{ phone: cleaned }, { phone: cleaned.replace(/\D/g, "") }],
+    });
+  }
+
+  /**
    * Find a user by id
    * @param id - The id of the user
    * @returns The user

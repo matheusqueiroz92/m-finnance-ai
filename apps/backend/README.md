@@ -51,34 +51,41 @@ apps/backend/src/
 ├── controllers/           # Controllers (HTTP)
 │   ├── AccountController.ts
 │   ├── CategoryController.ts
+│   ├── ConsultantController.ts
 │   ├── CreditCardController.ts
 │   ├── GoalController.ts
 │   ├── InvestmentController.ts
 │   ├── PaymentController.ts
+│   ├── PlanningController.ts
 │   ├── ReportController.ts
 │   ├── SubscriptionController.ts
 │   ├── TransactionController.ts
-│   └── UserController.ts
+│   ├── UserController.ts
+│   └── WhatsAppWebhookController.ts
 ├── interfaces/            # Contratos (repositórios, serviços, entidades)
 ├── middlewares/
 │   ├── authMiddleware.ts  # Proteção de rotas (JWT, userId)
 │   ├── cookieMiddleware.ts
 │   ├── errorMiddleware.ts
 │   ├── premiumMiddleware.ts
+│   ├── twilioWebhookMiddleware.ts  # Validação X-Twilio-Signature
 │   └── validationMiddleware.ts
 ├── repositories/          # Acesso a dados (MongoDB)
 ├── routes/                # Definição de rotas
 │   ├── accountRoutes.ts
 │   ├── authRoutes.ts
 │   ├── categoryRoutes.ts
+│   ├── consultantRoutes.ts
 │   ├── creditCardRoutes.ts
 │   ├── fileRoutes.ts
 │   ├── goalRoutes.ts
 │   ├── investmentRoutes.ts
 │   ├── paymentRoutes.ts
+│   ├── planningRoutes.ts
 │   ├── reportRoutes.ts
 │   ├── subscriptionRoutes.ts
-│   └── transactionRoutes.ts
+│   ├── transactionRoutes.ts
+│   └── whatsappRoutes.ts
 ├── schemas/               # Modelos Mongoose
 ├── services/               # Lógica de negócio
 │   ├── AccountService.ts
@@ -86,6 +93,8 @@ apps/backend/src/
 │   ├── BillingService.ts
 │   ├── CategoryService.ts
 │   ├── CreditCardService.ts
+│   ├── FinancialConsultantService.ts
+│   ├── FinancialPlanningService.ts
 │   ├── GoalService.ts
 │   ├── InvestmentService.ts
 │   ├── NotificationService.ts
@@ -94,10 +103,11 @@ apps/backend/src/
 │   ├── SubscriptionService.ts
 │   ├── TokenService.ts
 │   ├── TransactionService.ts
-│   └── UserService.ts
+│   ├── UserService.ts
+│   └── WhatsAppTransactionService.ts
 ├── swagger.json           # Especificação da API
 ├── types/                 # Tipos globais (Express, session)
-├── utils/                 # ApiError, ApiResponse, PKCE, ProcessCallback, TokenUtils, TransactionManager
+├── utils/                 # ApiError, ApiResponse, ExpenseMessageParser, HybridExpenseMessageParser, PKCE, ProcessCallback, TokenUtils, TransactionManager
 └── validators/            # Schemas Zod por domínio
 ```
 
@@ -117,6 +127,9 @@ Base URL: `/api`
 | Cartões de crédito | `/credit-cards` | CRUD de cartões e resumo |
 | Investimentos | `/investments` | CRUD de investimentos e resumo |
 | Relatórios | `/reports` | Gerar relatório, insights, score, recomendações, tendências |
+| Planejamento | `/planning` | Plano financeiro, simulador, aderência |
+| Consultor IA | `/consultant` | Sessões de chat e mensagens ao consultor |
+| WhatsApp | `/whatsapp` | Webhook Twilio (mensagens recebidas → criação de transação) |
 | Arquivos | `/files` | Avatar (público), anexos e download de transações |
 | Assinaturas | `/subscriptions` | Plano, trial, cancelamento |
 | Pagamentos | `/payments` | Checkout, métodos, webhook Stripe |
@@ -168,6 +181,12 @@ GOOGLE_CALLBACK_URL=http://localhost:3001/api/auth/google/callback
 GITHUB_CLIENT_ID=...
 GITHUB_CLIENT_SECRET=...
 GITHUB_CALLBACK_URL=http://localhost:3001/api/auth/github/callback
+
+# IA (consultor, parser de despesas WhatsApp)
+OPENAI_API_KEY=sk-...
+
+# WhatsApp (Twilio webhook)
+TWILIO_AUTH_TOKEN=seu_auth_token
 ```
 
 ## 🏁 Execução
@@ -222,12 +241,12 @@ Os dados do usuário são gerados com **@faker-js/faker** (devDependency). Uso t
 Os testes usam **Jest** e estão em `src/tests/`:
 
 - **config** — banco de testes
-- **controllers** — Account, Category, CreditCard, Goal, Report, Transaction, User
+- **controllers** — Account, Category, CreditCard, Consultant, Goal, Report, Transaction, User, WhatsAppWebhook
 - **integration** — authRoutes, insightsRoutes
 - **middlewares** — auth, error, validation
 - **repositories** — todos os repositórios
-- **services** — todos os serviços
-- **utils** — ApiError, ApiResponse, pkce, ProcessCallback, TokenUtils, TransactionManager
+- **services** — todos os serviços (incl. WhatsAppTransactionService e cenários de mensagens reais)
+- **utils** — ApiError, ApiResponse, ExpenseMessageParser, HybridExpenseMessageParser, pkce, ProcessCallback, TokenUtils, TransactionManager
 - **validators** — validadores Zod
 
 Comandos:

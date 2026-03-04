@@ -30,7 +30,7 @@ export class ExpenseMessageParser implements IExpenseMessageParser {
     },
   };
 
-  parse(message: string): IParsedExpense | null {
+  async parse(message: string): Promise<IParsedExpense | null> {
     const trimmed = message.trim();
     if (!trimmed) return null;
 
@@ -43,12 +43,12 @@ export class ExpenseMessageParser implements IExpenseMessageParser {
     const description = this.extractDescription(trimmed, amountMatch);
     const date = this.extractDate(trimmed);
 
-    return {
+    return Promise.resolve({
       amount,
       description: description.trim() || "Despesa",
       date,
       rawMessage: trimmed,
-    };
+    });
   }
 
   isValidExpenseMessage(message: string): boolean {

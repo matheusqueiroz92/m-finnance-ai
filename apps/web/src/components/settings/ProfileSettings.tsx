@@ -34,6 +34,7 @@ import { useCurrentUser, useProfileUpdate } from "@/hooks/useSettingsData";
 import { userUpdateSchema } from "@/lib/validators/authValidator";
 import { useTheme } from "next-themes";
 import { useNotification } from "@/hooks/useNotifications";
+import { WhatsAppLinkCard } from "@/components/settings/WhatsAppLinkCard";
 
 type FormValues = z.infer<typeof userUpdateSchema>;
 
@@ -235,11 +236,12 @@ export function ProfileSettings() {
                       <FormLabel
                         className={isDark ? "text-zinc-300" : "text-gray-700"}
                       >
-                        Telefone
+                        Telefone (WhatsApp)
                       </FormLabel>
                       <FormControl>
                         <Input
                           {...field}
+                          placeholder="+5511999999999"
                           className={
                             isDark
                               ? "bg-[#25343b] border-white/20 text-white"
@@ -247,6 +249,11 @@ export function ProfileSettings() {
                           }
                         />
                       </FormControl>
+                      <p
+                        className={`text-xs ${isDark ? "text-zinc-500" : "text-gray-500"}`}
+                      >
+                        Mesmo número do WhatsApp para registrar despesas pelo app.
+                      </p>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -324,18 +331,23 @@ export function ProfileSettings() {
         </CardContent>
       </Card>
 
-      <Card
-        className={`border shadow transition-colors duration-200 
-                       ${
-                         isDark
-                           ? "bg-white/10 backdrop-blur-sm border-white/20"
-                           : "bg-white border-gray-200"
-                       }`}
-      >
-        <CardHeader>
-          <CardTitle className={isDark ? "text-white" : "text-gray-900"}>
-            Preferências
-          </CardTitle>
+      <div className="space-y-6">
+        <WhatsAppLinkCard
+          phone={form.watch("phone") || user?.phone}
+          isDark={isDark}
+        />
+        <Card
+          className={`border shadow transition-colors duration-200 
+                         ${
+                           isDark
+                             ? "bg-white/10 backdrop-blur-sm border-white/20"
+                             : "bg-white border-gray-200"
+                         }`}
+        >
+          <CardHeader>
+            <CardTitle className={isDark ? "text-white" : "text-gray-900"}>
+              Preferências
+            </CardTitle>
           <CardDescription
             className={isDark ? "text-zinc-400" : "text-gray-500"}
           >
@@ -431,6 +443,7 @@ export function ProfileSettings() {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }

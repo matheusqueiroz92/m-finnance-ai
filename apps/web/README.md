@@ -49,6 +49,8 @@ apps/web/src/
 │   │   ├── investments/
 │   │   ├── insights/
 │   │   ├── reports/
+│   │   ├── planning/
+│   │   ├── consultant/
 │   │   ├── profile/
 │   │   └── settings/
 │   ├── (public)/               # Rotas públicas (auth, termos, contato)
@@ -76,9 +78,11 @@ apps/web/src/
 │   ├── goals/                   # Lista, estatísticas, modais
 │   ├── insights/                # Score financeiro, progresso de metas, lista de insights
 │   ├── investments/             # Lista, desempenho, portfólio, modais
+│   ├── consultant/              # ConsultorChat, MessageList, ConsultantInput, FloatingAIChat
 │   ├── layout/                  # AppLayout, SideBar, Header, Footer, PageLayout
+│   ├── planning/                # FinancialPlanCard, PlanSimulator, AdherenceTracker
 │   ├── providers/               # QueryProvider, ThemeProvider, RouteChangeProvider, ToastProvider
-│   ├── settings/                # Categorias, perfil, notificações, segurança
+│   ├── settings/                # Categorias, perfil (WhatsAppLinkCard), notificações, segurança
 │   ├── shared/                  # ConfirmDialog, CurrencyInput, EmptyState, InputMask
 │   ├── transactions/            # Tabela, filtros, modal de criar
 │   ├── ui/                       # Componentes base (shadcn: button, card, dialog, form, etc.)
@@ -112,8 +116,12 @@ apps/web/src/
 | `/investments`  | Investimentos e desempenho                                              |
 | `/insights`     | Insights de IA (score, recomendações, tendências)                       |
 | `/reports`      | Relatórios e exportação                                                 |
+| `/planning`     | Planejamento financeiro (plano, simulador, aderência)                 |
+| `/consultant`   | Consultor financeiro por chat (sessões e histórico)                    |
 | `/profile`      | Perfil do usuário                                                       |
-| `/settings`     | Configurações (categorias, notificações, segurança)                     |
+| `/settings`     | Configurações (perfil com vinculação WhatsApp, categorias, notificações, segurança) |
+
+Em todas as rotas privadas há um **chat flutuante** (FloatingAIChat) com toggle "Usar meus dados" para conversar com o consultor IA.
 
 ### Rotas públicas
 

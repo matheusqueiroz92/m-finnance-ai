@@ -542,6 +542,32 @@
           "404": { "description": "Sessão não encontrada (quando sessionId enviado)" }
         }
       }
+    },
+    "/api/whatsapp/webhook": {
+      "post": {
+        "summary": "Webhook Twilio (mensagens WhatsApp recebidas)",
+        "tags": ["WhatsApp"],
+        "description": "Endpoint público. Validado via X-Twilio-Signature. Body: application/x-www-form-urlencoded (From, Body, etc.). Resposta: TwiML.",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "From": { "type": "string", "example": "whatsapp:+5511999999999" },
+                  "Body": { "type": "string", "example": "almoço 45,90" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "TwiML de resposta ao WhatsApp" },
+          "400": { "description": "Header X-Twilio-Signature ausente" },
+          "403": { "description": "Assinatura Twilio inválida" },
+          "500": { "description": "Validação não configurada (TWILIO_AUTH_TOKEN)" }
+        }
+      }
     }
   }
 }
